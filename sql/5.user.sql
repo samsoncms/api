@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `@prefixuser` (
-  `user_id` int(11) NOT NULL PRIMARY KEY,
+  `user_id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `f_name` varchar(255) NOT NULL,
   `s_name` varchar(255) NOT NULL,
   `t_name` varchar(255) NOT NULL,
@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS `@prefixuser` (
   `Password` varchar(64) DEFAULT NULL,
   `accessToken` varchar(256) DEFAULT NULL,
   `confirmed` varchar(32) DEFAULT NULL,
-  FOREIGN KEY (GroupID) REFERENCES @prefixgroup(GroupID)
+  FOREIGN KEY (`group_id`) REFERENCES `@prefixgroup`(`GroupID`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

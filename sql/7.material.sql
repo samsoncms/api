@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS `@prefixmaterial` (
   `Published` int(1) unsigned DEFAULT NULL,
   `Active` int(1) unsigned DEFAULT NULL,
   `system` int(1) NOT NULL DEFAULT '0',
-  `remains` float NOT NULL DEFAULT '0'
-  FOREIGN KEY (parent_id) REFERENCES @prefixmaterial(MaterialID),
-  FOREIGN KEY (UserID) REFERENCES @prefixuser(UserID),
-  ADD KEY `Url` (`Url`),
+  `remains` float NOT NULL DEFAULT '0',
+  FOREIGN KEY (`parent_id`) REFERENCES `@prefixmaterial`(`MaterialID`) ON DELETE CASCADE,
+  FOREIGN KEY (`UserID`) REFERENCES `@prefixuser`(`UserID`) ON DELETE CASCADE,
+  KEY `Url` (`Url`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

@@ -19,11 +19,23 @@ use samson\activerecord\dbMySQLConnector;
  */
 class CMS extends CompressableService
 {
+    /** @var string[] Collection of material fields SQL commands to include into SQL SELECT statement */
+    public static $fields = array();
+
+    /** @var array Collection of original material table attributes before spoofing */
+    public static $materialAttributes = array();
+
     /** Identifier */
     protected $id = 'cmsapi';
 
     /** @var string Database table names prefix */
     public $tablePrefix = '';
+
+    /**
+     * Collection of material additional fields
+     * @deprecated TODO: Remove!
+     */
+    public $material_fields = array();
 
     /**
      * Read SQL file with variables placeholders pasting
@@ -50,8 +62,9 @@ class CMS extends CompressableService
     public function prepare()
     {
         // Perform SQL table creation
-        foreach (scandir(__DIR__.'/../sql/') as $file) {
-            db()->query($this->readSQL($file, $this->tablePrefix));
+        $path = __DIR__.'/../sql/';
+        foreach (array_slice(scandir($path), 2) as $file) {
+            db()->query($this->readSQL($path.$file, $this->tablePrefix));
         }
 
         // Initiate migration mechanism

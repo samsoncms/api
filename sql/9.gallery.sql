@@ -10,6 +10,6 @@ CREATE TABLE IF NOT EXISTS `@prefixgallery` (
   `Description` text NOT NULL,
   `Name` varchar(255) NOT NULL,
   `Active` int(11) NOT NULL,
-  FOREIGN KEY (MaterialID) REFERENCES @prefixmaterial(MaterialID)
-  FOREIGN KEY (materialFieldId) REFERENCES @prefixmaterialfield(materialFieldId)
+  FOREIGN KEY (`MaterialID`) REFERENCES `@prefixmaterial`(`MaterialID`) ON DELETE CASCADE,
+  FOREIGN KEY (`materialFieldId`) REFERENCES `@prefixmaterialfield`(`materialFieldId`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

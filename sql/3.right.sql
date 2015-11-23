@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `@prefixright` (
-  `RightID` int(20) NOT NULL PRIMARY FIELD,
+  `RightID` int(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `Name` varchar(255) NOT NULL,
   `Description` varchar(255) NOT NULL,
   `Active` int(11) NOT NULL

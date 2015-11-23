@@ -14,6 +14,6 @@ CREATE TABLE IF NOT EXISTS `@prefixfield` (
   `Active` int(11) NOT NULL,
   `system` int(1) NOT NULL DEFAULT '0',
   KEY `ParentID` (`ParentID`),
-  FOREIGN KEY (ParentID) REFERENCES @prefixfield(FieldID),
-  FOREIGN KEY (UserID) REFERENCES @prefixuser(UserID)
+  FOREIGN KEY (`ParentID`) REFERENCES `@prefixfield`(`FieldID`) ON DELETE CASCADE,
+  FOREIGN KEY (`UserID`) REFERENCES `@prefixuser`(`UserID`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

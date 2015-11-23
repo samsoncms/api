@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS `@prefixstructure` (
   `Active` int(11) NOT NULL DEFAULT '1',
   `system` int(1) NOT NULL DEFAULT '0',
   `hidden` int(1) NOT NULL DEFAULT '0',
-  FOREIGN KEY (MaterialID) REFERENCES @prefixmaterial(MaterialID),
-  FOREIGN KEY (ParentID) REFERENCES @prefixstructure(StructureID),
-  FOREIGN KEY (UserID) REFERENCES @prefixuser(UserID),
-  ADD KEY `Url` (`Url`)
+  FOREIGN KEY (`MaterialID`) REFERENCES `@prefixmaterial`(`MaterialID`) ON DELETE CASCADE,
+  FOREIGN KEY (`ParentID`) REFERENCES `@prefixstructure`(`StructureID`) ON DELETE CASCADE,
+  FOREIGN KEY (`UserID`) REFERENCES `@prefixuser`(`UserID`) ON DELETE CASCADE,
+  KEY `Url` (`Url`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

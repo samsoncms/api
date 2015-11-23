@@ -4,6 +4,6 @@ CREATE TABLE IF NOT EXISTS `@prefixstructurematerial` (
   `MaterialID` int(11) NOT NULL,
   `Modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `Active` int(11) NOT NULL DEFAULT '1',
-  FOREIGN KEY (StructureID) REFERENCES @prefixstructure(StructureID),
-  FOREIGN KEY (MaterialID) REFERENCES @prefixmaterial(MaterialID),
+  FOREIGN KEY (`StructureID`) REFERENCES `@prefixstructure`(`StructureID`) ON DELETE CASCADE,
+  FOREIGN KEY (`MaterialID`) REFERENCES `@prefixmaterial`(`MaterialID`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

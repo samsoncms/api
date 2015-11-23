@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `@prefixmaterialfield` (
   `numeric_value` double NOT NULL DEFAULT '0',
   `locale` varchar(10) NOT NULL,
   `Active` int(11) NOT NULL,
-  FOREIGN KEY (FieldID) REFERENCES @prefixfield(FieldID),
-  FOREIGN KEY (MaterialID) REFERENCES @prefixmaterial(MaterialID),
-  ADD KEY `key_value` (`key_value`)
+  FOREIGN KEY (`FieldID`) REFERENCES `@prefixfield`(`FieldID`) ON DELETE CASCADE,
+  FOREIGN KEY (`MaterialID`) REFERENCES `@prefixmaterial`(`MaterialID`) ON DELETE CASCADE,
+  KEY `key_value` (`key_value`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
