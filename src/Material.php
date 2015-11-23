@@ -5,6 +5,8 @@
  */
 namespace samsoncms\api;
 
+use \samsonframework\orm\QueryInterface;
+
 /**
  * SamsonCMS Material database record object.
  * This class extends default ActiveRecord material table record functionality.
@@ -96,7 +98,7 @@ class Material extends \samson\activerecord\material
      * @param string $selector Additional field field name to search for
      * @return \samson\activerecord\gallery[] Collection of images in this gallery additional field for material
      */
-    public function & gallery($fieldSelector = null, $selector = 'FieldID')
+    public function &gallery($fieldSelector = null, $selector = 'FieldID')
     {
         /** @var \samson\activerecord\gallery[] $images Get material images for this gallery */
         $images = array();
@@ -134,7 +136,7 @@ class Material extends \samson\activerecord\material
      * @param array $excludedFields excluded from materialfield fields identifiers
      * @returns void
      */
-    public function & copy(& $clone = null, $excludedFields = array())
+    public function &copy(& $clone = null, $excludedFields = array())
     {
         // Create new instance by copying
         $clone = parent::copy($clone);
@@ -224,8 +226,7 @@ class Material extends \samson\activerecord\material
                 ->cond('Active', '1')
                 ->join('structurematerial')
                 ->cond('structurematerial_StructureID', $tableSelector)
-                ->order_by('priority')
-            ;
+                ->order_by('priority');
 
             // Call user function if exists
             if (is_callable($externalHandler)) {
@@ -256,12 +257,11 @@ class Material extends \samson\activerecord\material
                 // Create db query
                 $materialFieldQuery = dbQuery('materialfield')
                     ->cond('MaterialID', $tableMaterialIds)
-                    ->cond($localizationFieldCond)
-                ;
+                    ->cond($localizationFieldCond);
 
                 // Flip field identifiers as keys
                 $tableColumnIds = array_flip($dbTableFieldsIds);
-                $resultTable = array_flip ($tableMaterialIds);
+                $resultTable = array_flip($tableMaterialIds);
 
                 /** @var \samson\activerecord\material $dbTableRow Material object (table row) */
                 foreach ($materialFieldQuery->exec() as $mf) {

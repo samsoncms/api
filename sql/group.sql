@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS `group` (
+  `GroupID` int(20) NOT NULL PRIMARY KEY,
+  `Name` varchar(255) NOT NULL,
+  `Active` int(11) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

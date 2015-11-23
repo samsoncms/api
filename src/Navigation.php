@@ -72,7 +72,7 @@ class Navigation extends structure implements \Iterator
      * Get all related fields
      * @return \samson\cms\Field[] Collection of related fields
      */
-    public function & fields()
+    public function &fields()
     {
         // Prepare db request to get related fields
         $fieldIDs = dbQuery('structurefield')
