@@ -1,0 +1,36 @@
+{
+  "name": "samsoncms/api",
+  "description": "SamsonCMS API module",
+  "authors": [
+    {
+      "name": "Vitaly Iegorov",
+      "email": "egorov@samsonos.com"
+    },
+    {
+      "name": "Nikita Kotenko",
+      "email": "kotenko@samsonos.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "samsonframework/orm": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.*"
+  },
+  "license": "Open Software License (OSL) v 3.0",
+  "homepage": "http://samsonos.com/",
+  "autoload": {
+    "classmap": [
+      "src/"
+    ],
+    "psr-4": {
+      "samsoncms\\api\\": "src/"
+    }
+  },
+  "config": {
+    "github-protocols": [
+      "https"
+    ]
+  }
+}
