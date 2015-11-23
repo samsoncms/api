@@ -13,13 +13,11 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "samsonframework/orm": "*"
+    "samsonframework/orm": "*",
+    "samsonos/cms_api":"*"
   },
   "require-dev": {
     "phpunit/phpunit": "4.*"
-  },
-  "replace": {
-    "samsonos/cms_api":"*"
   },
   "license": "Open Software License (OSL) v 3.0",
   "homepage": "http://samsonos.com/",
