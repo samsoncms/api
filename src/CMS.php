@@ -51,7 +51,7 @@ class CMS extends CompressableService
     {
         // Perform SQL table creation
         foreach (scandir(__DIR__.'/../sql/') as $file) {
-            db()->query($this->readSQL($file));
+            db()->query($this->readSQL($file, $this->tablePrefix));
         }
 
         // Initiate migration mechanism
