@@ -1,5 +1,5 @@
 <?php
-namespace samson\cms;
+namespace samsoncms\api;
 
 /**
  * SamsonCMS field table class

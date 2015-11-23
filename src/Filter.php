@@ -1,5 +1,5 @@
 <?php
-namespace samson\cms;
+namespace samsoncms\api;
 
 use samson\activerecord\dbRelation;
 use samson\activerecord\dbMySQLConnector;
