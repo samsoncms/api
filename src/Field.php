@@ -1,37 +1,28 @@
 <?php
 namespace samsoncms\api;
 
+use samsonframework\orm\QueryInterface;
+
 /**
- * SamsonCMS field table class
+ * SamsonCMS additional field table entity class
  * @package samson\cms
  */
 class Field extends \samson\activerecord\field
 {
-  /**
-     * Find field database record by identifier
-     * @param string $identifier Field identifier
-     * @param self $return Return self instance
-     * @return bool|null
-     */
-    public static function byID($identifier, self & $return = null )
-    {
-        // Get field record by identiifer column
-        $return = static::oneByColumn(new dbQuery(), self::$_primary, $identifier);
-
-        // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 1 ? $return == null : $return;
-    }
-
     /**
-     * Find field database record by name
-     * @param string $identifier Field identifier
-     * @param self $return Return self instance
-     * @return bool|null
+     * Find additional field database record by Name.
+     * This is generic method that should be used in nested classes to find its
+     * records by some its primary key value.
+     *
+     * @param QueryInterface $query Query object instance
+     * @param string $name Additional field name
+     * @param self $return Variable to return found database record
+     * @return bool|null|self  Field instance or null if 3rd parameter not passed
      */
-    public static function byName($identifier, self & $return = null )
+    public static function byName(QueryInterface $query, $name, self & $return = null)
     {
-        // Get field record by identiifer column
-        $return = static::oneByColumn(new dbQuery(), self::$_primary, 'Name');
+        // Get field record by name column
+        $return = static::oneByColumn($query, 'Name', $name);
 
         // If only one argument is passed - return null, otherwise bool
         return func_num_args() > 1 ? $return == null : $return;
