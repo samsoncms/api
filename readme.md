@@ -7,4 +7,4 @@
 [![Total Downloads](https://poser.pugx.org/samsoncms/api/downloads.svg)](https://packagist.org/packages/samsoncms/material)
 [![Stories in Ready](https://badge.waffle.io/samsoncms/material.png?label=ready&title=Ready)](https://waffle.io/samsoncms/material)
 
-> Generic approach for outputting matergiials from SamsonCMS
+> SamsonCMS API for intercation with materials, fields and structures.
