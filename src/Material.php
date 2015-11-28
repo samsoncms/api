@@ -42,32 +42,49 @@ class Material extends \samson\activerecord\material
      * Set additional material field value by field identifier
      * @param string $fieldID Field identifier
      * @param string $value Value to be stored
-     * @param string $entity Field-material values table name
+     * @param string $locale Locale identifier
      */
-    public function setFieldByID($fieldID, $value, $entity = 'materialfield')
+    public function setFieldByID($fieldID, $value, $locale = DEFAULT_LOCALE)
     {
-        /** @var \samsonframework\orm\Record $fieldRecord */
+        // TODO: This should be removed
+        /** @var QueryInterface $query This should be removed to use $this->database*/
+        $query = dbQuery();
+
+        /** @var Field $fieldRecord Try to find this additional field */
         $fieldRecord = null;
+        if (Field::byID($query, $fieldID, $fieldRecord)) {
+            /** @var MaterialField $materialFieldRecord Try to find additional field value */
+            $materialFieldRecord = null;
+            if (!MaterialField::byFieldIDAndMaterialID($query, $this->id, $fieldRecord->id, $materialFieldRecord)) {
+                // Create new additional field value record if it does not exists
+                $materialFieldRecord = new MaterialField();
+                $materialFieldRecord->FieldID = $fieldRecord->id;
+                $materialFieldRecord->MaterialID = $this->id;
+                $materialFieldRecord->Active = 1;
+                $materialFieldRecord->locale = $locale;
+            }
 
-        // Try to find this field value for this material
-        if (Field::byID($fieldID, $value)
-        ) {
-            // Create new database record
-            $fieldRecord = new $entity();
-            $fieldRecord->FieldID = 52;
-            $fieldRecord->MaterialID = $this->id;
-            $fieldRecord->Active = 1;
+            // Define which field should be filled
+            switch ($fieldRecord->Type) {
+                case 1:
+                    $valueFieldName = 'numeric_value';
+                    break;
+                case 2:
+                    $valueFieldName = 'key_value';
+                    break;
+                default:
+                    $valueFieldName = 'Value';
+            }
+
+            // At this point we already have database record instance
+            $fieldRecord->$valueFieldName = $value;
+            $fieldRecord->save();
         }
-
-        // TODO: add correct column defining for value storage
-
-        // At this point we already have database record instance
-        $fieldRecord->Value = $value;
-        $fieldRecord->save();
     }
 
     /**
      * Get select additional field text value
+     * TODO: Find where do we use it
      * @return string Select field text
      */
     public function selectText($fieldID)
