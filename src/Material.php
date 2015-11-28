@@ -23,9 +23,9 @@ class Material extends \samson\activerecord\material
     public static $_map = array();
 
     /**
-     * Get material entities collection by url(s).
+     * Get material entities collection by URL(s).
      * @param QueryInterface $query Object for performing database queries
-     * @param array|string $url Material URL or their collection
+     * @param array|string $url Material URL or collection of material URLs
      * @param self[]|array|null $return Variable where request result would be returned
      * @return bool|self[] True if material entities has been found
      */
@@ -182,7 +182,7 @@ class Material extends \samson\activerecord\material
     /**
      * Function to retrieve this material table by specified field
      * @param string $tableSelector Selector to identify table structure
-     * @param string $field Database field by which search is performed
+     * @param string $selector Database field by which search is performed
      * @param array $tableColumns Columns names list
      * @param string $externalHandler External handler to perform some extra code
      * @param array $params External handler params
