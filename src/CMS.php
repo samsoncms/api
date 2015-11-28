@@ -19,23 +19,8 @@ use samson\activerecord\dbMySQLConnector;
  */
 class CMS extends CompressableService
 {
-    /** @var string[] Collection of material fields SQL commands to include into SQL SELECT statement */
-    public static $fields = array();
-
-    /** @var array Collection of original material table attributes before spoofing */
-    public static $materialAttributes = array();
-
     /** Identifier */
     protected $id = 'cmsapi';
-
-    /** @var string Database table names prefix */
-    public $tablePrefix = '';
-
-    /**
-     * Collection of material additional fields
-     * @deprecated TODO: Remove!
-     */
-    public $material_fields = array();
 
     /**
      * Read SQL file with variables placeholders pasting
@@ -120,65 +105,12 @@ class CMS extends CompressableService
             db()->query("ALTER TABLE  `" . dbMySQLConnector::$prefix . "cms_version` CHANGE  `version`  `version` VARCHAR( 15 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '" . $to_version . "';");
             die('Database successfully migrated to [' . $to_version . ']');
         } else { // Return current database version
-            $version_row = db()->fetch('SHOW COLUMNS FROM `' . dbMySQLConnector::$prefix . 'cms_version`');
-            return $version_row[0]['Default'];
-        }
-    }
-
-    /** @see \samson\core\CompressableExternalModule::afterCompress() */
-    public function afterCompress(& $obj = null, array & $code = null)
-    {
-        // Fill additional fields data to material db request data for automatic altering material request
-        self::$fields = array();
-
-        $t_name = '_mf';
-
-        // Save original material attributes
-        self::$materialAttributes = &Material::$_attributes;
-
-        // Copy original material table attributes
-        Material::$_attributes = \samson\activerecord\material::$_attributes;
-        Material::$_sql_select = \samson\activerecord\material::$_sql_select;
-        Material::$_sql_from = \samson\activerecord\material::$_sql_from;
-        Material::$_own_group = \samson\activerecord\material::$_own_group;
-        Material::$_map = \samson\activerecord\material::$_map;
-
-        // Perform db query to get all possible material fields
-        if (dbQuery('field')->Active(1)->Name('', dbRelation::NOT_EQUAL)->exec($this->material_fields)) foreach ($this->material_fields as $db_field) {
-            // Add additional field localization condition
-            if ($db_field->local == 1) $equal = '((' . $t_name . '.FieldID = ' . $db_field->id . ')&&(' . $t_name . ".locale = '" . locale() . "'))";
-            else $equal = '((' . $t_name . '.FieldID = ' . $db_field->id . ')&&(' . $t_name . ".locale = ''))";
-
-            // Define field value DB column for storing data
-            $v_col = 'Value';
-            // We must get data from other column for this type of field
-            if ($db_field->Type == 7 || $db_field->Type == 3 || $db_field->Type == 10) {
-                $v_col = 'numeric_value';
-            } else if ($db_field->Type == 6) {
-                $v_col = 'key_value';
+            $version_row = db()->fetchOne('SHOW COLUMNS FROM `' . dbMySQLConnector::$prefix . 'cms_version`');
+            if (isset($version_row[0]['Default'])) {
+                return $version_row[0]['Default'];
+            } else {
+                return false;
             }
-
-            // Save additional field
-            self::$fields[$db_field->Name] = "\n" . ' MAX(IF(' . $equal . ',' . $t_name . '.`' . $v_col . '`, NULL)) as `' . $db_field->Name . '`';
-
-            // Set additional object metadata
-            Material::$_attributes[$db_field->Name] = $db_field->Name;
-            Material::$_map[$db_field->Name] = dbMySQLConnector::$prefix . 'material.' . $db_field->Name;
         }
-
-        // Set additional object metadata
-        Material::$_sql_select['this'] = ' STRAIGHT_JOIN ' . Material::$_sql_select['this'];
-        if (sizeof(self::$fields)) {
-            Material::$_sql_select['this'] .= ',' . implode(',', self::$fields);
-        }
-        Material::$_sql_from['this'] .= "\n" . 'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as ' . $t_name . ' on ' . dbMySQLConnector::$prefix . 'material.MaterialID = ' . $t_name . '.MaterialID';
-        Material::$_own_group[] = dbMySQLConnector::$prefix . 'material.MaterialID';
-    }
-
-    /** @see \samson\core\ExternalModule::init() */
-    public function init(array $params = array())
-    {
-        // Change static class data
-        $this->afterCompress();
     }
 }
