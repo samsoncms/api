@@ -13,8 +13,7 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "samsonframework/orm": "*",
-    "samsonos/cms_api":"*"
+    "samsonframework/orm": "
   },
   "require-dev": {
     "phpunit/phpunit": "4.*"
