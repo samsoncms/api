@@ -8,3 +8,10 @@
 [![Stories in Ready](https://badge.waffle.io/samsoncms/material.png?label=ready&title=Ready)](https://waffle.io/samsoncms/material)
 
 > SamsonCMS API for intercation with materials, fields and structures.
+
+#Material
+
+Added method for creating/updating material additional fields 
+```public function setFieldByID($fieldID, $value, $locale = DEFAULT_LOCALE)```
+Method find Field record in database by Field identifier and the receives its type for
+correct storing of additional field value.
