@@ -173,7 +173,7 @@ class Collection extends Paged
     /**
      * Filter collection using additional field entity.
      *
-     * @param string|integer|\samson\cms\Field $field Additional field identifier or name
+     * @param string|integer|Field $field Additional field identifier or name
      * @param mixed $value Additional field value for filtering
      * @param string $relation Additional field relation for filtering
      * @return self Chaining
@@ -220,7 +220,7 @@ class Collection extends Paged
 
     /**
      * Filter collection of numeric field in range from min to max values
-     * @param string|integer|\samson\cms\Field $field Additional field identifier or name
+     * @param string|integer|Field $field Additional field identifier or name
      * @param integer $minValue Min value for range filter
      * @param integer $maxValue Max value for range filter
      * @return self Chaining
