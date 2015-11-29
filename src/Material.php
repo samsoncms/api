@@ -5,6 +5,7 @@
  */
 namespace samsoncms\api;
 
+use \samsonframework\orm\Condition;
 use \samsonframework\orm\QueryInterface;
 
 /**
