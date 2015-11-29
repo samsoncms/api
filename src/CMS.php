@@ -22,6 +22,9 @@ class CMS extends CompressableService
     /** Identifier */
     protected $id = 'cmsapi';
 
+    /** @var string Database table names prefix */
+    public $tablePrefix = '';
+
     /**
      * Read SQL file with variables placeholders pasting
      * @param string $filePath SQL file for reading
