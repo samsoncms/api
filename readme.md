@@ -37,7 +37,6 @@ if (isset($fieldRecord)) {
 Last argument is optional and should be used for simple and beautiful condition creation:
 ```php
 /** @var \samsoncms\api\Field $fieldRecord Try to find additional field record */
-$fieldRecord = null;
 if (\samsoncms\api\Field::byNameOrID('image', $fieldRecord)) {
     // Additional field has been found
 }
