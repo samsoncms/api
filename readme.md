@@ -7,7 +7,9 @@
 [![Total Downloads](https://poser.pugx.org/samsoncms/api/downloads.svg)](https://packagist.org/packages/samsoncms/material)
 [![Stories in Ready](https://badge.waffle.io/samsoncms/material.png?label=ready&title=Ready)](https://waffle.io/samsoncms/material)
 
-> SamsonCMS API for intercation with materials, fields and structures.
+> SamsonCMS API for interaction with materials, fields and structures.
+
+#Navigation
 
 #Material
 
@@ -41,3 +43,5 @@ if (\samsoncms\api\Field::byNameOrID('image', $fieldRecord)) {
     // Additional field has been found
 }
 ```
+
+#Field value
