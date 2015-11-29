@@ -8,14 +8,14 @@ namespace samsoncms\api;
 use samson\activerecord\structure;
 
 /**
- * SamsonCMS Navigation element
+ * SamsonCMS Navigation entity
  * @author Vitaly Egorov <egorov@samsonos.com>
  * @copyright 2014 SamsonOS
  */
 class Navigation extends structure
 {
     /** @var string Navigation string identifier */
-    public $Url;
+    public $url;
 
     /** @var self[] Collection of child items */
     public $children = array();
@@ -28,7 +28,7 @@ class Navigation extends structure
      */
     public function toView($prefix = '', array $restricted = array())
     {
-        return parent::toView($prefix, $restricted = array('parent', 'parents', 'children'));
+        return parent::toView($prefix, array_merge($this->restricted, array('parent', 'parents', 'children')));
     }
 
     /**
