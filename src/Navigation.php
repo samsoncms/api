@@ -30,13 +30,4 @@ class Navigation extends structure
     {
         return parent::toView($prefix, array_merge($this->restricted, array('parent', 'parents', 'children')));
     }
-
-    /**
-     * Material query injection
-     * @param \samson\activerecord\dbQuery $query Query object
-     */
-    public function materialsHandlers(&$query)
-    {
-        $query->join('gallery');
-    }
 }
