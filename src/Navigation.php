@@ -28,6 +28,14 @@ class Navigation extends structure
      */
     public function toView($prefix = '', array $restricted = array())
     {
-        return parent::toView($prefix, array_merge($this->restricted, array('parent', 'parents', 'children')));
+        return parent::toView(
+            $prefix,
+            array_merge(
+                $this->restricted,
+                $restricted,
+                array('parent', 'parents', 'children'
+                )
+            )
+        );
     }
 }

@@ -13,6 +13,7 @@
   ],
   "minimum-stability": "dev",
   "require": {
+    "samsonframework/base": "*",
     "samsonframework/orm": "*"
   },
   "require-dev": {
