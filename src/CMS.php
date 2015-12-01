@@ -108,7 +108,7 @@ class CMS extends CompressableService
             db()->query("ALTER TABLE  `" . dbMySQLConnector::$prefix . "cms_version` CHANGE  `version`  `version` VARCHAR( 15 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '" . $to_version . "';");
             die('Database successfully migrated to [' . $to_version . ']');
         } else { // Return current database version
-            $version_row = db()->fetchOne('SHOW COLUMNS FROM `' . dbMySQLConnector::$prefix . 'cms_version`');
+            $version_row = db()->fetch('SHOW COLUMNS FROM `' . dbMySQLConnector::$prefix . 'cms_version`');
             if (isset($version_row[0]['Default'])) {
                 return $version_row[0]['Default'];
             } else {
