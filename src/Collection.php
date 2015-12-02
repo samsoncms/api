@@ -422,7 +422,7 @@ class Collection extends Paged
      * Perform material identifiers collection sorting
      * @param array $materialIDs Variable to return sorted collection
      */
-    protected function applyFieldSorter(& $materialIDs = array())
+    protected function applyFieldSorter(&$materialIDs = array())
     {
         // Check if sorter is configured
         if (sizeof($this->sorter)) {

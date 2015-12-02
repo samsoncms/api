@@ -20,7 +20,7 @@ use samson\activerecord\dbMySQLConnector;
 class CMS extends CompressableService
 {
     /** Identifier */
-    protected $id = 'cmsapi';
+    protected $id = 'cmsapi2';
 
     /** @var string Database table names prefix */
     public $tablePrefix = '';
