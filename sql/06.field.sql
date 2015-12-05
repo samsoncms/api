@@ -1,6 +1,5 @@
 CREATE TABLE IF NOT EXISTS `@prefixfield` (
   `FieldID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `ParentID` int(11) NOT NULL,
   `UserID` int(11) NOT NULL,
   `priority` int(11) NOT NULL DEFAULT '0',
   `Name` varchar(255) NOT NULL,
@@ -13,7 +12,5 @@ CREATE TABLE IF NOT EXISTS `@prefixfield` (
   `Modyfied` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `Active` int(11) NOT NULL,
   `system` int(1) NOT NULL DEFAULT '0',
-  KEY `ParentID` (`ParentID`),
-  FOREIGN KEY (`ParentID`) REFERENCES `@prefixfield`(`FieldID`) ON DELETE CASCADE,
   FOREIGN KEY (`UserID`) REFERENCES `@prefixuser`(`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
