@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `@prefixstructurematerial` (
-  `StructureMaterialID` int(11) NOT NULL PRIMARY KEY,
+  `StructureMaterialID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `StructureID` int(11) NOT NULL,
   `MaterialID` int(11) NOT NULL,
   `Modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

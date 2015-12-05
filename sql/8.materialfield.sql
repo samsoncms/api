@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `@prefixmaterialfield` (
-  `MaterialFieldID` int(11) NOT NULL PRIMARY KEY,
+  `MaterialFieldID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `FieldID` int(11) NOT NULL,
   `MaterialID` int(11) NOT NULL,
   `key_value` bigint(20) NOT NULL DEFAULT '0',

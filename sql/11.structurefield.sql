@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `structurefield` (
-  `StructureFieldID` int(11) NOT NULL PRIMARY KEY,
+  `StructureFieldID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `StructureID` int(11) NOT NULL,
   `FieldID` int(11) NOT NULL,
   `Modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

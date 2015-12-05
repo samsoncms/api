@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `@prefixgallery` (
-  `PhotoID` int(11) NOT NULL PRIMARY KEY,
+  `PhotoID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `MaterialID` int(11) NOT NULL,
   `materialFieldId` int(11) NOT NULL,
   `priority` int(11) NOT NULL DEFAULT '0',

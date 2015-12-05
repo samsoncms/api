@@ -2,13 +2,10 @@
 namespace samsoncms\api;
 
 use samson\activerecord\dbRelation;
-use samson\activerecord\field;
 use samson\activerecord\materialfield;
-use samson\activerecord\structure;
 use samson\activerecord\structurefield;
 use samson\activerecord\structurematerial;
 use samson\activerecord\TableRelation;
-use samson\activerecord\material;
 use samson\core\CompressableService;
 use samson\activerecord\dbRecord;
 use samson\activerecord\dbMySQLConnector;
@@ -22,8 +19,25 @@ class CMS extends CompressableService
     /** Identifier */
     protected $id = 'cmsapi2';
 
+    /** @var \samsonframework\orm\DatabaseInterface */
+    protected $database;
+
     /** @var string Database table names prefix */
     public $tablePrefix = '';
+
+    /**
+     * CMS constructor.
+     * @param null|string $path
+     * @param null|string $vid
+     * @param mixed|null $resources
+     */
+    public function __construct($path, $vid, $resources)
+    {
+        // TODO: This should changed to normal DI
+        $this->database = db();
+
+        parent::__construct($path, $vid, $resources);
+    }
 
     /**
      * Read SQL file with variables placeholders pasting
@@ -52,11 +66,11 @@ class CMS extends CompressableService
         // Perform SQL table creation
         $path = __DIR__.'/../sql/';
         foreach (array_slice(scandir($path), 2) as $file) {
-            db()->query($this->readSQL($path.$file, $this->tablePrefix));
+            $this->database->query($this->readSQL($path.$file, $this->tablePrefix));
         }
 
         // Initiate migration mechanism
-        db()->migration(get_class($this), array($this, 'migrator'));
+        $this->database->migration(get_class($this), array($this, 'migrator'));
 
         // Define permanent table relations
         new TableRelation('material', 'user', 'UserID', 0, 'user_id');
@@ -89,10 +103,8 @@ class CMS extends CompressableService
         new TableRelation('structure', 'structure', 'parents_relations.parent_id', TableRelation::T_ONE_TO_MANY, 'StructureID', 'parents');
         new TableRelation('structurematerial', 'structure_relation', 'StructureID', TableRelation::T_ONE_TO_MANY, 'parent_id');
         new TableRelation('groupright', 'right', 'RightID', TableRelation::T_ONE_TO_MANY);
-        //elapsed('CMS:prepare');
 
-        // Все прошло успешно
-        return true && parent::prepare();
+        return parent::prepare();
     }
 
     /**

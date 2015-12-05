@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `@prefixstructure` (
-  `StructureID` int(11) NOT NULL PRIMARY KEY,
+  `StructureID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `ParentID` int(11) NOT NULL,
   `Name` varchar(255) NOT NULL,
   `locale` varchar(10) NOT NULL,
@@ -15,6 +15,6 @@ CREATE TABLE IF NOT EXISTS `@prefixstructure` (
   `hidden` int(1) NOT NULL DEFAULT '0',
   FOREIGN KEY (`MaterialID`) REFERENCES `@prefixmaterial`(`MaterialID`) ON DELETE CASCADE,
   FOREIGN KEY (`ParentID`) REFERENCES `@prefixstructure`(`StructureID`) ON DELETE CASCADE,
-  FOREIGN KEY (`UserID`) REFERENCES `@prefixuser`(`UserID`) ON DELETE CASCADE,
+  FOREIGN KEY (`UserID`) REFERENCES `@prefixuser`(`user_id`) ON DELETE CASCADE,
   KEY `Url` (`Url`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

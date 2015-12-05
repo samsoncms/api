@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `@prefixmaterial` (
-  `MaterialID` int(11) NOT NULL PRIMARY KEY,
+  `MaterialID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `parent_id` int(11) DEFAULT '0',
   `priority` int(11) NOT NULL DEFAULT '0',
   `Name` varchar(555) NOT NULL,
@@ -14,6 +14,6 @@ CREATE TABLE IF NOT EXISTS `@prefixmaterial` (
   `system` int(1) NOT NULL DEFAULT '0',
   `remains` float NOT NULL DEFAULT '0',
   FOREIGN KEY (`parent_id`) REFERENCES `@prefixmaterial`(`MaterialID`) ON DELETE CASCADE,
-  FOREIGN KEY (`UserID`) REFERENCES `@prefixuser`(`UserID`) ON DELETE CASCADE,
+  FOREIGN KEY (`UserID`) REFERENCES `@prefixuser`(`user_id`) ON DELETE CASCADE,
   KEY `Url` (`Url`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
