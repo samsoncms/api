@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `@prefixfield` (
   `filtered` int(10) NOT NULL,
   `Value` text NOT NULL,
   `Description` text NOT NULL,
-  `Created` datetime NOT NULL,
+  `Created` datetime DEFAULT CURRENT_TIMESTAMP,
   `Modyfied` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `Active` int(11) NOT NULL,
   `system` int(1) NOT NULL DEFAULT '0',

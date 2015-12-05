@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `@prefixmaterial` (
   `priority` int(11) NOT NULL DEFAULT '0',
   `Name` varchar(555) NOT NULL,
   `Url` varchar(255) NOT NULL,
-  `Created` datetime DEFAULT NULL,
+  `Created` datetime DEFAULT CURRENT_TIMESTAMP,
   `Modyfied` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `UserID` int(11) DEFAULT NULL,
   `Draft` int(11) NOT NULL,

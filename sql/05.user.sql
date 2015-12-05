@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `@prefixuser` (
   `email` varchar(255) NOT NULL,
   `md5_email` varchar(255) NOT NULL,
   `md5_password` varchar(255) NOT NULL,
-  `created` datetime NOT NULL,
+  `created` datetime DEFAULT CURRENT_TIMESTAMP,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `group_id` int(11) NOT NULL,
   `active` int(11) NOT NULL,
