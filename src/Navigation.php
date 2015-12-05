@@ -31,7 +31,6 @@ class Navigation extends structure
         return parent::toView(
             $prefix,
             array_merge(
-                $this->restricted,
                 $restricted,
                 array('parent', 'parents', 'children'
                 )
