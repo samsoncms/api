@@ -1,2 +1,2 @@
-INSERT INTO `@prefixgroup` (`Name`, `Active`)
-VALUES ("SamsonCMS", 1) ON DUPLICATE KEY UPDATE Active = 1;;
+INSERT INTO `@prefixgroup` (`GroupID`, `Name`, `Active`)
+VALUES ("2", "SamsonCMS", 1) ON DUPLICATE KEY UPDATE Active = 1;;
