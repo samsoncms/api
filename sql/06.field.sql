@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `@prefixfield` (
   `FieldID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `UserID` int(11) NOT NULL,
+  `UserID` int(11) DEFAULT NULL,
   `priority` int(11) NOT NULL DEFAULT '0',
   `Name` varchar(255) NOT NULL,
   `Type` int(11) NOT NULL,
