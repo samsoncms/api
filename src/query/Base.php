@@ -87,6 +87,7 @@ class Base
     public function byIDs($entityIDs, $executor)
     {
         return $this->query
+            ->entity($this->identifier)
             ->where($this->primaryField, $entityIDs)
             ->where(self::DELETE_FLAG_FIELD, 1)
             ->$executor();
@@ -103,9 +104,9 @@ class Base
     protected function retrieve($relationID, $relationValue, $executor)
     {
         $return = array();
-        /** @var array $materialIds Collection of entity identifiers filtered by additional field */
-        if (sizeof($materialIds = $this->idsByRelationID($relationID, $relationValue))) {
-            $return = $this->byIDs($materialIds, $executor);
+        /** @var array $ids Collection of entity identifiers filtered by additional field */
+        if (sizeof($ids = $this->idsByRelationID($relationID, $relationValue))) {
+            $return = $this->byIDs($ids, $executor);
         }
 
         return $return;

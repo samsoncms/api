@@ -9,6 +9,7 @@ namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
 use samsoncms\api\Field;
+use samsoncms\api\CMS;
 
 /**
  * Retrieve materials by additional fields.
@@ -21,7 +22,7 @@ class MaterialField extends Base
     {
         parent::__construct(
             new dbQuery(),
-            __NAMESPACE__.'\Material',
+            '\samsoncms\api\Material',
             Field::$_primary,
             CMS::MATERIAL_FIELD_RELATION_ENTITY
         );

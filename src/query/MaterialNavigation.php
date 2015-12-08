@@ -8,6 +8,8 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
+use samsoncms\api\CMS;
+use samsoncms\api\Navigation;
 
 class MaterialNavigation extends Base
 {
@@ -16,7 +18,7 @@ class MaterialNavigation extends Base
     {
         parent::__construct(
             new dbQuery(),
-            __NAMESPACE__.'\Material',
+            '\samsoncms\api\Material',
             Navigation::$_primary,
             CMS::MATERIAL_NAVIGATION_RELATION_ENTITY
         );
