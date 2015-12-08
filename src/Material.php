@@ -431,8 +431,16 @@ class Material extends \samson\activerecord\material
      * @param array $params External handler params
      * @return array Collection of collections of table cells, represented as materialfield objects
      */
-    public function getTable($tableSelector, $selector = 'StructureID', &$tableColumns = null, $externalHandler = null, $params = array())
-    {
+    public function getTable(
+        $tableSelector,
+        $selector = 'StructureID',
+        &$tableColumns = null,
+        $externalHandler = null,
+        $params = array()
+    ) {
+        // Create query
+        $query = new dbQuery();
+
         /** @var array $resultTable Collection of collections of field cells */
         $resultTable = array();
         /** @var array $dbTableFieldsIds Array of table structure column identifiers */
