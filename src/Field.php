@@ -10,6 +10,9 @@ use samsonframework\orm\QueryInterface;
  */
 class Field extends \samson\activerecord\field
 {
+    /** @var string Additional field value type */
+    public $type;
+
     /**
      * Find additional field database record by Name.
      * This is generic method that should be used in nested classes to find its
@@ -43,7 +46,7 @@ class Field extends \samson\activerecord\field
     {
         // Create id or URL condition
         $idOrUrl = new Condition('OR');
-        $idOrUrl->add('FieldID', $nameOrID)->add('Name', $field);
+        $idOrUrl->add('FieldID', $nameOrID)->add('Name', $nameOrID);
 
         // Perform query
         $return = $query->className('field')->cond($idOrUrl)->first();
@@ -55,7 +58,7 @@ class Field extends \samson\activerecord\field
     /** @return string Get additional field value field name depending on its type */
     public function valueFieldName()
     {
-        switch ($this->Type) {
+        switch ($this->type) {
             case 7:
                 return 'numeric_value';
                 break;
