@@ -9,12 +9,25 @@ use samsonframework\orm\QueryInterface;
  */
 class MaterialField extends \samson\activerecord\materialfield
 {
+    /** @var integer Primary key */
     public $FieldID;
+
+    /** @var bool Internal existance flag */
     public $Active;
+
+    /** @var integer Material identifier */
     public $MaterialID;
+
+    /** @var string Additional field value */
     public $Value;
+
+    /** @var string Additional field value */
     public $numeric_value;
+
+    /** @var string Additional field value */
     public $key_value;
+
+    /** @var string Additional field locale */
     public $locale;
 
     /**
