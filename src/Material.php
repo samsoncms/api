@@ -377,51 +377,47 @@ class Material extends \samson\activerecord\material
     }
 
     /**
+     * Copy this material related entities.
+     *
+     * @param QueryInterface $query Database query instance
+     * @param string $entity Entity identifier
+     * @param string $newIdentifier Copied material idetifier
+     * @param array $excludedIDs Collection of related entity identifier to exclude from copying
+     */
+    protected function copyRelatedEntity(QueryInterface $query, $entity, $newIdentifier, $excludedIDs = array())
+    {
+        // Copy additional fields
+        foreach ($query->entity($entity)
+                     ->where('MaterialID', $this->MaterialID)
+                     ->exec() as $copiedEntity) {
+            // Check if field is NOT excluded from copying
+            if (!in_array($copiedEntity->id, $excludedIDs)) {
+                /** @var MaterialField $copy Copy instance */
+                $copy = $copiedEntity->copy();
+                $copy->MaterialID = $newIdentifier;
+                $copy->save();
+            }
+        }
+    }
+
+    /**
      * Create copy of current object.
      *
      * @param mixed $clone Material for cloning
-     * @param array $excludedFields excluded from materialfield fields identifiers
-     * @returns void
+     * @param array $excludedFields Additional fields identifiers not copied
+     * @returns self New copied instance
      */
-    public function &copy(& $clone = null, $excludedFields = array())
+    public function &copy(&$clone = null, $excludedFields = array())
     {
-        // Create new instance by copying
+        /** @var Material $clone Create new instance by copying */
         $clone = parent::copy($clone);
 
-        /** @var \samson\activerecord\structurematerial[] $objects Create structure material relations */
-        $objects = array();
-        if (dbQuery('structurematerial')->cond('MaterialID', $this->MaterialID)->exec($objects)) {
-            foreach ($objects as $cmsNavigation) {
-                /** @var \samson\activerecord\Record $copy */
-                $copy = $cmsNavigation->copy();
-                $copy->MaterialID = $clone->id;
-                $copy->save();
-            }
-        }
-        /** @var \samson\activerecord\materialfield[] $objects Create material field relations */
-        $objects = array();
-        if (dbQuery('materialfield')->cond('MaterialID', $this->MaterialID)->exec($objects)) {
-            foreach ($objects as $pMaterialField) {
-                // Check if field is NOT excluded from copying
-                if (!in_array($pMaterialField->FieldID, $excludedFields)) {
-                    /** @var \samson\activerecord\dbRecord $copy Copy instance */
-                    $copy = $pMaterialField->copy();
-                    $copy->MaterialID = $clone->id;
-                    $copy->save();
-                }
-            }
-        }
+        // Create query
+        $query = new dbQuery();
 
-        /** @var \samson\activerecord\gallery[] $objects Create gallery field relations */
-        $objects = array();
-        if (dbQuery('gallery')->cond('MaterialID', $this->MaterialID)->exec($objects)) {
-            foreach ($objects as $cmsGallery) {
-                /** @var \samson\activerecord\Record $copy */
-                $copy = $cmsGallery->copy();
-                $copy->MaterialID = $clone->id;
-                $copy->save();
-            }
-        }
+        $this->copyRelatedEntity($query, CMS::MATERIAL_NAVIGATION_RELATION_ENTITY, $clone->id);
+        $this->copyRelatedEntity($query, CMS::MATERIAL_FIELD_RELATION_ENTITY, $clone->id, $excludedFields);
+        $this->copyRelatedEntity($query, CMS::MATERIAL_IMAGES_RELATION_ENTITY, $clone->id);
 
         return $clone;
     }

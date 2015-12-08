@@ -15,6 +15,8 @@ class CMS extends CompressableService
 {
     /** Database entity name for relations between material and navigation */
     const MATERIAL_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurematerial';
+    /** Database entity name for relations between material and images */
+    const MATERIAL_IMAGES_RELATION_ENTITY = '\samson\activerecord\gallery';
     /** Database entity name for relations between additional fields and navigation */
     const FIELD_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurefield';
     /** Database entity name for relations between material and additional fields values */
