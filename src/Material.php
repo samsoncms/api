@@ -6,6 +6,7 @@
 namespace samsoncms\api;
 
 use \samsonframework\orm\Condition;
+use samsonframework\orm\Query;
 use \samsonframework\orm\QueryInterface;
 
 /**
@@ -42,7 +43,8 @@ class Material extends \samson\activerecord\material
         &$return = array(),
         $materialIDs = null
     ) {
-        // We need to have field record
+        /** @var Field $fieldRecord We need to have field record */
+        $fieldRecord = null;
         if (Field::byID($query, $fieldID, $fieldRecord)) {
             $materials = array();
 
@@ -225,42 +227,27 @@ class Material extends \samson\activerecord\material
                 $materialFieldRecord->locale = $locale;
             }
 
-            // Define which field should be filled
-            switch ($fieldRecord->Type) {
-                case 1:
-                    $valueFieldName = 'numeric_value';
-                    break;
-                case 2:
-                    $valueFieldName = 'key_value';
-                    break;
-                default:
-                    $valueFieldName = 'Value';
-            }
-
             // At this point we already have database record instance
+            $valueFieldName = $fieldRecord->valueFieldName();
             $fieldRecord->$valueFieldName = $value;
             $fieldRecord->save();
         }
     }
 
     /**
-     * Get select additional field text value
-     * TODO: Find where do we use it
+     * Get select additional field text value.
+     *
+     * @param string $fieldID Field identifier
      * @return string Select field text
      */
     public function selectText($fieldID)
     {
-        /** @var \samson\activerecord\field $field */
+        /** @var Field $field */
         $field = null;
-        if (dbQuery('field')->id($fieldID)->first($field)) {
+        if (Field::byID(new Query('\samsoncms\api\Field', $this->database), $fieldID, $fieldID)) {
             // If this entity has this field set
             if (isset($this[$field->Name]{0})) {
-                $types = array();
-                foreach (explode(',', $field->Value) as $typeValue) {
-                    $typeValue = explode(':', $typeValue);
-                    $types[$typeValue[0]] = $typeValue[1];
-                }
-                return $types[$this[$field->Name]];
+                return $field->options($this[$field->Name]);
             }
         }
 

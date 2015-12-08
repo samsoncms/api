@@ -9,10 +9,10 @@ use samsonframework\orm\QueryInterface;
  */
 class MaterialField extends \samson\activerecord\materialfield
 {
-    public $fieldID;
-    public $active;
-    public $materialID;
-    public $value;
+    public $FieldID;
+    public $Active;
+    public $MaterialID;
+    public $Value;
     public $numeric_value;
     public $key_value;
     public $locale;
