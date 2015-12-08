@@ -368,7 +368,7 @@ class Material extends \samson\activerecord\material
         $dbMaterialField = null;
         if ($query->where('MaterialID', $this->id)->first($dbMaterialField)) {
             // Get material images for this materialfield
-            $images = $query->entity('samson\activerecord\gallery')
+            $images = $query->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
                 ->where('materialFieldId', $dbMaterialField->id)
                 ->exec();
         }
