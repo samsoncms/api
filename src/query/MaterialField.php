@@ -17,14 +17,18 @@ use samsoncms\api\CMS;
  */
 class MaterialField extends Base
 {
-    /** MaterialQuery constructor */
-    public function __construct()
+    /**
+     * MaterialField constructor
+     * @param array $filteringIDs Collection of entity identifiers for filtering
+     */
+    public function __construct($filteringIDs = array())
     {
         parent::__construct(
             new dbQuery(),
             '\samsoncms\api\Material',
             Field::$_primary,
-            CMS::MATERIAL_FIELD_RELATION_ENTITY
+            CMS::MATERIAL_FIELD_RELATION_ENTITY,
+            $filteringIDs
         );
     }
 

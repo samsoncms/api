@@ -35,20 +35,30 @@ class Base
     /** @var string Relation entity identifier */
     protected $relationIdentifier;
 
+    /** @var array Collection of entity identifiers for filtering */
+    protected $filteringIDs;
+
     /**
      * Entity constructor.
      * @param QueryInterface $query Database query instance
      * @param string $identifier Entity identifier
      * @param string $relationPrimary Relation entity primary field name
      * @param string $relationIdentifier Relation entity identifier
+     * @param array $filteringIDs Collection of entity identifiers for filtering
      */
-    public function __construct(QueryInterface $query, $identifier, $relationPrimary, $relationIdentifier)
-    {
+    public function __construct(
+        QueryInterface $query,
+        $identifier,
+        $relationPrimary,
+        $relationIdentifier,
+        $filteringIDs = array()
+    ) {
         $this->query = $query;
         $this->identifier = $identifier;
         $this->primaryField = $identifier::$_primary;
         $this->relationPrimary = $relationPrimary;
         $this->relationIdentifier = $relationIdentifier;
+        $this->filteringIDs = $filteringIDs;
     }
 
     /**
@@ -59,7 +69,7 @@ class Base
      * @param array $filteringIDs Collection of entity identifiers for filtering query
      * @return array Collection of entity identifiers filtered by navigation identifier.
      */
-    public function idsByRelationID($relationID, $relationValue = null, $filteringIDs = null)
+    public function idsByRelationID($relationID, $relationValue = null, array $filteringIDs = array())
     {
         // Prepare query
         $this->query
@@ -68,7 +78,7 @@ class Base
             ->where(self::DELETE_FLAG_FIELD, 1);
 
         // Add entity identifier filter if passed
-        if (isset($filteringIDs)) {
+        if (sizeof($filteringIDs)) {
             $this->query->where($this->primaryField, $filteringIDs);
         }
 
@@ -105,7 +115,7 @@ class Base
     {
         $return = array();
         /** @var array $ids Collection of entity identifiers filtered by additional field */
-        if (sizeof($ids = $this->idsByRelationID($relationID, $relationValue))) {
+        if (sizeof($ids = $this->idsByRelationID($relationID, $relationValue, $this->filteringIDs))) {
             $return = $this->byIDs($ids, $executor);
         }
 
