@@ -87,10 +87,8 @@ class Field extends \samson\activerecord\field
         switch ($this->type) {
             case 7:
                 return 'numeric_value';
-                break;
             case 6:
                 return 'key_value';
-                break;
             default:
                 return 'Value';
         }
