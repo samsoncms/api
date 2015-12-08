@@ -38,22 +38,22 @@ class MaterialField extends \samson\activerecord\materialfield
      * @param QueryInterface $query Query object instance
      * @param string $materialID Material identifier
      * @param string $fieldID Additional field identifier
-     * @param self $return Variable to return found database record
+     * @param self[]|null $return Variable to return found database record
      * @param string $locale Locale identifier
-     * @return bool|null|self  Field instance or null if 3rd parameter not passed
+     * @return bool|null|self[]  Field instance or null if 3rd parameter not passed
      */
     public static function byFieldIDAndMaterialID(
         QueryInterface $query,
         $materialID,
         $fieldID,
-        self & $return = null,
+        &$return = null,
         $locale = DEFAULT_LOCALE
     ) {
         $return = $query->entity(get_called_class())
             ->where('MaterialID', $materialID)
             ->where('FieldID', $fieldID)
             ->where('locale', $locale)
-            ->first();
+            ->exec();
 
         // If only one argument is passed - return null, otherwise bool
         return func_num_args() > 1 ? $return == null : $return;

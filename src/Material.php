@@ -221,7 +221,7 @@ class Material extends \samson\activerecord\material
         /** @var Field $fieldRecord Try to find this additional field */
         $fieldRecord = null;
         if (Field::byID($query, $fieldID, $fieldRecord)) {
-            /** @var MaterialField $materialFieldRecord Try to find additional field value */
+            /** @var MaterialField $materialFieldRecord[] Try to find additional field value */
             $materialFieldRecord = null;
             if (!MaterialField::byFieldIDAndMaterialID($query, $this->id, $fieldRecord->id, $materialFieldRecord)) {
                 // Create new additional field value record if it does not exists
@@ -230,12 +230,14 @@ class Material extends \samson\activerecord\material
                 $materialFieldRecord->MaterialID = $this->id;
                 $materialFieldRecord->Active = 1;
                 $materialFieldRecord->locale = $locale;
+            } else { // Get first record(actually it should be only one)
+                $materialFieldRecord = array_shift($materialFieldRecord);
             }
 
             // At this point we already have database record instance
             $valueFieldName = $fieldRecord->valueFieldName();
-            $fieldRecord->$valueFieldName = $value;
-            $fieldRecord->save();
+            $materialFieldRecord->$valueFieldName = $value;
+            $materialFieldRecord->save();
         }
     }
 
