@@ -49,7 +49,7 @@ class Field extends \samson\activerecord\field
         $idOrUrl->add('FieldID', $nameOrID)->add('Name', $nameOrID);
 
         // Perform query
-        $return = $query->className('field')->cond($idOrUrl)->first();
+        $return = $query->entity(get_called_class())->cond($idOrUrl)->first();
 
         // If only one argument is passed - return null, otherwise bool
         return func_num_args() > 1 ? $return == null : $return;
