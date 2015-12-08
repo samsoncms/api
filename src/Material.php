@@ -66,7 +66,7 @@ class Material extends \samson\activerecord\material
         }
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 3 ? $return == null : $return;
+        return func_num_args() > 3 ? sizeof($return) : $return;
     }
 
     /**
@@ -99,7 +99,7 @@ class Material extends \samson\activerecord\material
         $return = $query->fields('MaterialID');
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 2 ? $return == null : $return;
+        return func_num_args() > 2 ? sizeof($return) : $return;
     }
 
     /**
@@ -125,7 +125,7 @@ class Material extends \samson\activerecord\material
         }
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 3 ? $return == null : $return;
+        return func_num_args() > 3 ? sizeof($return) : $return;
     }
 
     /**
@@ -150,7 +150,7 @@ class Material extends \samson\activerecord\material
         }
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 2 ? $return == null : $return;
+        return func_num_args() > 2 ? sizeof($return) : $return;
     }
 
     /**
@@ -183,7 +183,7 @@ class Material extends \samson\activerecord\material
         }
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 4 ? $return == null : $return;
+        return func_num_args() > 4 ? sizeof($return) : $return;
     }
 
     /**
@@ -203,7 +203,7 @@ class Material extends \samson\activerecord\material
             ->first();
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 2 ? $return == null : $return;
+        return func_num_args() > 2 ? $return !== null : $return;
     }
 
     /**
