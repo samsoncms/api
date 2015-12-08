@@ -40,7 +40,7 @@ class MaterialField extends Base
      * @param array $filteringIDs Collection of entity identifiers for filtering query
      * @return array Collection of entity identifiers filtered by navigation identifier.
      */
-    public function idsByRelationID($relationID, $relationValue = null, $filteringIDs = null)
+    public function idsByRelationID($relationID, $relationValue = null, array $filteringIDs = array())
     {
         $return = array();
 
@@ -50,7 +50,7 @@ class MaterialField extends Base
             // Get material identifiers by field
             $this->query->entity($this->relationIdentifier)
                 ->where(self::DELETE_FLAG_FIELD, 1)
-                ->where($this->relationIdentifier, $relationID)
+                ->where($this->relationPrimary, $relationID)
                 ->where($fieldRecord->valueFieldName(), $relationValue);
 
             // Add material identifier filter if passed
