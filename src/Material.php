@@ -71,7 +71,7 @@ class Material extends \samson\activerecord\material
             }
 
             // Perform database query and get only material identifiers collection
-            $return = $query->fields($materials);
+            $return = $query->fields('MaterialID');
         }
 
         // If only one argument is passed - return null, otherwise bool
@@ -313,7 +313,8 @@ class Material extends \samson\activerecord\material
     }
 
     /**
-     * Create copy of current object
+     * Create copy of current object.
+     *
      * @param mixed $clone Material for cloning
      * @param array $excludedFields excluded from materialfield fields identifiers
      * @returns void
