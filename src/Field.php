@@ -19,6 +19,86 @@ class Field extends \samson\activerecord\field
     /** @var string Default field value */
     public $Value;
 
+    /** @var bool Flag is localized */
+    public $local;
+
+    /**
+     * Get current entity instances collection by their identifiers.
+     * Method can accept different query executors.
+     *
+     * @param QueryInterface $query Database query
+     * @param string|array $fieldIDs Field identifier or their colleciton
+     * @param self[]|array|null $return Variable where request result would be returned
+     * @param string $executor Method name for query execution
+     * @return bool|self[] True if material entities has been found and $return is passed
+     *                      or self[] if only two parameters is passed.
+     */
+    public static function byIDs(QueryInterface $query, $fieldIDs, &$return = array(), $executor = 'exec')
+    {
+        $return = $query->entity(get_called_class())
+            ->where('FieldID', $fieldIDs)
+            ->where('Active', 1)
+            ->orderBy('priority')
+            ->$executor();
+
+        // If only one argument is passed - return null, otherwise bool
+        return func_num_args() > 2 ? sizeof($return) : $return;
+    }
+
+    /**
+     * Get current entity identifiers collection by navigation identifier.
+     *
+     * @param QueryInterface $query Database query
+     * @param string $navigationID Navigation identifier
+     * @param array $return Variable where request result would be returned
+     * @param array $materialIDs Collection of material identifiers for filtering query
+     * @return bool|array True if field entities has been found and $return is passed
+     *                      or collection of identifiers if only two parameters is passed.
+     */
+    public static function idsByNavigationID(
+        QueryInterface $query,
+        $navigationID,
+        &$return = array(),
+        $materialIDs = null
+    ) {
+        // Prepare query
+        $query->entity(CMS::FIELD_NAVIGATION_RELATION_ENTITY)
+            ->where('StructureID', $navigationID)
+            ->where('Active', 1);
+
+        // Add material identifier filter if passed
+        if (isset($materialIDs)) {
+            $query->where('MaterialID', $materialIDs);
+        }
+
+        // Perform database query and get only material identifiers collection
+        $return = $query->fields('FieldID');
+
+        // If only one argument is passed - return null, otherwise bool
+        return func_num_args() > 2 ? sizeof($return) : $return;
+    }
+
+    /**
+     * Get current entity instances collection by navigation identifier.
+     *
+     * @param QueryInterface $query Database query
+     * @param string $navigationID Navigation identifier
+     * @param self[]|array|null $return Variable where request result would be returned
+     * @return bool|self[] True if field entities has been found and $return is passed
+     *                      or self[] if only two parameters is passed.
+     */
+    public static function byNavigationID(QueryInterface $query, $navigationID, &$return = array())
+    {
+        /** @var array $fieldIDs Collection of entity identifiers filtered by additional field */
+        $fieldIDs = null;
+        if (static::idsByNavigationID($query, $navigationID, $fieldIDs)) {
+            static::byIDs($query, $fieldIDs, $return);
+        }
+
+        // If only one argument is passed - return null, otherwise bool
+        return func_num_args() > 2 ? sizeof($return) : $return;
+    }
+
     /**
      * Find additional field database record by Name.
      * This is generic method that should be used in nested classes to find its

@@ -422,6 +422,102 @@ class Material extends \samson\activerecord\material
         return $clone;
     }
 
+    public function nestedIDs($navigationID = null, &$return = array())
+    {
+        // Create query
+        $query = new dbQuery();
+
+        /** @var array $nestedIDs Get collection of materials by navigation */
+        $nestedIDs = null;
+        if (static::idsByNavigationID($query, $navigationID, $nestedIDs)) {
+            // Get collection of nested materials
+            $return = $query->entity(get_class($this))
+                ->where('MaterialID', $nestedIDs)
+                ->where('Active', 1)
+                ->where('parent_id', $this->id)
+                ->orderBy('priority')
+                ->fields('MaterialID');
+        }
+
+        return $return;
+    }
+
+    /**
+     * Get material additional fields table.
+     *
+     * @param string $navigationID Navigation table identifier
+     * @param array $tableColumns Columns names list
+     * @param string $externalHandler External handler to perform some extra code
+     * @param array $params External handler params
+     * @return array Collection of collections of table cells, represented as materialfield objects
+     */
+    public function table($navigationID, &$tableColumns = null) {
+        // Create query
+        $query = new dbQuery();
+
+        /** @var array $resultTable Collection of collections of field cells */
+        $resultTable = array();
+
+        /** @var array $dbTableFieldsIds Array of table structure column identifiers */
+        $dbTableFieldsIds = array();
+        if (Field::byNavigationID($query, $navigationID, $dbTableFieldsIds)) {
+            // Get localized and not localized fields
+            $localizedFields = array();
+            $unlocalizedFields = array();
+
+            /** @var Field $field Table column */
+            foreach ($dbTableFieldsIds as $field) {
+                /** Add table columns names */
+                $tableColumns[] = $field->Name;
+                if ($field->local == 1) {
+                    $localizedFields[] = $field->id;
+                } else {
+                    $unlocalizedFields[] = $field->id;
+                }
+            }
+
+            // Get table row materials
+            $tableRowsIDs = array();
+            if ($this->nestedIDs($navigationID, $tableRowsIDs)) {
+                // Create field condition
+                $localizationFieldCond = new Condition('or');
+
+                // Create localized condition
+                if (sizeof($localizedFields)) {
+                    $localizedFieldCond = new Condition('and');
+                    $localizedFieldCond->add('FieldID', $localizedFields)
+                        ->add('locale', locale());
+                    // Add this condition to condition group
+                    $localizationFieldCond->add($localizedFieldCond);
+                }
+
+                // Create not localized condition
+                if (sizeof($unlocalizedFields)) {
+                    $localizationFieldCond->add('FieldID', $unlocalizedFields);
+                }// Create db query
+                ;
+
+                // Flip field identifiers as keys
+                $tableColumnIds = array_flip($dbTableFieldsIds);
+                $resultTable = array_flip($tableRowsIDs);
+
+                /** @var \samson\activerecord\material $dbTableRow Material object (table row) */
+                foreach ($query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
+                             ->where('MaterialID', $tableRowsIDs)
+                             ->whereCondition($localizationFieldCond)->exec() as $mf) {
+                    if (!is_array($resultTable[$mf['MaterialID']])) {
+                        $resultTable[$mf['MaterialID']] = array();
+                    }
+
+                    $resultTable[$mf['MaterialID']][$tableColumnIds[$mf->FieldID]] =
+                        !empty($mf->Value) ? $mf->Value : (!empty($mf->numeric_value) ? $mf->numeric_value : $mf->key_value);
+                }
+            }
+        }
+
+        return array_values($resultTable);
+    }
+
     /**
      * Function to retrieve this material table by specified field
      * @param string $tableSelector Selector to identify table structure
@@ -430,6 +526,7 @@ class Material extends \samson\activerecord\material
      * @param string $externalHandler External handler to perform some extra code
      * @param array $params External handler params
      * @return array Collection of collections of table cells, represented as materialfield objects
+     * @deprecated Use table()
      */
     public function getTable(
         $tableSelector,
