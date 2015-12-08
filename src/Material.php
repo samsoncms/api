@@ -261,35 +261,34 @@ class Material extends \samson\activerecord\material
      *
      * @param string|null $fieldSelector Additional field selector value
      * @param string $selector Additional field field name to search for
-     * @return \samson\activerecord\gallery[] Collection of images in this gallery additional field for material
+     * @return \samsonframework\orm\RecordInterface[] Collection of images in this gallery additional field for material
      */
     public function &gallery($fieldSelector = null, $selector = 'FieldID')
     {
-        /** @var \samson\activerecord\gallery[] $images Get material images for this gallery */
+        /** @var \samsonframework\orm\RecordInterface[] $images Get material images for this gallery */
         $images = array();
 
-        /* @var \samson\activerecord\field Get field object if we need to search it by other fields */
+        // Create query
+        $query = new Query(CMS::MATERIAL_FIELD_RELATION_ENTITY, $this->database);
+
+        /* @var Field Get field object if we need to search it by other fields */
         $field = null;
-        if ($selector != 'FieldID') {
-            $field = dbQuery('field')->cond($selector, $fieldSelector)->first();
+        if ($selector != 'FieldID' && Field::oneByColumn($query, $selector, $fieldSelector)) {
             $fieldSelector = $field->id;
         }
 
-        // Create query
-        $query = dbQuery('materialfield');
-
         // Add field filter if present
         if (isset($fieldSelector)) {
-            $query->cond("FieldID", $fieldSelector);
+            $query->where("FieldID", $fieldSelector);
         }
 
         /** @var \samson\activerecord\materialfield $dbMaterialField Find material field gallery record */
         $dbMaterialField = null;
-        if ($query->cond('MaterialID', $this->id)->first($dbMaterialField)) {
+        if ($query->where('MaterialID', $this->id)->first($dbMaterialField)) {
             // Get material images for this materialfield
-            if (dbQuery('gallery')->cond('materialFieldId', $dbMaterialField->id)->exec($images)) {
-
-            }
+            $images = $query->entity('samson\activerecord\gallery')
+                ->where('materialFieldId', $dbMaterialField->id)
+                ->exec();
         }
 
         return $images;
