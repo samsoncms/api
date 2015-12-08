@@ -24,6 +24,34 @@ class Material extends \samson\activerecord\material
     public static $_map = array();
 
     /**
+     * Get current entity instances collection by navigation identifier.
+     *
+     * @param QueryInterface $query Database query
+     * @param string $navigationID Navigation identifier
+     * @param self[]|array|null $return Variable where request result would be returned
+     * @return bool|self[] True if material entities has been found and $return is passed
+     *                      or self[] if only two parameters is passed.
+     */
+    public static function byNavigationID(QueryInterface $query, $navigationID, &$return = array())
+    {
+        /** @var \samson\activerecord\structurematerial[] $materials Navigation to material relation */
+        $materials = array();
+        if ($query->entity('\samson\activerecord\structurematerial')
+            ->cond('StructureID', $navigationID)
+            ->fields('MaterialID', $materials)
+        ) {
+            $return = $query->entity(get_called_class())
+                ->cond('MaterialID', $materials)
+                ->cond('Active', 1)
+                ->cond('Published', 1)
+                ->exec();
+        }
+
+        // If only one argument is passed - return null, otherwise bool
+        return func_num_args() > 1 ? $return == null : $return;
+    }
+
+    /**
      * Get material entities collection by URL(s).
      * @param QueryInterface $query Object for performing database queries
      * @param array|string $url Material URL or collection of material URLs

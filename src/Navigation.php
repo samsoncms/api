@@ -6,6 +6,7 @@
 namespace samsoncms\api;
 
 use samson\activerecord\structure;
+use samsonframework\orm\QueryInterface;
 
 /**
  * SamsonCMS Navigation entity
