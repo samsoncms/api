@@ -5,7 +5,7 @@
  * Date: 08.12.15
  * Time: 22:14
  */
-namespace samsoncms\api;
+namespace samsoncms\api\query;
 
 use samsonframework\orm\QueryInterface;
 
@@ -15,7 +15,7 @@ use samsonframework\orm\QueryInterface;
  *
  * @package samsoncms\api
  */
-class RelationQuery
+class Base
 {
     /** Deletion flag field name */
     const DELETE_FLAG_FIELD = 'Active';

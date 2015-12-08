@@ -5,15 +5,16 @@
  * Date: 08.12.15
  * Time: 23:11
  */
-namespace samsoncms\api;
+namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
+use samsoncms\api\Field;
 
 /**
  * Retrieve materials by additional fields.
  * @package samsoncms\api
  */
-class MaterialFieldQuery extends RelationQuery
+class MaterialField extends Base
 {
     /** MaterialQuery constructor */
     public function __construct()
