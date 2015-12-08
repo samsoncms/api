@@ -21,8 +21,6 @@ class Navigation extends structure
     /** @var self[] Collection of child items */
     public $children = array();
 
-
-
     /**
      * Override standard view passing
      * @param string $prefix Prefix
