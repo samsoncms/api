@@ -30,8 +30,6 @@ class MaterialField extends \samson\activerecord\materialfield
     /** @var string Additional field locale */
     public $locale;
 
-
-
     /**
      * Find additional field value records by its material identifiers.
      *
@@ -54,7 +52,7 @@ class MaterialField extends \samson\activerecord\materialfield
             ->exec();
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 1 ? sizeof($return) : $return;
+        return func_num_args() > 2 ? sizeof($return) : $return;
     }
 
     /**
