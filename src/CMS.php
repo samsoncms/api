@@ -71,10 +71,14 @@ class CMS extends CompressableService
      */
     public function prepare()
     {
-        // Perform SQL table creation
-        $path = __DIR__.'/../sql/';
-        foreach (array_slice(scandir($path), 2) as $file) {
-            $this->database->query($this->readSQL($path.$file, $this->tablePrefix));
+        // Perform this migration and execute only once
+        if ($this->migrator() != 40) {
+            // Perform SQL table creation
+            $path = __DIR__ . '/../sql/';
+            foreach (array_slice(scandir($path), 2) as $file) {
+                $this->database->execute($this->readSQL($path . $file, $this->tablePrefix));
+            }
+            $this->migrator(40);
         }
 
         // Initiate migration mechanism
@@ -125,10 +129,14 @@ class CMS extends CompressableService
         // If something passed - change database version to it
         if (func_num_args()) {
             // Save current version to special db table
-            db()->query("ALTER TABLE  `" . dbMySQLConnector::$prefix . "cms_version` CHANGE  `version`  `version` VARCHAR( 15 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '" . $to_version . "';");
+            $this->database->execute(
+                "ALTER TABLE  `" . dbMySQLConnector::$prefix . "cms_version`
+                CHANGE  `version`  `version` VARCHAR( 15 ) CHARACTER SET utf8
+                COLLATE utf8_general_ci NOT NULL DEFAULT  '" . $to_version . "';"
+            );
             die('Database successfully migrated to [' . $to_version . ']');
         } else { // Return current database version
-            $version_row = db()->fetch('SHOW COLUMNS FROM `' . dbMySQLConnector::$prefix . 'cms_version`');
+            $version_row = $this->database->fetch('SHOW COLUMNS FROM `' . dbMySQLConnector::$prefix . 'cms_version`');
             if (isset($version_row[0]['Default'])) {
                 return $version_row[0]['Default'];
             } else {
