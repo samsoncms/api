@@ -51,4 +51,19 @@ class Field extends \samson\activerecord\field
         // If only one argument is passed - return null, otherwise bool
         return func_num_args() > 1 ? $return == null : $return;
     }
+
+    /** @return string Get additional field value field name depending on its type */
+    public function valueFieldName()
+    {
+        switch ($this->Type) {
+            case 7:
+                return 'numeric_value';
+                break;
+            case 6:
+                return 'key_value';
+                break;
+            default:
+                return 'Value';
+        }
+    }
 }
