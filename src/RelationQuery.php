@@ -10,10 +10,15 @@ namespace samsoncms\api;
 use samsonframework\orm\QueryInterface;
 
 /**
- * Generic SamsonCMS entity which has Navigation relation.
+ * Generic SamsonCMS query for entities that have relation between each other,
+ * this query can be used for retrieving:
+ * Material by Navigation
+ * Field by Navigation
+ * Field by Material
+ *
  * @package samsoncms\api
  */
-class Entity
+class RelationQuery
 {
     /** Deletion flag field name */
     const DELETE_FLAG_FIELD = 'Active';
@@ -27,29 +32,43 @@ class Entity
     /** @var string Entity primary field name */
     protected $primaryField;
 
+    /** @var string Related entity primary field */
+    protected $relationPrimary;
+
+    /** @var string Relation entity identifier */
+    protected $relationIdentifier;
+
     /**
      * Entity constructor.
      * @param QueryInterface $query Database query instance
      * @param string $identifier Entity identifier
+     * @param string $relationPrimary
+     * @param string $relationIdentifier
      */
-    public function __construct(QueryInterface $query, $identifier)
+    public function __construct(QueryInterface $query, $identifier, $relationPrimary, $relationIdentifier)
     {
         $this->query = $query;
         $this->identifier = $identifier;
         $this->primaryField = $identifier::$_primary;
+        $this->relationPrimary = $relationPrimary;
+        $this->relationIdentifier = $relationIdentifier;
     }
 
     /**
      * Get current entity identifiers collection by navigation identifier.
      *
-     * @param string $navigationID Navigation identifier
+     * @param string $relationID Relation entity identifier
+     * @param mixed $relationValue Relation entity value
      * @param array $filteringIDs Collection of entity identifiers for filtering query
      * @return array Collection of entity identifiers filtered by navigation identifier.
      */
-    public function idsByNavigationID($navigationID, $filteringIDs = null)
+    public function idsByRelationID($relationID, $relationValue = null, $filteringIDs = null)
     {
         // Prepare query
-        $this->query->where(Navigation::$_primary, $navigationID)->where(self::DELETE_FLAG_FIELD, 1);
+        $this->query
+            ->entity($this->relationIdentifier)
+            ->where($this->relationPrimary, $relationID)
+            ->where(self::DELETE_FLAG_FIELD, 1);
 
         // Add material identifier filter if passed
         if (isset($filteringIDs)) {
@@ -66,9 +85,9 @@ class Entity
      *
      * @param string|array $entityIDs Entity identifier or their collection
      * @param string $executor Method name for query execution
-     * @return self[] Collection of entity instances
+     * @return mixed[] Collection of entity instances
      */
-    public function byIDs($entityIDs, $executor = 'exec')
+    public function byIDs($entityIDs, $executor)
     {
         return $this->query
             ->where($this->primaryField, $entityIDs)
@@ -77,36 +96,42 @@ class Entity
     }
 
     /**
-     * Get current entity instances collection by navigation identifier.
+     * Retrieve entities from database.
      *
-     * @param string $navigationID Navigation identifier
-     * @return self[] Collection of entity instances
+     * @param string|array $relationID Relation entity identifier or collection
+     * @param string $executor Query execution function name
+     * @return mixed[] Collection of entity instances for this relation identifier
      */
-    public function byNavigationID($navigationID)
+    protected function retrieve($relationID, $executor)
     {
         $return = array();
         /** @var array $materialIds Collection of entity identifiers filtered by additional field */
-        if (sizeof($materialIds = $this->idsByNavigationID($navigationID))) {
-            $return = $this->byIDs($materialIds);
+        if (sizeof($materialIds = $this->idsByRelationID($relationID))) {
+            $return = $this->byIDs($materialIds, $executor);
         }
 
         return $return;
     }
 
     /**
+     * Get current entity instances collection by navigation identifier.
+     *
+     * @param string $relationID Relation entity identifier
+     * @return mixed[] Collection of entity instances
+     */
+    public function byRelationID($relationID)
+    {
+        return $this->retrieve($relationID, 'exec');
+    }
+
+    /**
      * Get current entity instances amount by navigation identifier.
      *
-     * @param string $navigationID Navigation identifier
+     * @param string $relationID Relation entity identifier
      * @return integer Amount of entities related to Navigation identifier
      */
-    public function amountByNavigationID($navigationID)
+    public function amountByRelationID($relationID)
     {
-        $return =0;
-        /** @var array $materialIds Collection of entity identifiers filtered by additional field */
-        if (sizeof($materialIds = $this->idsByNavigationID($navigationID))) {
-            $return = $this->byIDs($materialIds, 'count');
-        }
-
-        return $return;
+        return $this->retrieve($relationID, 'count');
     }
 }
