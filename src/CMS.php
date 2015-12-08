@@ -46,6 +46,7 @@ class CMS extends CompressableService
         parent::__construct($path, $vid, $resources);
     }
 
+    //[PHPCOMPRESSOR(remove,start)]
     /**
      * Read SQL file with variables placeholders pasting
      * @param string $filePath SQL file for reading
@@ -135,4 +136,5 @@ class CMS extends CompressableService
             }
         }
     }
+    //[PHPCOMPRESSOR(remove,end)]
 }
