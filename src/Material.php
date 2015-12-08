@@ -48,7 +48,7 @@ class Material extends \samson\activerecord\material
         }
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 1 ? $return == null : $return;
+        return func_num_args() > 2 ? $return == null : $return;
     }
 
     /**
