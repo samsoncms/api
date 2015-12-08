@@ -5,6 +5,7 @@
  */
 namespace samsoncms\api;
 
+use samson\activerecord\dbQuery;
 use \samsonframework\orm\Condition;
 use samsonframework\orm\Query;
 use \samsonframework\orm\QueryInterface;
@@ -186,19 +187,23 @@ class Material extends \samson\activerecord\material
     }
 
     /**
-     * Get material entities collection by URL(s).
+     * Get material entity by URL(s).
+     *
      * @param QueryInterface $query Object for performing database queries
      * @param array|string $url Material URL or collection of material URLs
-     * @param self[]|array|null $return Variable where request result would be returned
-     * @return bool|self[] True if material entities has been found
+     * @param self|array|null $return Variable where request result would be returned
+     * @return bool|self True if material entities has been found
      */
     public static function byUrl(QueryInterface $query, $url, & $return = array())
     {
-        // Get field record by identifier column
-        $return = static::collectionByColumn($query, 'Url', $url);
+        // Get entities by filtered identifiers
+        $return = $query->entity(get_called_class())
+            ->where('Url', $url)
+            ->where('Active', 1)
+            ->first();
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 1 ? $return == null : $return;
+        return func_num_args() > 2 ? $return == null : $return;
     }
 
     /**
@@ -269,7 +274,9 @@ class Material extends \samson\activerecord\material
         $images = array();
 
         // Create query
-        $query = new Query(CMS::MATERIAL_FIELD_RELATION_ENTITY, $this->database);
+        $query = new dbQuery();
+
+        $query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY);
 
         /* @var Field Get field object if we need to search it by other fields */
         $field = null;
