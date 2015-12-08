@@ -37,13 +37,13 @@ class Material extends \samson\activerecord\material
         /** @var \samson\activerecord\structurematerial[] $materials Navigation to material relation */
         $materials = array();
         if ($query->entity('\samson\activerecord\structurematerial')
-            ->cond('StructureID', $navigationID)
+            ->where('StructureID', $navigationID)
             ->fields('MaterialID', $materials)
         ) {
             $return = $query->entity(get_called_class())
-                ->cond('MaterialID', $materials)
-                ->cond('Active', 1)
-                ->cond('Published', 1)
+                ->where('MaterialID', $materials)
+                ->where('Active', 1)
+                ->where('Published', 1)
                 ->exec();
         }
 
