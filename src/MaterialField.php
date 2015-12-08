@@ -12,7 +12,7 @@ class MaterialField extends \samson\activerecord\materialfield
     /** @var integer Primary key */
     public $FieldID;
 
-    /** @var bool Internal existance flag */
+    /** @var bool Internal existence flag */
     public $Active;
 
     /** @var integer Material identifier */

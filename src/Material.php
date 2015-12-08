@@ -25,6 +25,15 @@ class Material extends \samson\activerecord\material
     public static $_own_group = array();
     public static $_map = array();
 
+    /** @var integer Primary field */
+    public $MaterialID;
+
+    /** @var string Unique identifier */
+    public $Url;
+
+    /** @var bool Internal existence flag */
+    public $Active;
+
     /**
      * Get identifiers collection by field identifier and its value.
      * Method is optimized for performance.
