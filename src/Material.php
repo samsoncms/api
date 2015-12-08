@@ -221,7 +221,7 @@ class Material extends \samson\activerecord\material
         /** @var Field $fieldRecord Try to find this additional field */
         $fieldRecord = null;
         if (Field::byID($query, $fieldID, $fieldRecord)) {
-            /** @var MaterialField $materialFieldRecord[] Try to find additional field value */
+            /** @var MaterialField[] $materialFieldRecord Try to find additional field value */
             $materialFieldRecord = null;
             if (!MaterialField::byFieldIDAndMaterialID($query, $this->id, $fieldRecord->id, $materialFieldRecord)) {
                 // Create new additional field value record if it does not exists
