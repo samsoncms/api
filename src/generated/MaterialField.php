@@ -5,7 +5,7 @@
  * Date: 28.11.15
  * Time: 15:06
  */
-namespace samsoncms\activerecord;
+namespace samson\activerecord;
 
 use samsonframework\orm\Record;
 

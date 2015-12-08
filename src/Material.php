@@ -35,8 +35,13 @@ class Material extends \samson\activerecord\material
      * @return bool|array True if material entities has been found and $return is passed
      *                      or identifiers collection if only two parameters is passed.
      */
-    public static function idsByFieldValue(QueryInterface $query, $fieldID, $fieldValue, &$return = array(), $materialIDs = null)
-    {
+    public static function idsByFieldValue(
+        QueryInterface $query,
+        $fieldID,
+        $fieldValue,
+        &$return = array(),
+        $materialIDs = null
+    ) {
         /** @var array $fields Collection for storing fields data */
         static $fields;
 
@@ -77,8 +82,12 @@ class Material extends \samson\activerecord\material
      * @return bool|array True if material entities has been found and $return is passed
      *                      or collection of identifiers if only two parameters is passed.
      */
-    public static function idsByNavigationID(QueryInterface $query, $navigationID, &$return = array(), $materialIDs = null)
-    {
+    public static function idsByNavigationID(
+        QueryInterface $query,
+        $navigationID,
+        &$return = array(),
+        $materialIDs = null
+    ) {
         // Prepare query
          $query->entity('\samson\activerecord\structurematerial')
             ->where('StructureID', $navigationID)
@@ -147,19 +156,37 @@ class Material extends \samson\activerecord\material
         return func_num_args() > 2 ? $return == null : $return;
     }
 
-    public static function byNavigationIdAndFieldValue(QueryInterface $query, $navigationID, $fieldID, $fieldValue, &$return = array())
-    {
+    /**
+     * Get current entity instances collection by navigation identifier.
+     *
+     * @param QueryInterface $query Database query
+     * @param string $navigationID Navigation identifier
+     * @param string $fieldID Additional field identifier
+     * @param string $fieldValue Additional field value for searching
+     * @param self[]|array|null $return Variable where request result would be returned
+     * @return bool|Material[] True if material entities has been found and $return is passed
+     *                      or self[] if only two parameters is passed.
+     */
+    public static function byNavigationIdAndFieldValue(
+        QueryInterface $query,
+        $navigationID,
+        $fieldID,
+        $fieldValue,
+        &$return = array()
+    ) {
         /** @var array $materialIds Collection of entity identifiers filtered by additional field */
         $materialIds = null;
         if (static::idsByNavigationID($query, $navigationID, $materialIds)) {
-
-            $return = $query->entity(get_called_class())
-                ->where('MaterialID', $materialIds)
-                ->exec();
+            if (static::idsByFieldValue($query, $fieldID, $fieldValue, $materialIds, $materialIds)) {
+                // Get entities by filtered identifiers
+                $return = $query->entity(get_called_class())
+                    ->where('MaterialID', $materialIds)
+                    ->exec();
+            }
         }
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 3 ? $return == null : $return;
+        return func_num_args() > 4 ? $return == null : $return;
     }
 
     /**

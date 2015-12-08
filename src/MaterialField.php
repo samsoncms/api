@@ -28,10 +28,10 @@ class MaterialField extends \samson\activerecord\materialfield
         self & $return = null,
         $locale = DEFAULT_LOCALE
     ) {
-        $return = $query->className(__CLASS__)
-            ->cond('MaterialID', $materialID)
-            ->cond('FieldID', $fieldID)
-            ->cond('locale', $locale)
+        $return = $query->entity(get_called_class())
+            ->where('MaterialID', $materialID)
+            ->where('FieldID', $fieldID)
+            ->where('locale', $locale)
             ->first();
 
         // If only one argument is passed - return null, otherwise bool
