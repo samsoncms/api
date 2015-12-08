@@ -9,6 +9,14 @@ use samsonframework\orm\QueryInterface;
  */
 class MaterialField extends \samson\activerecord\materialfield
 {
+    public $fieldID;
+    public $active;
+    public $materialID;
+    public $value;
+    public $numeric_value;
+    public $key_value;
+    public $locale;
+
     /**
      * Find additional field value database record by its material and field identifiers.
      * This is generic method that should be used in nested classes to find its

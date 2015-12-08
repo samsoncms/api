@@ -42,18 +42,12 @@ class Material extends \samson\activerecord\material
         &$return = array(),
         $materialIDs = null
     ) {
-        /** @var array $fields Collection for storing fields data */
-        static $fields;
-
-        /** @var Field $fieldRecord Cache field object */
-        $fieldRecord = isset($fields[$fieldID]) ? $fields[$fieldID] : Field::byID($query, $fieldID);
-
         // We need to have field record
-        if (isset($fieldRecord)) {
+        if (Field::byID($query, $fieldID, $fieldRecord)) {
             $materials = array();
 
             // Get material identifiers by field
-            $query->entity('samson\activerecord\materialfield')
+            $query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
                 ->where('MaterialID', $materials)
                 ->where('Active', 1)
                 ->where('FieldID', $fieldID)
@@ -89,7 +83,7 @@ class Material extends \samson\activerecord\material
         $materialIDs = null
     ) {
         // Prepare query
-         $query->entity('\samson\activerecord\structurematerial')
+         $query->entity(CMS::MATERIAL_NAVIGATION_RELATION_ENTITY)
             ->where('StructureID', $navigationID)
             ->where('Active', 1);
 
