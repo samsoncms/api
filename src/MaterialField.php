@@ -54,9 +54,9 @@ class MaterialField extends \samson\activerecord\materialfield
         $locale = DEFAULT_LOCALE
     ) {
         $return = $query->entity(get_called_class())
-            ->where('MaterialID', $materialID)
-            ->where('Active', 1)
-            ->where('locale', $locale)
+            ->where(Material::F_PRIMARY, $materialID)
+            ->where(Material::F_DELETION, true)
+            ->where(self::F_LOCALE, $locale)
             ->exec();
 
         // If only one argument is passed - return null, otherwise bool
@@ -83,10 +83,10 @@ class MaterialField extends \samson\activerecord\materialfield
         $locale = DEFAULT_LOCALE
     ) {
         $return = $query->entity(get_called_class())
-            ->where('MaterialID', $materialID)
-            ->where('FieldID', $fieldID)
-            ->where('locale', $locale)
-            ->where('Active', 1)
+            ->where(Material::F_PRIMARY, $materialID)
+            ->where(Field::F_PRIMARY, $fieldID)
+            ->where(self::F_LOCALE, $locale)
+            ->where(Material::F_DELETION, 1)
             ->exec();
 
         // If only one argument is passed - return null, otherwise bool
