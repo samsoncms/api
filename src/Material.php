@@ -6,9 +6,6 @@
 namespace samsoncms\api;
 
 use samson\activerecord\dbQuery;
-use samsoncms\api\query\FieldNavigation;
-use samsoncms\api\query\MaterialNavigation;
-use \samsonframework\orm\Condition;
 use samsonframework\orm\Query;
 use \samsonframework\orm\QueryInterface;
 
@@ -20,13 +17,6 @@ use \samsonframework\orm\QueryInterface;
  */
 class Material extends \samson\activerecord\material
 {
-    /** Override table attributes for late static binding */
-    public static $_attributes = array();
-    public static $_sql_select = array();
-    public static $_sql_from = array();
-    public static $_own_group = array();
-    public static $_map = array();
-
     /** Store entity name */
     const ENTITY = __CLASS__;
 
@@ -118,9 +108,10 @@ class Material extends \samson\activerecord\material
      */
     public function selectText($fieldID)
     {
+        // TODO: this is absurd as we do not have any additional values here
         /** @var Field $field */
         $field = null;
-        if (Field::byID(new Query('\samsoncms\api\Field', $this->database), $fieldID, $fieldID)) {
+        if (Field::byID(new Query(Field::ENTITY, $this->database), $fieldID, $fieldID)) {
             // If this entity has this field set
             if (isset($this[$field->Name]{0})) {
                 return $field->options($this[$field->Name]);
@@ -216,213 +207,5 @@ class Material extends \samson\activerecord\material
         $this->copyRelatedEntity($query, CMS::MATERIAL_IMAGES_RELATION_ENTITY, $clone->id);
 
         return $clone;
-    }
-
-    /**
-     * Get child materials for this material.
-     *
-     * @param string $navigationID Navigation filter identifier
-     * @return self[] Collection of nested materials
-     */
-    public function nestedIDs($navigationID = null)
-    {
-        // Create query
-        $query = new dbQuery();
-        $query->entity(get_class($this));
-
-        /** @var array $filteredIDs Get collection of materials by navigation */
-        if (isset($navigationID)
-            && sizeof($filteredIDs = (new MaterialNavigation())->idsByRelationID($navigationID))
-        ) {
-            // Add navigation filtering
-            $query->where('MaterialID', $filteredIDs);
-        }
-
-        // Get collection of nested materials
-        return $query
-            ->where('Active', 1)
-            ->where('parent_id', $this->id)
-            ->orderBy('priority')
-            ->fields('MaterialID');
-    }
-
-    /**
-     * Get material additional fields table.
-     *
-     * @param string $navigationID Navigation table identifier
-     * @param array $tableColumns Columns names list
-     * @return array Collection of collections of table cells, represented as materialfield objects
-     */
-    public function table($navigationID, &$tableColumns = null) {
-        // Create query
-        $query = new dbQuery();
-
-        /** @var array $resultTable Collection of collections of field cells */
-        $resultTable = array();
-
-        /** @var array $dbTableFieldsIds Array of table structure column identifiers */
-        if (sizeof($dbTableFieldsIds = (new FieldNavigation())->byRelationID($navigationID))) {
-            // Get localized and not localized fields
-            $localizedFields = array();
-            $unlocalizedFields = array();
-
-            /** @var Field $field Table column */
-            foreach ($dbTableFieldsIds as $field) {
-                /** Add table columns names */
-                $tableColumns[] = $field->Name;
-                if ($field->local == 1) {
-                    $localizedFields[] = $field->id;
-                } else {
-                    $unlocalizedFields[] = $field->id;
-                }
-            }
-
-            // Get table row materials
-            if (sizeof($tableRowsIDs = $this->nestedIDs($navigationID))) {
-                // Create field condition
-                $localizationFieldCond = new Condition('or');
-
-                // Create localized condition
-                if (sizeof($localizedFields)) {
-                    $localizedFieldCond = new Condition('and');
-                    $localizedFieldCond->add('FieldID', $localizedFields)
-                        ->add('locale', locale());
-                    // Add this condition to condition group
-                    $localizationFieldCond->add($localizedFieldCond);
-                }
-
-                // Create not localized condition
-                if (sizeof($unlocalizedFields)) {
-                    $localizationFieldCond->add('FieldID', $unlocalizedFields);
-                }// Create db query
-                ;
-
-                // Flip field identifiers as keys
-                $tableColumnIds = array_flip(array_keys($dbTableFieldsIds));
-                $resultTable = array_flip($tableRowsIDs);
-
-                /** @var \samson\activerecord\material $dbTableRow Material object (table row) */
-                foreach ($query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
-                             ->where('MaterialID', $tableRowsIDs)
-                             ->whereCondition($localizationFieldCond)->exec() as $mf) {
-                    if (!is_array($resultTable[$mf['MaterialID']])) {
-                        $resultTable[$mf['MaterialID']] = array();
-                    }
-
-                    $resultTable[$mf['MaterialID']][$tableColumnIds[$mf->FieldID]] =
-                        !empty($mf->Value) ? $mf->Value : (!empty($mf->numeric_value) ? $mf->numeric_value : $mf->key_value);
-                }
-            }
-        }
-
-        return array_values($resultTable);
-    }
-
-    /**
-     * Function to retrieve this material table by specified field
-     * @param string $tableSelector Selector to identify table structure
-     * @param string $selector Database field by which search is performed
-     * @param array $tableColumns Columns names list
-     * @param string $externalHandler External handler to perform some extra code
-     * @param array $params External handler params
-     * @return array Collection of collections of table cells, represented as materialfield objects
-     * @deprecated Use table()
-     */
-    public function getTable(
-        $tableSelector,
-        $selector = 'StructureID',
-        &$tableColumns = null,
-        $externalHandler = null,
-        $params = array()
-    ) {
-        // Create query
-        $query = new dbQuery();
-
-        /** @var array $resultTable Collection of collections of field cells */
-        $resultTable = array();
-        /** @var array $dbTableFieldsIds Array of table structure column identifiers */
-        $dbTableFieldsIds = array();
-
-        // Get structure object if we need to search it by other fields
-        if ($selector != 'StructureID') {
-            $structure = dbQuery('structure')->cond($selector, $tableSelector)->first();
-            $tableSelector = $structure->id;
-        }
-
-        /** If this table has columns */
-        if (dbQuery('structurefield')
-            ->cond("StructureID", $tableSelector)
-            ->fields('FieldID', $dbTableFieldsIds)
-        ) {
-            // Get localized and not localized fields
-            $localizedFields = array();
-            $unlocalizedFields = array();
-            /** @var \samson\cms\CMSField $dbTableField Table column */
-            foreach (dbQuery('field')->order_by('priority')->cond('FieldID', $dbTableFieldsIds)->exec() as $field) {
-                /** Add table columns names */
-                $tableColumns[] = $field->Name;
-                if ($field->local == 1) {
-                    $localizedFields[] = $field->id;
-                } else {
-                    $unlocalizedFields[] = $field->id;
-                }
-            }
-
-            // Query to get table rows(table materials)
-            $tableQuery = dbQuery('material')
-                ->cond('parent_id', $this->MaterialID)
-                ->cond('Active', '1')
-                ->join('structurematerial')
-                ->cond('structurematerial_StructureID', $tableSelector)
-                ->order_by('priority');
-
-            // Call user function if exists
-            if (is_callable($externalHandler)) {
-                // Give it query as parameter
-                call_user_func_array($externalHandler, array_merge(array(&$tableQuery), $params));
-            }
-
-            // Get table row materials
-            $tableMaterialIds = array();
-            if ($tableQuery->fields('MaterialID', $tableMaterialIds)) {
-                // Create field condition
-                $localizationFieldCond = new Condition('or');
-
-                // Create localized condition
-                if (sizeof($localizedFields)) {
-                    $localizedFieldCond = new Condition('and');
-                    $localizedFieldCond->add('materialfield_FieldID', $localizedFields)
-                        ->add('materialfield_locale', locale());
-                    // Add this condition to condition group
-                    $localizationFieldCond->add($localizedFieldCond);
-                }
-
-                // Create not localized condition
-                if (sizeof($unlocalizedFields)) {
-                    $localizationFieldCond->add('materialfield_FieldID', $unlocalizedFields);
-                }
-
-                // Create db query
-                $materialFieldQuery = dbQuery('materialfield')
-                    ->cond('MaterialID', $tableMaterialIds)
-                    ->cond($localizationFieldCond);
-
-                // Flip field identifiers as keys
-                $tableColumnIds = array_flip($dbTableFieldsIds);
-                $resultTable = array_flip($tableMaterialIds);
-
-                /** @var \samson\activerecord\material $dbTableRow Material object (table row) */
-                foreach ($materialFieldQuery->exec() as $mf) {
-                    if (!is_array($resultTable[$mf['MaterialID']])) {
-                        $resultTable[$mf['MaterialID']] = array();
-                    }
-
-                    $resultTable[$mf['MaterialID']][$tableColumnIds[$mf->FieldID]] =
-                        !empty($mf->Value) ? $mf->Value : (!empty($mf->numeric_value) ? $mf->numeric_value : $mf->key_value);
-                }
-            }
-        }
-
-        return array_values($resultTable);
     }
 }

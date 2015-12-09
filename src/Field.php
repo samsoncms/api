@@ -37,6 +37,18 @@ class Field extends \samson\activerecord\field
     /** Additional field storing boolean value */
     const TYPE_BOOL = 11;
 
+    /** @var array Collection of field type to php variable type relations */
+    public static $PHP_TYPE = array(
+        self::TYPE_TEXT => 'string',
+        self::TYPE_RESOURCE => 'string',
+        self::TYPE_OPTIONS => 'string',
+        self::TYPE_LONGTEXT => 'string',
+        self::TYPE_BOOL => 'int',
+        self::TYPE_ENTITYID => 'int',
+        self::TYPE_NUMERIC => 'int',
+        self::TYPE_DATETIME => 'bool'
+    );
+
     /** @var string Additional field value type */
     public $Type;
 
