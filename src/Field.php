@@ -195,9 +195,9 @@ class Field extends \samson\activerecord\field
     public function valueFieldName()
     {
         switch ($this->Type) {
-            case 7:
+            case self::TYPE_NUMERIC:
                 return 'numeric_value';
-            case 6:
+            case self::TYPE_ENTITYID:
                 return 'key_value';
             default:
                 return 'Value';
