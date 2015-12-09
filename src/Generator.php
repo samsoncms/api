@@ -207,11 +207,11 @@ class Generator
     public function entityHash()
     {
         // Получим информацию о всех таблицах из БД
-        return md5($this->database->fetch(
+        return md5(serialize($this->database->fetch(
             'SELECT `TABLES`.`TABLE_NAME` as `TABLE_NAME`
               FROM `information_schema`.`TABLES` as `TABLES`
               WHERE `TABLES`.`TABLE_SCHEMA`="' . $this->database->database() . '";'
-        ));
+        )));
     }
 
     /** @return mixed Get collection of structures object */
