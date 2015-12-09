@@ -15,7 +15,7 @@ use samsoncms\api\Navigation;
  * Additional field to navigation relation query.
  * @package samsoncms\api\query
  */
-class FieldNavigation extends Base
+class FieldNavigation extends Relational
 {
     /**
      * FieldNavigation constructor.

@@ -15,7 +15,7 @@ use samsoncms\api\CMS;
  * Material to additional fields relation query.
  * @package samsoncms\api
  */
-class MaterialField extends Base
+class MaterialField extends Relational
 {
     /**
      * MaterialField constructor

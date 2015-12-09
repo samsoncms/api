@@ -15,7 +15,7 @@ use samsoncms\api\Navigation;
  * Material to navigation relation query.
  * @package samsoncms\api
  */
-class MaterialNavigation extends Base
+class MaterialNavigation extends Relational
 {
     /**
      * MaterialNavigation constructor
