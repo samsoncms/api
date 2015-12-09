@@ -6,6 +6,7 @@
  * Time: 09:57
  */
 namespace samsoncms\api;
+
 use samsoncms\api\query\FieldNavigation;
 use samsoncms\api\query\MaterialNavigation;
 use samsonframework\orm\Condition;
