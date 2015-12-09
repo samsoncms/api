@@ -84,9 +84,8 @@ class Material extends \samson\activerecord\material
      */
     public function setFieldByID($fieldID, $value, $locale = DEFAULT_LOCALE)
     {
-        // TODO: This should be removed
         /** @var QueryInterface $query This should be removed to use $this->database*/
-        $query = dbQuery();
+        $query = new dbQuery();
 
         /** @var Field $fieldRecord Try to find this additional field */
         $fieldRecord = null;

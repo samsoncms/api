@@ -43,7 +43,7 @@ class MaterialField extends \samson\activerecord\materialfield
      *
      * @param QueryInterface $query Query object instance
      * @param string $materialID Material identifier
-     * @param self[]|null $return Variable to return found database record
+     * @param mixed $return Variable to return found database record
      * @param string $locale Locale identifier
      * @return bool|self[]  Field instance or null if 3rd parameter not passed
      */
@@ -71,7 +71,7 @@ class MaterialField extends \samson\activerecord\materialfield
      * @param QueryInterface $query Query object instance
      * @param string $materialID Material identifier
      * @param string $fieldID Additional field identifier
-     * @param self[]|null $return Variable to return found database record
+     * @param mixed $return Variable to return found database record
      * @param string $locale Locale identifier
      * @return bool|null|self[]  Field instance or null if 3rd parameter not passed
      */
