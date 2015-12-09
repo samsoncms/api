@@ -21,7 +21,7 @@ class Field extends \samson\activerecord\field
     const F_LOCALIZED = 'local';
 
     /** @var string Additional field value type */
-    public $type;
+    public $Type;
 
     /** @var string Additional field name */
     public $Name;
@@ -177,7 +177,7 @@ class Field extends \samson\activerecord\field
     /** @return string Get additional field value field name depending on its type */
     public function valueFieldName()
     {
-        switch ($this->type) {
+        switch ($this->Type) {
             case 7:
                 return 'numeric_value';
             case 6:
@@ -190,6 +190,6 @@ class Field extends \samson\activerecord\field
     /** @return bool True if field is localized */
     public function localized()
     {
-        return ((int)$this->local) === 1;
+        return $this->local == 1;
     }
 }

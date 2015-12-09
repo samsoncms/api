@@ -89,10 +89,10 @@ class FieldsTable
         $notLocalizedColumns = array();
         /** @var Field $field Iterate table columns(fields) */
         foreach ($fields as $field) {
-            if (!$field->localized()) {
-                $localizedColumns[] = $field;
+            if ($field->localized()) {
+                $localizedColumns[] = $field->id;
             } else {
-                $notLocalizedColumns[] = $field;
+                $notLocalizedColumns[] = $field->id;
             }
         }
 
@@ -125,9 +125,11 @@ class FieldsTable
         $this->fields = (new FieldNavigation())->byRelationID($this->navigationID);
 
         /** @var MaterialField $fieldValue Get additional field value instances */
-        foreach ($this->query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
+        foreach ($this->query
                      // Get only needed rows(materials)
                      ->where(Material::F_PRIMARY, $this->rowIDs())
+                     ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
+                    ->where(Material::F_DELETION, 1)
                      // Get correct localizes field condition for columns
                      ->whereCondition($this->fieldsCondition($this->fields))
                      ->exec() as $fieldValue
