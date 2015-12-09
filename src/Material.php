@@ -27,6 +27,15 @@ class Material extends \samson\activerecord\material
     public static $_own_group = array();
     public static $_map = array();
 
+    const ENTITY = '\samsoncms\api\Material';
+    /** Entity field names constants for using in code */
+    const F_PRIMARY = 'MaterialID';
+    const F_IDENTIFIER = 'Url';
+    const F_DELETION = 'Active';
+    const F_PUBLISHED = 'Published';
+    const F_PARENT = 'parent_id';
+    const F_PRIORITY = 'priority';
+
     /** @var integer Primary field */
     public $MaterialID;
 
@@ -38,6 +47,12 @@ class Material extends \samson\activerecord\material
 
     /** @var bool Published flag */
     public $Published;
+
+    /** @var integer Parent material identifier */
+    public $parent_id;
+
+    /** @var integer Priority inside material relation */
+    public $priority;
 
     /**
      * Get material entity by URL(s).
@@ -235,8 +250,6 @@ class Material extends \samson\activerecord\material
      *
      * @param string $navigationID Navigation table identifier
      * @param array $tableColumns Columns names list
-     * @param string $externalHandler External handler to perform some extra code
-     * @param array $params External handler params
      * @return array Collection of collections of table cells, represented as materialfield objects
      */
     public function table($navigationID, &$tableColumns = null) {

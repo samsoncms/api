@@ -10,6 +10,16 @@ use samsonframework\orm\QueryInterface;
  */
 class Field extends \samson\activerecord\field
 {
+    /** Store entity name */
+    const ENTITY = __CLASS__;
+
+    /** Entity field names constants for using in code */
+    const F_PRIMARY = 'FieldID';
+    const F_IDENTIFIER = 'Name';
+    const F_DELETION = 'Active';
+    const F_DEFAULT = 'Value';
+    const F_LOCALIZED = 'local';
+
     /** @var string Additional field value type */
     public $type;
 
@@ -21,6 +31,9 @@ class Field extends \samson\activerecord\field
 
     /** @var bool Flag is localized */
     public $local;
+
+    /** @var bool Internal existence flag */
+    public $Active;
 
     /**
      * Get current entity instances collection by their identifiers.
@@ -172,5 +185,11 @@ class Field extends \samson\activerecord\field
             default:
                 return 'Value';
         }
+    }
+
+    /** @return bool True if field is localized */
+    public function localized()
+    {
+        return ((int)$this->local) === 1;
     }
 }
