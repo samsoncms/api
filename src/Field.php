@@ -20,6 +20,23 @@ class Field extends \samson\activerecord\field
     const F_DEFAULT = 'Value';
     const F_LOCALIZED = 'local';
 
+    /** Additional field storing text value */
+    const TYPE_TEXT = 0;
+    /** Additional field storing resource link */
+    const TYPE_RESOURCE = 1;
+    /** Additional field storing options value */
+    const TYPE_OPTIONS = 4;
+    /** Additional field storing other entity identifier */
+    const TYPE_ENTITYID = 6;
+    /** Additional field storing numeric value */
+    const TYPE_NUMERIC = 7;
+    /** Additional field storing long text value */
+    const TYPE_LONGTEXT = 8;
+    /** Additional field storing datetime value */
+    const TYPE_DATETIME = 10;
+    /** Additional field storing boolean value */
+    const TYPE_BOOL = 11;
+
     /** @var string Additional field value type */
     public $Type;
 

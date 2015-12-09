@@ -57,6 +57,16 @@ class FieldsTable
         return $return;
     }
 
+    public function entities($fieldID, $entityIdentifier = Material::ENTITY)
+    {
+        $return = array();
+        $field = &$this->fields[$fieldID];
+        if (isset($field) && $field->Type) {
+            $return = array_column($this->collection, $fieldID);
+        }
+        return $return;
+    }
+
     /**
      * Get field table as multidimensional array.
      *
