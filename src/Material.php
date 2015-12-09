@@ -202,23 +202,32 @@ class Material extends \samson\activerecord\material
         return $clone;
     }
 
-    public function nestedIDs($navigationID = null, &$return = array())
+    /**
+     * Get child materials for this material.
+     *
+     * @param string $navigationID Navigation filter identifier
+     * @return self[] Collection of nested materials
+     */
+    public function nestedIDs($navigationID = null)
     {
         // Create query
         $query = new dbQuery();
+        $query->entity(get_class($this));
 
-        /** @var array $nestedIDs Get collection of materials by navigation */
-        if (sizeof($nestedIDs = (new MaterialNavigation())->byRelationID($navigationID))) {
-            // Get collection of nested materials
-            $return = $query->entity(get_class($this))
-                ->where('MaterialID', $nestedIDs)
-                ->where('Active', 1)
-                ->where('parent_id', $this->id)
-                ->orderBy('priority')
-                ->fields('MaterialID');
+        /** @var array $filteredIDs Get collection of materials by navigation */
+        if (isset($navigationID)
+            && sizeof($filteredIDs = (new MaterialNavigation())->idsByRelationID($navigationID))
+        ) {
+            // Add navigation filtering
+            $query->where('MaterialID', $filteredIDs);
         }
 
-        return $return;
+        // Get collection of nested materials
+        return $query
+            ->where('Active', 1)
+            ->where('parent_id', $this->id)
+            ->orderBy('priority')
+            ->fields('MaterialID');
     }
 
     /**
@@ -255,8 +264,7 @@ class Material extends \samson\activerecord\material
             }
 
             // Get table row materials
-            $tableRowsIDs = array();
-            if ($this->nestedIDs($navigationID, $tableRowsIDs)) {
+            if (sizeof($tableRowsIDs = $this->nestedIDs($navigationID))) {
                 // Create field condition
                 $localizationFieldCond = new Condition('or');
 
@@ -276,7 +284,7 @@ class Material extends \samson\activerecord\material
                 ;
 
                 // Flip field identifiers as keys
-                $tableColumnIds = array_flip($dbTableFieldsIds);
+                $tableColumnIds = array_flip(array_keys($dbTableFieldsIds));
                 $resultTable = array_flip($tableRowsIDs);
 
                 /** @var \samson\activerecord\material $dbTableRow Material object (table row) */
