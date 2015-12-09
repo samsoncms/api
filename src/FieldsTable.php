@@ -45,12 +45,16 @@ class FieldsTable
     /**
      * Get collection of table column values as array.
      *
-     * @param string $columnName Additional field name
+     * @param string $fieldID Additional field identifier
      * @return array Collection of table column values as array
      */
-    public function values($columnName)
+    public function values($fieldID)
     {
-        return array_column($this->collection, $columnName);
+        $return = array();
+        if (isset($this->fields[$fieldID])) {
+            $return = array_column($this->collection, $fieldID);
+        }
+        return $return;
     }
 
     /**
@@ -124,28 +128,28 @@ class FieldsTable
         // Get table Fields instances
         $this->fields = (new FieldNavigation())->byRelationID($this->navigationID);
 
-        /** @var MaterialField $fieldValue Get additional field value instances */
-        foreach ($this->query
-                     // Get only needed rows(materials)
-                     ->where(Material::F_PRIMARY, $this->rowIDs())
-                     ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
-                    ->where(Material::F_DELETION, 1)
-                     // Get correct localizes field condition for columns
-                     ->whereCondition($this->fieldsCondition($this->fields))
-                     ->exec() as $fieldValue
-        ) {
-            /** @var Field $field Try to find Field instance by identifier */
-            $field = &$this->fields[$fieldValue[Field::F_PRIMARY]];
-            if (isset($field)) {
-                /**
-                 * Store table row(material) as it primary, store columns(Fields)
-                 * by field primary. Use correct column for value.
-                 */
-                $this->collection[$fieldValue[Material::F_PRIMARY]][$fieldValue[Field::F_PRIMARY]]
-                    = $fieldValue[$field->valueFieldName()];
+        if (sizeof($rowIDs = $this->rowIDs())) {
+            /** @var MaterialField $fieldValue Get additional field value instances */
+            foreach ($this->query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
+                         // Get only needed rows(materials)
+                         ->where(Material::F_PRIMARY, $rowIDs)
+                         ->where(Material::F_DELETION, 1)
+                         // Get correct localizes field condition for columns
+                         ->whereCondition($this->fieldsCondition($this->fields))
+                         ->exec() as $fieldValue
+            ) {
+                /** @var Field $field Try to find Field instance by identifier */
+                $field = &$this->fields[$fieldValue[Field::F_PRIMARY]];
+                if (isset($field)) {
+                    /**
+                     * Store table row(material) as it primary, store columns(Fields)
+                     * by field primary. Use correct column for value.
+                     */
+                    $this->collection[$fieldValue[Material::F_PRIMARY]][$fieldValue[Field::F_PRIMARY]]
+                        = $fieldValue[$field->valueFieldName()];
+                }
             }
         }
-
     }
 
     /**
