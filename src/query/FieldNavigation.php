@@ -12,22 +12,22 @@ use samsoncms\api\CMS;
 use samsoncms\api\Navigation;
 
 /**
- * Material to navigation relation query.
- * @package samsoncms\api
+ * Additional field to navigation relation query.
+ * @package samsoncms\api\query
  */
-class MaterialNavigation extends Base
+class FieldNavigation extends Base
 {
     /**
-     * MaterialNavigation constructor
+     * FieldNavigation constructor.
      * @param array $filteringIDs Collection of entity identifiers for filtering
      */
     public function __construct($filteringIDs = array())
     {
         parent::__construct(
             new dbQuery(),
-            '\samsoncms\api\Material',
+            '\samsoncms\api\Field',
             Navigation::$_primary,
-            CMS::MATERIAL_NAVIGATION_RELATION_ENTITY,
+            CMS::FIELD_NAVIGATION_RELATION_ENTITY,
             $filteringIDs
         );
     }

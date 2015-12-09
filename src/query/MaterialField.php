@@ -12,7 +12,7 @@ use samsoncms\api\Field;
 use samsoncms\api\CMS;
 
 /**
- * Retrieve materials by additional fields.
+ * Material to additional fields relation query.
  * @package samsoncms\api
  */
 class MaterialField extends Base

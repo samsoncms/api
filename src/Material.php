@@ -6,6 +6,8 @@
 namespace samsoncms\api;
 
 use samson\activerecord\dbQuery;
+use samsoncms\api\query\FieldNavigation;
+use samsoncms\api\query\MaterialNavigation;
 use \samsonframework\orm\Condition;
 use samsonframework\orm\Query;
 use \samsonframework\orm\QueryInterface;
@@ -33,6 +35,9 @@ class Material extends \samson\activerecord\material
 
     /** @var bool Internal existence flag */
     public $Active;
+
+    /** @var bool Published flag */
+    public $Published;
 
     /**
      * Get material entity by URL(s).
@@ -203,8 +208,7 @@ class Material extends \samson\activerecord\material
         $query = new dbQuery();
 
         /** @var array $nestedIDs Get collection of materials by navigation */
-        $nestedIDs = null;
-        if (static::idsByNavigationID($query, $navigationID, $nestedIDs)) {
+        if (sizeof($nestedIDs = (new MaterialNavigation())->byRelationID($navigationID))) {
             // Get collection of nested materials
             $return = $query->entity(get_class($this))
                 ->where('MaterialID', $nestedIDs)
@@ -234,8 +238,7 @@ class Material extends \samson\activerecord\material
         $resultTable = array();
 
         /** @var array $dbTableFieldsIds Array of table structure column identifiers */
-        $dbTableFieldsIds = array();
-        if (Field::byNavigationID($query, $navigationID, $dbTableFieldsIds)) {
+        if (sizeof($dbTableFieldsIds = (new FieldNavigation())->byRelationID($navigationID))) {
             // Get localized and not localized fields
             $localizedFields = array();
             $unlocalizedFields = array();
