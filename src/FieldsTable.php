@@ -101,8 +101,8 @@ class FieldsTable
         // Create localized condition
         if (sizeof($localizedColumns)) {
             $localizedCondition = new Condition(ConditionInterface::CONJUNCTION);
-            $localizedCondition->add('FieldID', $localizedColumns)
-                ->add('locale', $this->locale);
+            $localizedCondition->add(Field::F_PRIMARY, $localizedColumns)
+                ->add(MaterialField::F_LOCALE, $this->locale);
 
             // Add this condition to condition group
             $fieldsCondition->addCondition($localizedCondition);
@@ -110,7 +110,7 @@ class FieldsTable
 
         // Create not localized condition
         if (sizeof($notLocalizedColumns)) {
-            $fieldsCondition->add('FieldID', $notLocalizedColumns);
+            $fieldsCondition->add(Field::F_PRIMARY, $notLocalizedColumns);
         }
 
         return $fieldsCondition;
@@ -133,13 +133,13 @@ class FieldsTable
                      ->exec() as $fieldValue
         ) {
             /** @var Field $field Try to find Field instance by identifier */
-            $field = &$this->fields[$fieldValue['FieldID']];
+            $field = &$this->fields[$fieldValue[Field::F_PRIMARY]];
             if (isset($field)) {
                 /**
                  * Store table row(material) as it primary, store columns(Fields)
                  * by field primary. Use correct column for value.
                  */
-                $this->collection[$fieldValue[Material::F_PRIMARY]][$fieldValue->FieldID]
+                $this->collection[$fieldValue[Material::F_PRIMARY]][$fieldValue[Field::F_PRIMARY]]
                     = $fieldValue[$field->valueFieldName()];
             }
         }

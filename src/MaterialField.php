@@ -9,6 +9,14 @@ use samsonframework\orm\QueryInterface;
  */
 class MaterialField extends \samson\activerecord\materialfield
 {
+    /** Store entity name */
+    const ENTITY = __CLASS__;
+
+    /** Entity field names constants for using in code */
+    const F_PRIMARY = 'MaterialFieldID';
+    const F_DELETION = 'Active';
+    const F_LOCALE = 'locale';
+
     /** @var integer Primary key */
     public $FieldID;
 

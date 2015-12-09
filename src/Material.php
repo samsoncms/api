@@ -27,7 +27,9 @@ class Material extends \samson\activerecord\material
     public static $_own_group = array();
     public static $_map = array();
 
-    const ENTITY = '\samsoncms\api\Material';
+    /** Store entity name */
+    const ENTITY = __CLASS__;
+
     /** Entity field names constants for using in code */
     const F_PRIMARY = 'MaterialID';
     const F_IDENTIFIER = 'Url';
