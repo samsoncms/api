@@ -20,12 +20,13 @@ class MaterialField extends Relational
     /**
      * MaterialField constructor
      * @param array $filteringIDs Collection of entity identifiers for filtering
+     * @param string $identifier Entity identifier
      */
-    public function __construct($filteringIDs = array())
+    public function __construct($filteringIDs = array(), $identifier = \samsoncms\api\Material::ENTITY)
     {
         parent::__construct(
             new dbQuery(),
-            '\samsoncms\api\Material',
+            $identifier,
             Field::$_primary,
             CMS::MATERIAL_FIELD_RELATION_ENTITY,
             $filteringIDs

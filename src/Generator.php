@@ -149,6 +149,60 @@ class Generator
         return str_replace("\t", '    ', $class);
     }
 
+    /**
+     * Create entity PHP class code.
+     *
+     * @param array $structureRow Collection of structure info
+     * @return string Generated entitiy class code
+     */
+    protected function createQueryClass($structureRow)
+    {
+        $structureKey = ucfirst($this->transliterated($structureRow['Name']));
+
+        $class = "\n" . 'class ' . $structureKey . ' extends Base';
+        $class .= "\n" . '{';
+        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
+        $class .= "\n\t" . 'protected $identifier = "' . $structureRow['Name'] . '";';
+
+        // Get structure fields
+        //$fieldMap = array();
+        $fields = array();
+        $fieldIDs = array();
+
+        // TODO: Optimize queries
+        foreach ($this->database->fetch('SELECT * FROM `structurefield` WHERE `StructureID` = "' . $structureRow['StructureID'] . '" AND `Active` = "1"') as $fieldStructureRow) {
+            foreach ($this->database->fetch('SELECT * FROM `field` WHERE `FieldID` = "' . $fieldStructureRow['FieldID'] . '"') as $fieldRow) {
+                $type = str_replace(
+                    '\samsoncms\api\Field',
+                    'Field',
+                    $this->constantNameByValue($fieldRow['Type'])
+                );
+                $commentType = Field::$PHP_TYPE[$fieldRow['Type']];
+                $fieldName = lcfirst($this->transliterated($fieldRow['Name']));
+
+                $class .= "\n\t" . '/** @var ' . $commentType . ' Field #' . $fieldRow['FieldID'] . '*/';
+                $class .= "\n\t" . 'protected $' . $fieldName . ';';
+
+                // Store field metadata
+                $fields[$fieldName][] = $fieldRow;
+                $fieldIDs[] = $fieldRow['FieldID'];
+                //$fieldMap[] = '"'.$fieldName.'" => array("Id" => "'.$fieldRow['FieldID'].'", "Type" => ' . $type . ', "Name" => "' . $fieldRow['Name'] . '")';
+            }
+        }
+
+        //$class .= "\n\t" . '/** @var array Entity additional fields metadata */';
+        //$class .= "\n\t" .'protected $fieldsData = array('."\n\t\t".implode(','."\n\t\t", $fieldMap)."\n\t".');';
+        $class .= "\n\t";
+        $class .= "\n\t" . '/** @var array Collection of additional fields identifiers */';
+        $class .= "\n\t" . 'protected static $fieldIDs = array(' . implode(',', $fieldIDs) . ');';
+        $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
+        $class .= "\n\t" . 'protected static $navigationIDs = array(' . $structureRow['StructureID'] . ');';
+        $class .= "\n" . '}';
+
+        // Replace tabs with spaces
+        return str_replace("\t", '    ', $class);
+    }
+
     /** @return string Entity state hash */
     public function entityHash()
     {
