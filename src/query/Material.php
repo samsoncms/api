@@ -20,7 +20,7 @@ class Material extends Base
      * @param array $filteringIDs Collection of entity identifiers for filtering
      * @param string $identifier Entity identifier
      */
-    public function __construct($filteringIDs = array(), $identifier = \samsoncms\api\Material::ENTITY)
+    public function __construct($filteringIDs = array(), $identifier = '\samson\cms\CMSMaterial')
     {
         parent::__construct(
             new dbQuery(),
