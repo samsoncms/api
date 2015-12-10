@@ -105,10 +105,9 @@ class Generator
     {
         $structureKey = ucfirst($this->transliterated($structureRow['Name']));
 
-        $class = "\n" . 'class ' . $structureKey . ' extends Entity';
+        $class = "\n\n" . '/** "'.$structureRow['Name'].'" entity */';
+        $class .= "\n" . 'class ' . $structureKey . ' extends Entity';
         $class .= "\n" . '{';
-        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
-        $class .= "\n\t" . 'protected $identifier = "' . $structureRow['Name'] . '";';
 
         // Get structure fields
         //$fieldMap = array();
@@ -139,6 +138,8 @@ class Generator
         //$class .= "\n\t" . '/** @var array Entity additional fields metadata */';
         //$class .= "\n\t" .'protected $fieldsData = array('."\n\t\t".implode(','."\n\t\t", $fieldMap)."\n\t".');';
         $class .= "\n\t";
+        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
+        $class .= "\n\t" . 'protected static $viewName = "' . $structureRow['Name'] . '";';
         $class .= "\n\t" . '/** @var array Collection of additional fields identifiers */';
         $class .= "\n\t" . 'protected static $fieldIDs = array(' . implode(',', $fieldIDs) . ');';
         $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
@@ -159,10 +160,9 @@ class Generator
     {
         $structureKey = ucfirst($this->transliterated($structureRow['Name']));
 
-        $class = "\n" . 'class ' . $structureKey . ' extends Base';
+        $class = "\n\n" . '/** Class for getting "'.$structureRow['Name'].'" instances from database */';
+        $class .= "\n" . 'class ' . $structureKey . 'Query extends Generic';
         $class .= "\n" . '{';
-        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
-        $class .= "\n\t" . 'protected $identifier = "' . $structureRow['Name'] . '";';
 
         // Get structure fields
         //$fieldMap = array();
@@ -180,21 +180,29 @@ class Generator
                 $commentType = Field::$PHP_TYPE[$fieldRow['Type']];
                 $fieldName = lcfirst($this->transliterated($fieldRow['Name']));
 
-                $class .= "\n\t" . '/** @var ' . $commentType . ' Field #' . $fieldRow['FieldID'] . '*/';
-                $class .= "\n\t" . 'protected $' . $fieldName . ';';
+                $class .= "\n\t" . '/**';
+                $class .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldRow['FieldID'] . ') field query condition';
+                $class .= "\n\t" . ' * @param mixed $value Field value';
+                $class .= "\n\t" . ' * @return self Chaining';
+                $class .= "\n\t" . ' * @see Generic::where()';
+                $class .= "\n\t" . ' */';
+                $class .= "\n\t" . 'public function ' . $fieldName . '($value)';
+                $class .= "\n\t" . "{";
+                $class .= "\n\t\t" . 'return $this->where("'.$fieldName.'", $value);';
+                $class .= "\n\t" . "}"."\n";
 
                 // Store field metadata
-                $fields[$fieldName][] = $fieldRow;
-                $fieldIDs[] = $fieldRow['FieldID'];
-                //$fieldMap[] = '"'.$fieldName.'" => array("Id" => "'.$fieldRow['FieldID'].'", "Type" => ' . $type . ', "Name" => "' . $fieldRow['Name'] . '")';
+                $fieldIDs[] = '"'.$fieldName . '" => "'.$fieldRow['FieldID'].'"';
             }
         }
 
         //$class .= "\n\t" . '/** @var array Entity additional fields metadata */';
         //$class .= "\n\t" .'protected $fieldsData = array('."\n\t\t".implode(','."\n\t\t", $fieldMap)."\n\t".');';
-        $class .= "\n\t";
+        //$class .= "\n\t";
+        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
+        $class .= "\n\t" . 'protected static $identifier = "\\\\samsoncms\\\\api\\\\' . $structureKey . '";';
         $class .= "\n\t" . '/** @var array Collection of additional fields identifiers */';
-        $class .= "\n\t" . 'protected static $fieldIDs = array(' . implode(',', $fieldIDs) . ');';
+        $class .= "\n\t" . 'protected static $fieldIDs = array(' . "\n\t\t``". implode(','."\n\t\t", $fieldIDs) . "\n\t".');';
         $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
         $class .= "\n\t" . 'protected static $navigationIDs = array(' . $structureRow['StructureID'] . ');';
         $class .= "\n" . '}';
@@ -229,10 +237,11 @@ class Generator
         $classes = "\n" . 'namespace ' . __NAMESPACE__ . ';';
         $classes .= "\n";
         $classes .= "\n" . 'use \samsoncms\api\Field;';
-        $classes .= "\n";
+        $classes .= "\n" . 'use \samsoncms\api\query\Generic;';
         // Iterate all structures
         foreach ($this->entityStructures() as $structureRow) {
             $classes .= $this->createEntityClass($structureRow);
+            $classes .= $this->createQueryClass($structureRow);
         }
 
         return $classes;

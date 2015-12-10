@@ -19,6 +19,9 @@ class Generic
     /** @var string Entity identifier */
     protected static $identifier;
 
+    /** @var string Entity additional field identifiers */
+    protected static $fieldIDs;
+
     /** @var string Entity navigation identifiers */
     protected static $navigationIDs;
 
@@ -49,7 +52,7 @@ class Generic
      * @param array $entityIDs Additional collection of entity identifiers for filtering
      * @return array Collection of material identifiers by navigation identifiers
      */
-    protected function findByNavigationIDs($entityIDs)
+    protected function findByNavigationIDs($entityIDs = array())
     {
         return (new MaterialNavigation($entityIDs))->idsByRelationID(static::$navigationIDs);
     }

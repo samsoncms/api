@@ -26,12 +26,4 @@ class Entity extends Material
 
     /** @var array Collection of navigation identifiers */
     protected static $navigationIDs;
-
-    public static function byIDs(QueryInterface $query, $ids)
-    {
-        // Get additional fields records for passed materials and this entity fields
-        foreach (MaterialField::byFieldIDAndMaterialID($query, self::$fieldIDs, $ids) as $additionalField) {
-
-        }
-    }
 }
