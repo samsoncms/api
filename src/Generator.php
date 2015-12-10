@@ -122,7 +122,7 @@ class Generator
                     'Field',
                     $this->constantNameByValue($fieldRow['Type'])
                 );
-                $commentType = Field::$PHP_TYPE[$fieldRow['Type']];
+                $commentType = Field::$phpTYPE[$fieldRow['Type']];
                 $fieldName = lcfirst($this->transliterated($fieldRow['Name']));
 
                 $class .= "\n\t" . '/** @var ' . $commentType . ' Field #' . $fieldRow['FieldID'] . '*/';
@@ -148,6 +148,32 @@ class Generator
 
         // Replace tabs with spaces
         return str_replace("\t", '    ', $class);
+    }
+
+    /**
+     * Generate Query::where() analog for specific field.
+     *
+     * @param string $fieldName Field name
+     * @param string $fieldId Field primary identifier
+     * @param string $fieldType Field PHP type
+     * @return string Generated PHP method code
+     */
+    protected function generateFieldConditionMethod($fieldName, $fieldId, $fieldType)
+    {
+        /** @var string $fieldName Get correct field name */
+        $fieldName = lcfirst($this->transliterated($fieldName));
+
+        $code = "\n\t" . '/**';
+        $code .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldId . ') field query condition.';
+        $code .= "\n\t" . ' * @param '.Field::$phpTYPE[$fieldType].' $value Field value';
+        $code .= "\n\t" . ' * @return self Chaining';
+        $code .= "\n\t" . ' * @see Generic::where()';
+        $code .= "\n\t" . ' */';
+        $code .= "\n\t" . 'public function ' . $fieldName . '($value)';
+        $code .= "\n\t" . "{";
+        $code .= "\n\t\t" . 'return $this->where("'.$fieldName.'", $value);';
+
+        return $code . "\n\t" . "}"."\n";
     }
 
     /**
@@ -177,19 +203,10 @@ class Generator
                     'Field',
                     $this->constantNameByValue($fieldRow['Type'])
                 );
-                $commentType = Field::$PHP_TYPE[$fieldRow['Type']];
+                $commentType = Field::$phpTYPE[$fieldRow['Type']];
                 $fieldName = lcfirst($this->transliterated($fieldRow['Name']));
 
-                $class .= "\n\t" . '/**';
-                $class .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldRow['FieldID'] . ') field query condition';
-                $class .= "\n\t" . ' * @param '.$commentType.' $value Field value';
-                $class .= "\n\t" . ' * @return self Chaining';
-                $class .= "\n\t" . ' * @see Generic::where()';
-                $class .= "\n\t" . ' */';
-                $class .= "\n\t" . 'public function ' . $fieldName . '($value)';
-                $class .= "\n\t" . "{";
-                $class .= "\n\t\t" . 'return $this->where("'.$fieldName.'", $value);';
-                $class .= "\n\t" . "}"."\n";
+                $class .= $this->generateFieldConditionMethod($fieldName, $fieldRow['FieldID'], $fieldRow['Type']);
 
                 // Store field metadata
                 $fieldIDs[] = '"'.$fieldName . '" => "'.$fieldRow['FieldID'].'"';

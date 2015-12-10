@@ -38,7 +38,7 @@ class Field extends \samson\activerecord\field
     const TYPE_BOOL = 11;
 
     /** @var array Collection of field type to php variable type relations */
-    public static $PHP_TYPE = array(
+    public static $phpTYPE = array(
         self::TYPE_TEXT => 'string',
         self::TYPE_RESOURCE => 'string',
         self::TYPE_OPTIONS => 'string',
