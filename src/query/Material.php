@@ -16,16 +16,15 @@ use samson\activerecord\dbQuery;
 class Material extends Base
 {
     /**
-     * MaterialField constructor
-     * @param array $filteringIDs Collection of entity identifiers for filtering
+     * MaterialField constructor.
+     *
      * @param string $identifier Entity identifier
      */
-    public function __construct($filteringIDs = array(), $identifier = '\samson\cms\CMSMaterial')
+    public function __construct($identifier = '\samson\cms\CMSMaterial')
     {
         parent::__construct(
             new dbQuery(),
-            $identifier,
-            $filteringIDs
+            $identifier
         );
     }
 }

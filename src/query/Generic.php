@@ -25,18 +25,14 @@ class Generic
     /** @var array Collection of entity field filter */
     protected $fieldFilter;
 
-    /** @var array Collection of matching entity identifiers */
-    protected $entityIDs;
-
     /**
      * Add condition to current query.
      *
      * @param string $fieldName Entity field name
      * @param string $fieldValue Value
-     * @param string $relation Relation between field name and its value
      * @return self Chaining
      */
-    public function where($fieldName, $fieldValue = null, $relation = '=')
+    public function where($fieldName, $fieldValue = null)
     {
         // Try to find entity additional field
         if (property_exists(static::$identifier, $fieldName)) {
@@ -81,14 +77,6 @@ class Generic
         return $entityIDs;
     }
 
-    /** @return array Collection of material identifiers by navigation identifiers */
-    protected function findByAdditionalField()
-    {
-        $return = (new MaterialField($idsByNavigation))
-            ->byRelationID($this->fieldFilter[]);
-        return (new MaterialNavigation())->idsByRelationID(static::$navigationIDs);
-    }
-
     /**
      * Perform SamsonCMS query and get entities collection.
      *
@@ -96,18 +84,10 @@ class Generic
      */
     public function find()
     {
-        $return = array();
-        /** @var array $idsByNavigation First step - filter by navigation */
-        if (sizeof($idsByNavigation = $this->findByNavigationIDs())) {
-            // Second step filter by additional field value
-            if (sizeof($this->fieldFilter)) {
-                $return = (new MaterialField($idsByNavigation))
-                    ->byRelationID($this->fieldFilter[]);
-            } else { // Just return entities filtered by navigation
-                return (new Material($idsByNavigation, static::$identifier))->byIDs($idsByNavigation, 'exec');
-            }
-        }
+        // TODO: Find and describe approach with maximum generic performance
+        $entityIDs = $this->findByNavigationIDs();
+        $entityIDs = $this->findByAdditionalFields($this->fieldFilter, $entityIDs);
 
-        return $return;
+        return (new Material(static::$identifier))->byIDs($entityIDs, 'exec');
     }
 }
