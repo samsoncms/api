@@ -182,7 +182,7 @@ class Generator
 
                 $class .= "\n\t" . '/**';
                 $class .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldRow['FieldID'] . ') field query condition';
-                $class .= "\n\t" . ' * @param mixed $value Field value';
+                $class .= "\n\t" . ' * @param '.$commentType.' $value Field value';
                 $class .= "\n\t" . ' * @return self Chaining';
                 $class .= "\n\t" . ' * @see Generic::where()';
                 $class .= "\n\t" . ' */';
@@ -202,7 +202,7 @@ class Generator
         $class .= "\n\t" . '/** @var string Not transliterated entity name */';
         $class .= "\n\t" . 'protected static $identifier = "\\\\samsoncms\\\\api\\\\' . $structureKey . '";';
         $class .= "\n\t" . '/** @var array Collection of additional fields identifiers */';
-        $class .= "\n\t" . 'protected static $fieldIDs = array(' . "\n\t\t``". implode(','."\n\t\t", $fieldIDs) . "\n\t".');';
+        $class .= "\n\t" . 'protected static $fieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $fieldIDs) . "\n\t".');';
         $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
         $class .= "\n\t" . 'protected static $navigationIDs = array(' . $structureRow['StructureID'] . ');';
         $class .= "\n" . '}';
