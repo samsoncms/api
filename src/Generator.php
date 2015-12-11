@@ -91,7 +91,7 @@ class Generator
         // Try to find constant by its value
         if (isset($nameByValue[$value])) {
             // Return constant name
-            return '\\' . $className . '::' . $nameByValue[$value];
+            return $nameByValue[$value];
         }
     }
 
@@ -122,10 +122,9 @@ class Generator
                     'Field',
                     $this->constantNameByValue($fieldRow['Type'])
                 );
-                $commentType = Field::$phpTYPE[$fieldRow['Type']];
                 $fieldName = lcfirst($this->transliterated($fieldRow['Name']));
 
-                $class .= "\n\t" . '/** @var ' . $commentType . ' Field #' . $fieldRow['FieldID'] . '*/';
+                $class .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' Field #' . $fieldRow['FieldID'] . '*/';
                 $class .= "\n\t" . 'protected $' . $fieldName . ';';
 
                 // Store field metadata
@@ -151,6 +150,52 @@ class Generator
     }
 
     /**
+     * Get correct entity name.
+     *
+     * @param string $navigationName Original navigation entity name
+     * @return string Correct PHP-supported entity name
+     */
+    protected function entityName($navigationName)
+    {
+        return ucfirst($this->transliterated($navigationName));
+    }
+
+    /**
+     * Get correct full entity name with name space.
+     *
+     * @param string $navigationName Original navigation entity name
+     * @param string $namespace Namespace
+     * @return string Correct PHP-supported entity name
+     */
+    protected function fullEntityName($navigationName, $namespace = __NAMESPACE__)
+    {
+        return $namespace.$this->entityName($navigationName);
+    }
+
+    /**
+     * Get correct field name.
+     *
+     * @param string $fieldName Original field name
+     * @return string Correct PHP-supported field name
+     */
+    protected function fieldName($fieldName)
+    {
+        return $fieldName = lcfirst($this->transliterated($fieldName));
+    }
+
+    /**
+     * Get additional field type in form of Field constant name
+     * by database additional field type identifier.
+     *
+     * @param integer $fieldType Additional field type identifier
+     * @return string Additional field type constant
+     */
+    protected function additionalFieldType($fieldType)
+    {
+        return 'Field::'.$this->constantNameByValue($fieldType);
+    }
+
+    /**
      * Generate Query::where() analog for specific field.
      *
      * @param string $fieldName Field name
@@ -160,12 +205,9 @@ class Generator
      */
     protected function generateFieldConditionMethod($fieldName, $fieldId, $fieldType)
     {
-        /** @var string $fieldName Get correct field name */
-        $fieldName = lcfirst($this->transliterated($fieldName));
-
         $code = "\n\t" . '/**';
         $code .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldId . ') field query condition.';
-        $code .= "\n\t" . ' * @param '.Field::$phpTYPE[$fieldType].' $value Field value';
+        $code .= "\n\t" . ' * @param '.Field::phpType($fieldType).' $value Field value';
         $code .= "\n\t" . ' * @return self Chaining';
         $code .= "\n\t" . ' * @see Generic::where()';
         $code .= "\n\t" . ' */';
@@ -179,53 +221,45 @@ class Generator
     /**
      * Create entity PHP class code.
      *
-     * @param array $structureRow Collection of structure info
+     * @param $navigationID
+     * @param $navigationName
+     * @param $entityName
+     * @param $navigationFields
      * @return string Generated entitiy class code
+     * @internal param array $navigationData Collection of structure info
      */
-    protected function createQueryClass($structureRow)
+    protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
-        $structureKey = ucfirst($this->transliterated($structureRow['Name']));
-
-        $class = "\n\n" . '/** Class for getting "'.$structureRow['Name'].'" instances from database */';
-        $class .= "\n" . 'class ' . $structureKey . 'Query extends Generic';
+        $class = "\n\n" . '/** Class for getting "'.$navigationName.'" instances from database */';
+        $class .= "\n" . 'class ' . $entityName . ' extends Generic';
         $class .= "\n" . '{';
 
-        // Get structure fields
-        //$fieldMap = array();
-        $fields = array();
+        // Iterate additional fields
         $fieldIDs = array();
+        foreach ($navigationFields as $fieldRow) {
+            $fieldName = $this->fieldName($fieldRow['Name']);
 
-        // TODO: Optimize queries
-        foreach ($this->database->fetch('SELECT * FROM `structurefield` WHERE `StructureID` = "' . $structureRow['StructureID'] . '" AND `Active` = "1"') as $fieldStructureRow) {
-            foreach ($this->database->fetch('SELECT * FROM `field` WHERE `FieldID` = "' . $fieldStructureRow['FieldID'] . '"') as $fieldRow) {
-                $type = str_replace(
-                    '\samsoncms\api\Field',
-                    'Field',
-                    $this->constantNameByValue($fieldRow['Type'])
-                );
-                $commentType = Field::$phpTYPE[$fieldRow['Type']];
-                $fieldName = lcfirst($this->transliterated($fieldRow['Name']));
+            $class .= $this->generateFieldConditionMethod(
+                $fieldName,
+                $fieldRow['FieldID'],
+                $fieldRow['Type']
+            );
 
-                $class .= $this->generateFieldConditionMethod($fieldName, $fieldRow['FieldID'], $fieldRow['Type']);
-
-                // Store field metadata
-                $fieldIDs[] = '"'.$fieldName . '" => "'.$fieldRow['FieldID'].'"';
-            }
+            // Store field metadata
+            $fieldIDs[] = '"' . $fieldName . '" => "' . $fieldRow['FieldID'] . '"';
         }
 
-        //$class .= "\n\t" . '/** @var array Entity additional fields metadata */';
-        //$class .= "\n\t" .'protected $fieldsData = array('."\n\t\t".implode(','."\n\t\t", $fieldMap)."\n\t".');';
-        //$class .= "\n\t";
+        $class .= "\n\t";
         $class .= "\n\t" . '/** @var string Not transliterated entity name */';
-        $class .= "\n\t" . 'protected static $identifier = "\\\\samsoncms\\\\api\\\\' . $structureKey . '";';
+        $class .= "\n\t" . 'protected static $identifier = "'.$this->fullEntityName($navigationName).'";';
+        $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
+        $class .= "\n\t" . 'protected static $navigationIDs = array(' . $navigationID . ');';
         $class .= "\n\t" . '/** @var array Collection of additional fields identifiers */';
         $class .= "\n\t" . 'protected static $fieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $fieldIDs) . "\n\t".');';
-        $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
-        $class .= "\n\t" . 'protected static $navigationIDs = array(' . $structureRow['StructureID'] . ');';
         $class .= "\n" . '}';
 
         // Replace tabs with spaces
-        return str_replace("\t", '    ', $class);
+        return $class;
     }
 
     /** @return string Entity state hash */
@@ -239,13 +273,27 @@ class Generator
         )));
     }
 
-    /** @return mixed Get collection of structures object */
-    protected function entityStructures()
+    /** @return array Get collection of navigation objects */
+    protected function entityNavigations($type = 0)
     {
         return $this->database->fetch('
         SELECT * FROM `structure`
-        WHERE `Active` = "1" AND `Type` = "0"'
+        WHERE `Active` = "1" AND `Type` = "'.$type.'"'
         );
+    }
+
+    /** @return array Collection of navigation additional fields */
+    protected function navigationFields($navigationID)
+    {
+        $return = array();
+        // TODO: Optimize queries make one single query with only needed data
+        foreach ($this->database->fetch('SELECT * FROM `structurefield` WHERE `StructureID` = "' . $navigationID . '" AND `Active` = "1"') as $fieldStructureRow) {
+            foreach ($this->database->fetch('SELECT * FROM `field` WHERE `FieldID` = "' . $fieldStructureRow['FieldID'] . '"') as $fieldRow) {
+                $return[] = $fieldRow;
+            }
+        }
+
+        return $return;
     }
 
     /** @return string Generate entity classes */
@@ -256,12 +304,19 @@ class Generator
         $classes .= "\n" . 'use \samsoncms\api\Field;';
         $classes .= "\n" . 'use \samsoncms\api\query\Generic;';
         // Iterate all structures
-        foreach ($this->entityStructures() as $structureRow) {
+        foreach ($this-> entityNavigations() as $structureRow) {
+            $navigationFields = $this->navigationFields($structureRow['StructureID']);
             $classes .= $this->createEntityClass($structureRow);
-            $classes .= $this->createQueryClass($structureRow);
+            $classes .= $this->createQueryClass(
+                $structureRow['StructureID'],
+                $structureRow['Name'],
+                $this->entityName($structureRow['Name'].'Query'),
+                $navigationFields
+            );
         }
 
-        return $classes;
+        // Make correct code formatting
+        return str_replace("\t", '    ', $classes);
     }
 
     /**

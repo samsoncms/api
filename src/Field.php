@@ -1,6 +1,7 @@
 <?php
 namespace samsoncms\api;
 
+use samsoncms\api\exception\AdditionalFieldTypeNotFound;
 use samsonframework\orm\Condition;
 use samsonframework\orm\QueryInterface;
 
@@ -38,7 +39,7 @@ class Field extends \samson\activerecord\field
     const TYPE_BOOL = 11;
 
     /** @var array Collection of field type to php variable type relations */
-    public static $phpTYPE = array(
+    protected static $phpTYPE = array(
         self::TYPE_TEXT => 'string',
         self::TYPE_RESOURCE => 'string',
         self::TYPE_OPTIONS => 'string',
@@ -48,6 +49,24 @@ class Field extends \samson\activerecord\field
         self::TYPE_NUMERIC => 'int',
         self::TYPE_DATETIME => 'bool'
     );
+
+    /**
+     * Get additional field type in form of Field constant name
+     * by database additional field type identifier.
+     *
+     * @param integer $fieldType Additional field type identifier
+     * @return string Additional field type constant
+     * @throws AdditionalFieldTypeNotFound
+     */
+    public static function phpType($fieldType)
+    {
+        $pointer = & static::$phpTYPE[$fieldType];
+        if (isset($pointer)) {
+            return $pointer;
+        } else {
+            throw new AdditionalFieldTypeNotFound();
+        }
+    }
 
     /** @var string Additional field value type */
     public $Type;
