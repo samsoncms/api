@@ -97,6 +97,12 @@ class Generic
         return $entityIDs;
     }
 
+    /**
+     * Get entities additional field values.
+     *
+     * @param array $entityIDs Collection of entity identifiers
+     * @return array Collection of entities additional fields EntityID => [Additional field name => Value]
+     */
     protected function findAdditionalFields($entityIDs)
     {
         $return = array();
