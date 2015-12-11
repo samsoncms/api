@@ -41,11 +41,37 @@ class Generic
     protected static $fieldValueColumns = array();
 
 
+    /** @var array Collection selected additional entity fields */
+    protected $selectedFields = array();
+
     /** @var array Collection of entity field filter */
     protected $fieldFilter = array();
 
     /** @var string Query locale */
     protected $locale = '';
+
+    /**
+     * Select specified entity fields.
+     * If this method is called then only selected entity fields
+     * would be return in entity instances.
+     *
+     * @param mixed $fieldNames Entity field name or collection of names
+     * @return self Chaining
+     */
+    public function select($fieldNames)
+    {
+        // Convert argument to array and iterate
+        foreach ((!is_array($fieldNames) ? array($fieldNames) : $fieldNames) as $fieldName) {
+            // Try to find entity additional field
+            $pointer = &static::$fieldNames[$fieldName];
+            if (isset($pointer)) {
+                // Store selected additional field buy FieldID and Field name
+                $this->selectedFields[$pointer] = $fieldName;
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * Add condition to current query.
@@ -110,9 +136,27 @@ class Generic
     {
         $return = array();
 
+        // Copy fields arrays
+        $localized = static::$localizedFieldIDs;
+        $notLocalized = static::$notLocalizedFieldIDs;
+
+        // If we filter additional fields that we need to receive
+        if (sizeof($this->selectedFields)) {
+            foreach ($this->selectedFields as $fieldID => $fieldName) {
+                // Filter localized and not fields by selected fields
+                if (!isset(static::$localizedFieldIDs[$fieldID])) {
+                    unset($localized[$fieldID]);
+                }
+
+                if (!isset(static::$notLocalizedFieldIDs[$fieldID])) {
+                    unset($notLocalized[$fieldID]);
+                }
+            }
+        }
+
         // Prepare localized additional field query condition
         $condition = new Condition(Condition::DISJUNCTION);
-        foreach (static::$localizedFieldIDs as $fieldID => $fieldName) {
+        foreach ($localized as $fieldID => $fieldName) {
             $condition->addCondition(
                 (new Condition())
                 ->add(Field::F_PRIMARY, $fieldID)
@@ -121,7 +165,7 @@ class Generic
         }
 
         // Prepare not localized fields condition
-        foreach (static::$notLocalizedFieldIDs as $fieldID => $fieldName) {
+        foreach ($notLocalized as $fieldID => $fieldName) {
             $condition->add(Field::F_PRIMARY, $fieldID);
         }
 
@@ -132,6 +176,7 @@ class Generic
                      ->where(Material::F_DELETION, true)
                      ->exec() as $additionalField
         ) {
+            // Get needed metadata
             $fieldID = $additionalField[Field::F_PRIMARY];
             $materialID = $additionalField[Material::F_PRIMARY];
             $valueField = static::$fieldValueColumns[$fieldID];
