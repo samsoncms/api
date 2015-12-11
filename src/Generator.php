@@ -214,7 +214,7 @@ class Generator
     protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
         $class = "\n\n" . '/** Class for getting "'.$navigationName.'" instances from database */';
-        $class .= "\n" . 'class ' . $entityName . ' extends Generic';
+        $class .= "\n" . 'class ' . $entityName . ' extends EntityQuery';
         $class .= "\n" . '{';
 
         // Iterate additional fields
@@ -226,6 +226,7 @@ class Generator
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
+            // TODO: Add different method generation depending on their field type
             $class .= $this->generateFieldConditionMethod(
                 $fieldName,
                 $fieldRow[Field::F_PRIMARY],
@@ -309,7 +310,7 @@ class Generator
         $classes = "\n" . 'namespace ' . $namespace . ';';
         $classes .= "\n";
         $classes .= "\n" . 'use '.$namespace.'\Field;';
-        $classes .= "\n" . 'use '.$namespace.'\query\Generic;';
+        $classes .= "\n" . 'use '.$namespace.'\query\EntityQuery;';
 
         // Iterate all structures
         foreach ($this-> entityNavigations() as $structureRow) {
