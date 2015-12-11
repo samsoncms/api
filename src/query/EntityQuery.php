@@ -205,9 +205,13 @@ class EntityQuery extends Generic
         $return = array();
         if (sizeof($entityIDs)) {
             $additionalFields = $this->findAdditionalFields($entityIDs);
+
+            // Set entity primary keys
+            $this->primary($entityIDs);
+
             //elapsed('End fields values');
             /** @var \samsoncms\api\Entity $item Find entity instances */
-            foreach ($this->query->entity(static::$identifier)->where(Material::F_PRIMARY, $entityIDs)->exec() as $item) {
+            foreach (parent::find() as $item) {
                 // If we have list of additional fields that we need
                 $fieldIDs = sizeof($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
 

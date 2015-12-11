@@ -9,6 +9,7 @@ namespace samsoncms\api\query;
 
 use samsoncms\api\Material;
 use samsonframework\orm\ArgumentInterface;
+use samsonframework\orm\Condition;
 use samsonframework\orm\QueryInterface;
 
 /**
@@ -39,6 +40,21 @@ class Generic
     /** @var array Collection of entity fields to retrieved from database */
     protected $selectedFields;
 
+    /** @var Condition Query conditions */
+    protected $conditions;
+
+    /**
+     * Convert date value to database format.
+     * TODO: Must implement at database layer
+     *
+     * @param string $date Date value for conversion
+     * @return string Converted date to correct format
+     */
+    protected function convertToDateTime($date)
+    {
+        return date("Y-m-d H:i:s", strtotime($date));
+    }
+
     /**
      * Add condition to current query.
      *
@@ -48,10 +64,21 @@ class Generic
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
-        // Proxy call
-        $this->query->where($fieldName, $fieldValue, $fieldRelation);
+        $this->conditions->add($fieldName, $fieldValue, $fieldRelation);
 
         return $this;
+    }
+
+    /**
+     * Add primary field query condition.
+     *
+     * @param string $value Field value
+     * @return self Chaining
+     * @see Generic::where()
+     */
+    public function primary($value)
+    {
+        return $this->where(Material::F_PRIMARY, $value);
     }
 
     /**
@@ -88,7 +115,7 @@ class Generic
      */
     public function created($value, $relation = ArgumentInterface::EQUAL)
     {
-        return $this->where(Material::F_CREATED, $value, $relation);
+        return $this->where(Material::F_CREATED, $this->convertToDateTime($value), $relation);
     }
 
     /**
@@ -101,7 +128,7 @@ class Generic
      */
     public function modified($value, $relation = ArgumentInterface::EQUAL)
     {
-        return $this->where(Material::F_MODIFIED, $value, $relation);
+        return $this->where(Material::F_MODIFIED, $this->convertToDateTime($value), $relation);
     }
 
     /**
@@ -112,7 +139,7 @@ class Generic
     public function find()
     {
         // Proxy to regular database query
-        return $this->query->exec();
+        return $this->query->entity(static::$identifier)->whereCondition($this->conditions)->exec();
     }
 
     /**
@@ -123,5 +150,6 @@ class Generic
     public function __construct(QueryInterface $query)
     {
         $this->query = $query;
+        $this->conditions = new Condition();
     }
 }
