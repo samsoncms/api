@@ -213,6 +213,7 @@ class Generator
         $localizedFieldIDs = array();
         $notLocalizedFieldIDs = array();
         $allFieldIDs = array();
+        $allFieldNames = array();
         $allFieldValueColumns = array();
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
@@ -225,6 +226,7 @@ class Generator
 
             // Store field metadata
             $allFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
+            $allFieldNames[] = '"' . $fieldName . '" => "' . $fieldID . '"';
             $allFieldValueColumns[] = '"' . $fieldID . '" => "' . Field::valueColumn($fieldRow[Field::F_TYPE]) . '"';
             if ($fieldRow[Field::F_LOCALIZED] == 1) {
                 $localizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
@@ -246,6 +248,8 @@ class Generator
         $class .= "\n\t" . 'protected static $fieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldIDs) . "\n\t".');';
         $class .= "\n\t" . '/** @var array Collection of additional fields value column names */';
         $class .= "\n\t" . 'protected static $fieldValueColumns = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldValueColumns) . "\n\t".');';
+        $class .= "\n\t" . '/** @var array Collection of additional field names */';
+        $class .= "\n\t" . 'protected static $fieldNames = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldNames) . "\n\t".');';
         $class .= "\n" . '}';
 
         // Replace tabs with spaces

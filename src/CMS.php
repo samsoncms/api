@@ -87,8 +87,9 @@ class CMS extends CompressableService
         $generator = new Generator($this->database);
         $file = md5($generator->entityHash()).'.php';
         if ($this->cache_refresh($file)) {
-            file_put_contents($file, '<?php '.$generator->createEntityClasses());
+
         }
+        file_put_contents($file, '<?php '.$generator->createEntityClasses());
 
         // Include entities file
         require($file);

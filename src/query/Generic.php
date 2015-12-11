@@ -10,7 +10,6 @@ namespace samsoncms\api\query;
 use samson\activerecord\dbQuery;
 use samsoncms\api\Field;
 use samsoncms\api\Material;
-use samsoncms\api\MaterialField;
 use samsonframework\orm\Condition;
 use samsonframework\orm\Query;
 
@@ -35,6 +34,9 @@ class Generic
     /** @var array Collection of all additional fields identifiers */
     protected static $fieldIDs = array();
 
+    /** @var array Collection of all additional fields names */
+    protected static $fieldNames = array();
+
     /** @var  @var array Collection of additional fields value column names */
     protected static $fieldValueColumns = array();
 
@@ -55,9 +57,10 @@ class Generic
     public function where($fieldName, $fieldValue = null)
     {
         // Try to find entity additional field
-        if (property_exists(static::$identifier, $fieldName)) {
+        $pointer = &static::$fieldNames[$fieldName];
+        if (isset($pointer)) {
             // Store additional field filter value
-            $this->fieldFilter[$fieldName] = $fieldValue;
+            $this->fieldFilter[$pointer] = $fieldValue;
         }
 
         return $this;
@@ -123,7 +126,7 @@ class Generic
         }
 
         // Get additional fields values for current entity identifiers
-        foreach ((new dbQuery())->entity(MaterialField::ENTITY)
+        foreach ((new dbQuery())->entity(\samsoncms\api\MaterialField::ENTITY)
                      ->where(Material::F_PRIMARY, $entityIDs)
                      ->whereCondition($condition)
                      ->where(Material::F_DELETION, true)

@@ -55,7 +55,7 @@ class MaterialField extends Relational
                 ->where($fieldRecord->valueFieldName(), $relationValue);
 
             // Add material identifier filter if passed
-            if (isset($filteringIDs)) {
+            if (sizeof($filteringIDs)) {
                 $this->query->where($this->primaryField, $filteringIDs);
             }
 
