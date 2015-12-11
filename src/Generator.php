@@ -219,14 +219,13 @@ class Generator
     }
 
     /**
-     * Create entity PHP class code.
+     * Create entity query PHP class code.
      *
-     * @param $navigationID
-     * @param $navigationName
-     * @param $entityName
-     * @param $navigationFields
-     * @return string Generated entitiy class code
-     * @internal param array $navigationData Collection of structure info
+     * @param integer $navigationID Entity navigation identifier
+     * @param string $navigationName Original entity name
+     * @param string $entityName PHP entity name
+     * @param array $navigationFields Collection of entity additional fields
+     * @return string Generated entity query PHP class code
      */
     protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
@@ -236,7 +235,7 @@ class Generator
 
         // Iterate additional fields
         $fieldIDs = array();
-        foreach ($navigationFields as $fieldRow) {
+        foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
             $class .= $this->generateFieldConditionMethod(
@@ -246,7 +245,7 @@ class Generator
             );
 
             // Store field metadata
-            $fieldIDs[] = '"' . $fieldName . '" => "' . $fieldRow['FieldID'] . '"';
+            $fieldIDs[] = '"' . $fieldName . '" => "' . $fieldID . '"';
         }
 
         $class .= "\n\t";
@@ -289,7 +288,7 @@ class Generator
         // TODO: Optimize queries make one single query with only needed data
         foreach ($this->database->fetch('SELECT * FROM `structurefield` WHERE `StructureID` = "' . $navigationID . '" AND `Active` = "1"') as $fieldStructureRow) {
             foreach ($this->database->fetch('SELECT * FROM `field` WHERE `FieldID` = "' . $fieldStructureRow['FieldID'] . '"') as $fieldRow) {
-                $return[] = $fieldRow;
+                $return[$fieldRow['FieldID']] = $fieldRow;
             }
         }
 
