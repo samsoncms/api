@@ -27,6 +27,8 @@ class Material extends \samson\activerecord\material
     const F_PUBLISHED = 'Published';
     const F_PARENT = 'parent_id';
     const F_PRIORITY = 'priority';
+    const F_CREATED = 'Created';
+    const F_MODIFIED = 'Modyfied';
 
     /** @var integer Primary field */
     public $MaterialID;
