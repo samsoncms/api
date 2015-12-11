@@ -179,16 +179,24 @@ class Generator
         $class .= "\n" . '{';
 
         // Iterate additional fields
+        $constants = '';
+        $variables = '';
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
-            $class .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' Field #' . $fieldID . '*/';
-            $class .= "\n\t" . 'public $' . $fieldName . ';';
+            $constants .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' Field #' . $fieldID . ' variable name */';
+            $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldName.'";';
+
+            $variables .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' Field #' . $fieldID . '*/';
+            $variables .= "\n\t" . 'public $' . $fieldName . ';';
         }
 
+        $class .= $constants;
         $class .= "\n\t";
         $class .= "\n\t" . '/** @var string Not transliterated entity name */';
         $class .= "\n\t" . 'protected static $viewName = "' . $navigationName . '";';
+        $class .= "\n\t";
+        $class .= $variables;
         $class .= "\n" . '}';
 
         return $class;
