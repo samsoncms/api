@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api;
 
+use samsoncms\api\query\Generic;
 use samsonframework\orm\DatabaseInterface;
 
 /**
@@ -258,7 +259,7 @@ class Generator
         $class .= "\n\t" . '/** @var array Collection of additional fields value column names */';
         $class .= "\n\t" . 'protected static $fieldValueColumns = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldValueColumns) . "\n\t".');';
         $class .= "\n\t" . '/** @var array Collection of additional field names */';
-        $class .= "\n\t" . 'protected static $fieldNames = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldNames) . "\n\t".');';
+        $class .= "\n\t" . 'public static $fieldNames = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldNames) . "\n\t".');';
         $class .= "\n" . '}';
 
         // Replace tabs with spaces
@@ -313,7 +314,7 @@ class Generator
         $classes .= "\n" . 'use '.$namespace.'\query\EntityQuery;';
 
         // Iterate all structures
-        foreach ($this-> entityNavigations() as $structureRow) {
+        foreach ($this->entityNavigations() as $structureRow) {
             $navigationFields = $this->navigationFields($structureRow['StructureID']);
             $entityName = $this->entityName($structureRow['Name']);
 

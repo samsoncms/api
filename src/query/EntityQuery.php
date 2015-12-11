@@ -12,6 +12,7 @@ use samsoncms\api\Field;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
 use samsoncms\api\Material;
+use samsonframework\orm\QueryInterface;
 
 /**
  * Generic SamsonCMS Entity query.
@@ -19,6 +20,21 @@ use samsoncms\api\Material;
  */
 class EntityQuery extends Generic
 {
+    /** @var array Collection of all additional fields names */
+    protected static $fieldNames = array();
+
+    /** @var array Collection of localized additional fields identifiers */
+    protected static $localizedFieldIDs = array();
+
+    /** @var array Collection of NOT localized additional fields identifiers */
+    protected static $notLocalizedFieldIDs = array();
+
+    /** @var array Collection of all additional fields identifiers */
+    protected static $fieldIDs = array();
+
+    /** @var  @var array Collection of additional fields value column names */
+    protected static $fieldValueColumns = array();
+
     /** @var array Collection of entity field filter */
     protected $fieldFilter = array();
 
@@ -62,6 +78,8 @@ class EntityQuery extends Generic
         if (isset($pointer)) {
             // Store additional field filter value
             $this->fieldFilter[$pointer] = $fieldValue;
+        } else {
+            parent::where($fieldName, $fieldValue, $fieldRelation);
         }
 
         return $this;
@@ -189,7 +207,7 @@ class EntityQuery extends Generic
             $additionalFields = $this->findAdditionalFields($entityIDs);
             //elapsed('End fields values');
             /** @var \samsoncms\api\Entity $item Find entity instances */
-            foreach ((new \samsoncms\api\query\Material(static::$identifier))->byIDs($entityIDs, 'exec') as $item) {
+            foreach ($this->query->entity(static::$identifier)->where(Material::F_PRIMARY, $entityIDs)->exec() as $item) {
                 // If we have list of additional fields that we need
                 $fieldIDs = sizeof($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
 
@@ -213,10 +231,14 @@ class EntityQuery extends Generic
 
     /**
      * Generic constructor.
+     *
+     * @param QueryInterface $query Database query instance
      * @param string $locale Query localizaation
      */
-    public function __construct($locale = '')
+    public function __construct(QueryInterface $query, $locale = '')
     {
         $this->locale = $locale;
+
+        parent::__construct($query);
     }
 }

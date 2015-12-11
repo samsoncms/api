@@ -30,24 +30,6 @@ class Material extends \samson\activerecord\material
     const F_CREATED = 'Created';
     const F_MODIFIED = 'Modyfied';
 
-    /** @var integer Primary field */
-    public $MaterialID;
-
-    /** @var string Unique identifier */
-    public $Url;
-
-    /** @var bool Internal existence flag */
-    public $Active;
-
-    /** @var bool Published flag */
-    public $Published;
-
-    /** @var integer Parent material identifier */
-    public $parent_id;
-
-    /** @var integer Priority inside material relation */
-    public $priority;
-
     /**
      * Get material entity by URL(s).
      *
@@ -67,6 +49,24 @@ class Material extends \samson\activerecord\material
         // If only one argument is passed - return null, otherwise bool
         return func_num_args() > 2 ? $return !== null : $return;
     }
+
+    /** @var integer Primary field */
+    public $MaterialID;
+
+    /** @var string Unique identifier */
+    public $Url;
+
+    /** @var bool Internal existence flag */
+    public $Active;
+
+    /** @var bool Published flag */
+    public $Published;
+
+    /** @var integer Parent material identifier */
+    public $parent_id;
+
+    /** @var integer Priority inside material relation */
+    public $priority;
 
     /**
      * Set additional material field value by field identifier

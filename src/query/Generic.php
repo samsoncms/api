@@ -9,6 +9,7 @@ namespace samsoncms\api\query;
 
 use samsoncms\api\Material;
 use samsonframework\orm\ArgumentInterface;
+use samsonframework\orm\QueryInterface;
 
 /**
  * Material with additional fields query.
@@ -16,30 +17,27 @@ use samsonframework\orm\ArgumentInterface;
  */
 class Generic
 {
+    /** @var array Collection of all supported entity fields */
+    protected static $parentFields = array(
+        Material::F_PRIORITY => Material::F_PRIORITY,
+        Material::F_IDENTIFIER => Material::F_IDENTIFIER,
+        Material::F_DELETION => Material::F_DELETION,
+        Material::F_PUBLISHED => Material::F_PUBLISHED,
+        Material::F_PARENT => Material::F_PARENT,
+        Material::F_CREATED => Material::F_CREATED,
+    );
+
     /** @var string Entity identifier */
     protected static $identifier;
 
     /** @var string Entity navigation identifiers */
     protected static $navigationIDs = array();
 
-    /** @var array Collection of localized additional fields identifiers */
-    protected static $localizedFieldIDs = array();
+    /** @var QueryInterface Database query instance */
+    protected $query;
 
-    /** @var array Collection of NOT localized additional fields identifiers */
-    protected static $notLocalizedFieldIDs = array();
-
-    /** @var array Collection of all additional fields identifiers */
-    protected static $fieldIDs = array();
-
-    /** @var array Collection of all additional fields names */
-    protected static $fieldNames = array();
-
-    /** @var  @var array Collection of additional fields value column names */
-    protected static $fieldValueColumns = array();
-
-
-    /** @var array Collection selected additional entity fields */
-    protected $selectedFields = array();
+    /** @var array Collection of entity fields to retrieved from database */
+    protected $selectedFields;
 
     /**
      * Add condition to current query.
@@ -50,12 +48,8 @@ class Generic
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
-        // Try to find entity additional field
-        $pointer = &static::$fieldNames[$fieldName];
-        if (isset($pointer)) {
-            // Store additional field filter value
-            $this->fieldFilter[$pointer] = $fieldValue;
-        }
+        // Proxy call
+        $this->query->where($fieldName, $fieldValue, $fieldRelation);
 
         return $this;
     }
@@ -108,5 +102,26 @@ class Generic
     public function modified($value, $relation = ArgumentInterface::EQUAL)
     {
         return $this->where(Material::F_MODIFIED, $value, $relation);
+    }
+
+    /**
+     * Perform SamsonCMS query and get entities collection.
+     *
+     * @return Material[] Collection of found entities
+     */
+    public function find()
+    {
+        // Proxy to regular database query
+        return $this->query->exec();
+    }
+
+    /**
+     * Generic constructor.
+     *
+     * @param QueryInterface $query Database query instance
+     */
+    public function __construct(QueryInterface $query)
+    {
+        $this->query = $query;
     }
 }

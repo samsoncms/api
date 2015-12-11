@@ -18,12 +18,5 @@ use samsonframework\orm\QueryInterface;
  */
 class Entity extends Material
 {
-    /** @var QueryInterface Database query instance */
-    protected $query;
 
-    /** @var array Collection of additional fields identifiers */
-    protected static $fieldIDs;
-
-    /** @var array Collection of navigation identifiers */
-    protected static $navigationIDs;
 }
