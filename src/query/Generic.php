@@ -210,8 +210,11 @@ class Generic
             //elapsed('End fields values');
             /** @var \samsoncms\api\Entity $item Find entity instances */
             foreach ((new \samsoncms\api\query\Material(static::$identifier))->byIDs($entityIDs, 'exec') as $item) {
+                // If we have list of additional fields that we need
+                $fieldIDs = sizeof($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
+
                 // Iterate all entity additional fields
-                foreach (static::$fieldIDs as $fieldID => $variable) {
+                foreach ($fieldIDs as $variable) {
                     // Set only existing additional fields
                     $pointer = &$additionalFields[$item[Material::F_PRIMARY]][$variable];
                     if (isset($pointer)) {
