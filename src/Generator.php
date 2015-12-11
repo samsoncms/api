@@ -183,7 +183,7 @@ class Generator
             $fieldName = $this->fieldName($fieldRow['Name']);
 
             $class .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' Field #' . $fieldID . '*/';
-            $class .= "\n\t" . 'protected $' . $fieldName . ';';
+            $class .= "\n\t" . 'public $' . $fieldName . ';';
         }
 
         $class .= "\n\t";
@@ -212,6 +212,8 @@ class Generator
         // Iterate additional fields
         $localizedFieldIDs = array();
         $notLocalizedFieldIDs = array();
+        $allFieldIDs = array();
+        $allFieldValueColumns = array();
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
@@ -222,10 +224,12 @@ class Generator
             );
 
             // Store field metadata
+            $allFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
+            $allFieldValueColumns[] = '"' . $fieldID . '" => "' . Field::valueColumn($fieldRow[Field::F_TYPE]) . '"';
             if ($fieldRow[Field::F_LOCALIZED] == 1) {
-                $localizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . ';';
+                $localizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
             } else {
-                $notLocalizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . ';';
+                $notLocalizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
             }
         }
 
@@ -238,6 +242,10 @@ class Generator
         $class .= "\n\t" . 'protected static $localizedFieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $localizedFieldIDs) . "\n\t".');';
         $class .= "\n\t" . '/** @var array Collection of NOT localized additional fields identifiers */';
         $class .= "\n\t" . 'protected static $notLocalizedFieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $notLocalizedFieldIDs) . "\n\t".');';
+        $class .= "\n\t" . '/** @var array Collection of all additional fields identifiers */';
+        $class .= "\n\t" . 'protected static $fieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldIDs) . "\n\t".');';
+        $class .= "\n\t" . '/** @var array Collection of additional fields value column names */';
+        $class .= "\n\t" . 'protected static $fieldValueColumns = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldValueColumns) . "\n\t".');';
         $class .= "\n" . '}';
 
         // Replace tabs with spaces

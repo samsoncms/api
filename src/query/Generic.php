@@ -8,8 +8,10 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
+use samsoncms\api\Field;
 use samsoncms\api\Material;
 use samsoncms\api\MaterialField;
+use samsonframework\orm\Condition;
 use samsonframework\orm\Query;
 
 /**
@@ -30,8 +32,18 @@ class Generic
     /** @var array Collection of NOT localized additional fields identifiers */
     protected static $notLocalizedFieldIDs = array();
 
+    /** @var array Collection of all additional fields identifiers */
+    protected static $fieldIDs = array();
+
+    /** @var  @var array Collection of additional fields value column names */
+    protected static $fieldValueColumns = array();
+
+
     /** @var array Collection of entity field filter */
     protected $fieldFilter = array();
+
+    /** @var string Query locale */
+    protected $locale = '';
 
     /**
      * Add condition to current query.
@@ -88,9 +100,39 @@ class Generic
     protected function findAdditionalFields($entityIDs)
     {
         $return = array();
-        foreach (MaterialField::byFieldIDAndMaterialID(new dbQuery(), array_values(static::$fieldIDs), $entityIDs) as $additionalField) {
-            $return[$additionalField[Material::F_PRIMARY]] = $additionalField;
+
+        // Prepare localized additional field query condition
+        $condition = new Condition(Condition::DISJUNCTION);
+        foreach (static::$localizedFieldIDs as $fieldID => $fieldName) {
+            $condition->addCondition(
+                (new Condition())
+                ->add(Field::F_PRIMARY, $fieldID)
+                ->add(Field::F_LOCALIZED, $this->locale)
+            );
         }
+
+        // Prepare not localized fields condition
+        foreach (static::$notLocalizedFieldIDs as $fieldID => $fieldName) {
+            $condition->add(Field::F_PRIMARY, $fieldID);
+        }
+
+        // Get additional fields values for current entity identifiers
+        foreach ((new dbQuery())->entity(MaterialField::ENTITY)
+                     ->where(Material::F_PRIMARY, $entityIDs)
+                     ->whereCondition($condition)
+                     ->where(Material::F_DELETION, true)
+                     ->exec() as $additionalField
+        ) {
+            $fieldID = $additionalField[Field::F_PRIMARY];
+            $materialID = $additionalField[Material::F_PRIMARY];
+            $valueField = static::$fieldValueColumns[$fieldID];
+            $fieldName = static::$fieldIDs[$fieldID];
+            $fieldValue = $additionalField[$valueField];
+
+            // Gather additional fields values by entity identifiers and field name
+            $return[$materialID][$fieldName] = $fieldValue;
+        }
+
         return $return;
     }
 
@@ -111,8 +153,12 @@ class Generic
             /** @var \samsoncms\api\Entity $item Find entity instances */
             foreach ((new \samsoncms\api\query\Material(static::$identifier))->byIDs($entityIDs, 'exec') as $item) {
                 // Iterate all entity additional fields
-                foreach (get_class_vars(static::$identifier) as $variable) {
-                    $item->$variable = &$additionalFields[$variable];
+                foreach (static::$fieldIDs as $fieldID => $variable) {
+                    // Set only existing additional fields
+                    $pointer = &$additionalFields[$item[Material::F_PRIMARY]][$variable];
+                    if (isset($pointer)) {
+                        $item->$variable = $pointer;
+                    }
                 }
                 // Store entity by identifier
                 $return[$item[Material::F_PRIMARY]] = $item;
@@ -120,5 +166,14 @@ class Generic
         }
 
         return $return;
+    }
+
+    /**
+     * Generic constructor.
+     * @param string $locale Query localizaation
+     */
+    public function __construct($locale = '')
+    {
+        $this->locale = $locale;
     }
 }

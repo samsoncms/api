@@ -69,6 +69,19 @@ class Field extends \samson\activerecord\field
         }
     }
 
+    /** @return string Get additional field value field name depending on its type */
+    public static function valueColumn($type)
+    {
+        switch ($type) {
+            case self::TYPE_NUMERIC:
+                return 'numeric_value';
+            case self::TYPE_ENTITYID:
+                return 'key_value';
+            default:
+                return 'Value';
+        }
+    }
+
     /** @var string Additional field value type */
     public $Type;
 
@@ -226,14 +239,7 @@ class Field extends \samson\activerecord\field
     /** @return string Get additional field value field name depending on its type */
     public function valueFieldName()
     {
-        switch ($this->Type) {
-            case self::TYPE_NUMERIC:
-                return 'numeric_value';
-            case self::TYPE_ENTITYID:
-                return 'key_value';
-            default:
-                return 'Value';
-        }
+        return self::valueColumn($this->Type);
     }
 
     /** @return bool True if field is localized */
