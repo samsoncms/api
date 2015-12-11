@@ -90,6 +90,6 @@ class MaterialField extends \samson\activerecord\materialfield
             ->exec();
 
         // If only one argument is passed - return null, otherwise bool
-        return func_num_args() > 1 ? sizeof($return): $return;
+        return func_num_args() > 3 ? sizeof($return): $return;
     }
 }

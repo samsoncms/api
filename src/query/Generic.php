@@ -8,6 +8,8 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
+use samsoncms\api\Material;
+use samsoncms\api\MaterialField;
 use samsonframework\orm\Query;
 
 /**
@@ -19,14 +21,17 @@ class Generic
     /** @var string Entity identifier */
     protected static $identifier;
 
-    /** @var string Entity additional field identifiers */
-    protected static $fieldIDs;
-
     /** @var string Entity navigation identifiers */
-    protected static $navigationIDs;
+    protected static $navigationIDs = array();
+
+    /** @var array Collection of localized additional fields identifiers */
+    protected static $localizedFieldIDs = array();
+
+    /** @var array Collection of NOT localized additional fields identifiers */
+    protected static $notLocalizedFieldIDs = array();
 
     /** @var array Collection of entity field filter */
-    protected $fieldFilter;
+    protected $fieldFilter = array();
 
     /**
      * Add condition to current query.
@@ -80,6 +85,15 @@ class Generic
         return $entityIDs;
     }
 
+    protected function findAdditionalFields($entityIDs)
+    {
+        $return = array();
+        foreach (MaterialField::byFieldIDAndMaterialID(new dbQuery(), array_values(static::$fieldIDs), $entityIDs) as $additionalField) {
+            $return[$additionalField[Material::F_PRIMARY]] = $additionalField;
+        }
+        return $return;
+    }
+
     /**
      * Perform SamsonCMS query and get entities collection.
      *
@@ -91,6 +105,20 @@ class Generic
         $entityIDs = $this->findByNavigationIDs();
         $entityIDs = $this->findByAdditionalFields($this->fieldFilter, $entityIDs);
 
-        return (new Material(static::$identifier))->byIDs($entityIDs, 'exec');
+        $return = array();
+        if (sizeof($entityIDs)) {
+            $additionalFields = $this->findAdditionalFields($entityIDs);
+            /** @var \samsoncms\api\Entity $item Find entity instances */
+            foreach ((new \samsoncms\api\query\Material(static::$identifier))->byIDs($entityIDs, 'exec') as $item) {
+                // Iterate all entity additional fields
+                foreach (get_class_vars(static::$identifier) as $variable) {
+                    $item->$variable = &$additionalFields[$variable];
+                }
+                // Store entity by identifier
+                $return[$item[Material::F_PRIMARY]] = $item;
+            }
+        }
+
+        return $return;
     }
 }

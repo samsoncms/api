@@ -17,6 +17,7 @@ class Field extends \samson\activerecord\field
     /** Entity field names constants for using in code */
     const F_PRIMARY = 'FieldID';
     const F_IDENTIFIER = 'Name';
+    const F_TYPE = 'Type';
     const F_DELETION = 'Active';
     const F_DEFAULT = 'Value';
     const F_LOCALIZED = 'local';

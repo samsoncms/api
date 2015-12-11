@@ -115,7 +115,7 @@ class Generator
      */
     protected function fullEntityName($navigationName, $namespace = __NAMESPACE__)
     {
-        return $namespace.$this->entityName($navigationName);
+        return '\\'.$namespace.'\\'.$this->entityName($navigationName);
     }
 
     /**
@@ -142,36 +142,6 @@ class Generator
     }
 
     /**
-     * Create entity PHP class code.
-     *
-     * @param string $navigationName Original entity name
-     * @param string $entityName PHP entity name
-     * @param array $navigationFields Collection of entity additional fields
-     * @return string Generated entity query PHP class code
-     */
-    protected function createEntityClass($navigationName, $entityName, $navigationFields)
-    {
-        $class = "\n\n" . '/** Class for getting "'.$navigationName.'" instances from database */';
-        $class .= "\n" . 'class ' . $entityName . ' extends Generic';
-        $class .= "\n" . '{';
-
-        // Iterate additional fields
-        foreach ($navigationFields as $fieldID => $fieldRow) {
-            $fieldName = $this->fieldName($fieldRow['Name']);
-
-            $class .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' Field #' . $fieldID . '*/';
-            $class .= "\n\t" . 'protected $' . $fieldName . ';';
-        }
-
-        $class .= "\n\t";
-        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
-        $class .= "\n\t" . 'protected static $viewName = "' . $navigationName . '";';
-        $class .= "\n" . '}';
-
-        return $class;
-    }
-
-    /**
      * Generate Query::where() analog for specific field.
      *
      * @param string $fieldName Field name
@@ -195,6 +165,36 @@ class Generator
     }
 
     /**
+     * Create entity PHP class code.
+     *
+     * @param string $navigationName Original entity name
+     * @param string $entityName PHP entity name
+     * @param array $navigationFields Collection of entity additional fields
+     * @return string Generated entity query PHP class code
+     */
+    protected function createEntityClass($navigationName, $entityName, $navigationFields)
+    {
+        $class = "\n\n" . '/** Class for getting "'.$navigationName.'" instances from database */';
+        $class .= "\n" . 'class ' . $entityName . ' extends Entity';
+        $class .= "\n" . '{';
+
+        // Iterate additional fields
+        foreach ($navigationFields as $fieldID => $fieldRow) {
+            $fieldName = $this->fieldName($fieldRow['Name']);
+
+            $class .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' Field #' . $fieldID . '*/';
+            $class .= "\n\t" . 'protected $' . $fieldName . ';';
+        }
+
+        $class .= "\n\t";
+        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
+        $class .= "\n\t" . 'protected static $viewName = "' . $navigationName . '";';
+        $class .= "\n" . '}';
+
+        return $class;
+    }
+
+    /**
      * Create entity query PHP class code.
      *
      * @param integer $navigationID Entity navigation identifier
@@ -210,18 +210,23 @@ class Generator
         $class .= "\n" . '{';
 
         // Iterate additional fields
-        $fieldIDs = array();
+        $localizedFieldIDs = array();
+        $notLocalizedFieldIDs = array();
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
             $class .= $this->generateFieldConditionMethod(
                 $fieldName,
-                $fieldRow['FieldID'],
-                $fieldRow['Type']
+                $fieldRow[Field::F_PRIMARY],
+                $fieldRow[Field::F_TYPE]
             );
 
             // Store field metadata
-            $fieldIDs[] = '"' . $fieldName . '" => "' . $fieldID . '"';
+            if ($fieldRow[Field::F_LOCALIZED] == 1) {
+                $localizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . ';';
+            } else {
+                $notLocalizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . ';';
+            }
         }
 
         $class .= "\n\t";
@@ -229,8 +234,10 @@ class Generator
         $class .= "\n\t" . 'protected static $identifier = "'.$this->fullEntityName($navigationName).'";';
         $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
         $class .= "\n\t" . 'protected static $navigationIDs = array(' . $navigationID . ');';
-        $class .= "\n\t" . '/** @var array Collection of additional fields identifiers */';
-        $class .= "\n\t" . 'protected static $fieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $fieldIDs) . "\n\t".');';
+        $class .= "\n\t" . '/** @var array Collection of localized additional fields identifiers */';
+        $class .= "\n\t" . 'protected static $localizedFieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $localizedFieldIDs) . "\n\t".');';
+        $class .= "\n\t" . '/** @var array Collection of NOT localized additional fields identifiers */';
+        $class .= "\n\t" . 'protected static $notLocalizedFieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $notLocalizedFieldIDs) . "\n\t".');';
         $class .= "\n" . '}';
 
         // Replace tabs with spaces
