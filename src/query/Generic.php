@@ -149,13 +149,17 @@ class Generic
      */
     public function find()
     {
+        //elapsed('Start SamsonCMS '.static::$identifier.' query');
         // TODO: Find and describe approach with maximum generic performance
         $entityIDs = $this->findByNavigationIDs();
+        //elapsed('End navigation filter');
         $entityIDs = $this->findByAdditionalFields($this->fieldFilter, $entityIDs);
+        //elapsed('End fields filter');
 
         $return = array();
         if (sizeof($entityIDs)) {
             $additionalFields = $this->findAdditionalFields($entityIDs);
+            //elapsed('End fields values');
             /** @var \samsoncms\api\Entity $item Find entity instances */
             foreach ((new \samsoncms\api\query\Material(static::$identifier))->byIDs($entityIDs, 'exec') as $item) {
                 // Iterate all entity additional fields
@@ -170,6 +174,8 @@ class Generic
                 $return[$item[Material::F_PRIMARY]] = $item;
             }
         }
+
+        //elapsed('Finish SamsonCMS '.static::$identifier.' query');
 
         return $return;
     }
