@@ -59,7 +59,8 @@ class FieldsTable
     }
 
     /**
-     * Get collection of entities by field identifier
+     * Get collection of entities by field identifier.
+     *
      * @param integer $fieldID Column name(Field identifier)
      * @param string $entityIdentifier Entity identifier for creating new entities
      * @return array

@@ -181,6 +181,8 @@ class Generator
 
         // Iterate additional fields
         $constants = '';
+        $constants .= "\n\t" .'/** Entity full class name */';
+        $constants .= "\n\t" . 'const ENTITY = "'.$this->fullEntityName($entityName).'";';
         $variables = '';
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);

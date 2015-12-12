@@ -20,7 +20,7 @@ class CMS extends CompressableService
     /** Database entity name for relations between additional fields and navigation */
     const FIELD_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurefield';
     /** Database entity name for relations between material and additional fields values */
-    const MATERIAL_FIELD_RELATION_ENTITY = '\samson\activerecord\materialfield';
+    const MATERIAL_FIELD_RELATION_ENTITY = MaterialField::ENTITY;
 
     /** Identifier */
     protected $id = 'cmsapi2';
