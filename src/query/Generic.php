@@ -134,12 +134,29 @@ class Generic
     /**
      * Perform SamsonCMS query and get entities collection.
      *
-     * @return Entity[] Collection of found entities
+     * @return \samsoncms\api\Entity[] Collection of found entities
      */
     public function find()
     {
         // Proxy to regular database query
         return $this->query->entity(static::$identifier)->whereCondition($this->conditions)->exec();
+    }
+
+    /**
+     * Perform SamsonCMS query and get first matching entity.
+     *
+     * @return \samsoncms\api\Entity Firt matching entity
+     */
+    public function first()
+    {
+        // Proxy to regular database query
+        $return = $this->query
+            ->entity(static::$identifier)
+            ->limit(1)
+            ->whereCondition($this->conditions)
+            ->exec();
+
+        return array_shift($return);
     }
 
     /**

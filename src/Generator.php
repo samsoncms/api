@@ -220,6 +220,7 @@ class Generator
         $class .= "\n" . '/**';
         $class .= "\n" . ' * Class for getting "'.$navigationName.'" instances from database';
         $class .= "\n" . ' * @method '.$this->entityName($navigationName).'[] find() Get entities collection';
+        $class .= "\n" . ' * @method '.$this->entityName($navigationName).' first() Get entity';
         $class .= "\n" . ' * @method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)';
         $class .= "\n" . ' * @method '.$entityName.' primary($value) Query for chaining';
         $class .= "\n" . ' * @method '.$entityName.' identifier($value) Query for chaining';
