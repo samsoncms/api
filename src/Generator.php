@@ -187,10 +187,10 @@ class Generator
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
-            $constants .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' Field #' . $fieldID . ' variable name */';
+            $constants .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name */';
             $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldName.'";';
 
-            $variables .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' Field #' . $fieldID . '*/';
+            $variables .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . '*/';
             $variables .= "\n\t" . 'public $' . $fieldName . ';';
         }
 
