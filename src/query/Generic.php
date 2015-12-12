@@ -134,7 +134,7 @@ class Generic
     /**
      * Perform SamsonCMS query and get entities collection.
      *
-     * @return Material[] Collection of found entities
+     * @return Entity[] Collection of found entities
      */
     public function find()
     {

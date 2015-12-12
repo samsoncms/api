@@ -116,7 +116,7 @@ class Generator
      */
     protected function fullEntityName($navigationName, $namespace = __NAMESPACE__)
     {
-        return '\\'.$namespace.'\\'.$this->entityName($navigationName);
+        return str_replace('\\', '\\\\' , '\\'.$namespace.'\\'.$this->entityName($navigationName));
     }
 
     /**
@@ -216,7 +216,17 @@ class Generator
      */
     protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
-        $class = "\n\n" . '/** Class for getting "'.$navigationName.'" instances from database */';
+        $class = "\n";
+        $class .= "\n" . '/**';
+        $class .= "\n" . ' * Class for getting "'.$navigationName.'" instances from database';
+        $class .= "\n" . ' * @method '.$this->entityName($navigationName).'[] find() Get entities collection';
+        $class .= "\n" . ' * @method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)';
+        $class .= "\n" . ' * @method '.$entityName.' primary($value) Query for chaining';
+        $class .= "\n" . ' * @method '.$entityName.' identifier($value) Query for chaining';
+        $class .= "\n" . ' * @method '.$entityName.' created($value) Query for chaining';
+        $class .= "\n" . ' * @method '.$entityName.' modified($value) Query for chaining';
+        $class .= "\n" . ' * @method '.$entityName.' published($value) Query for chaining';
+        $class .= "\n" . ' */';
         $class .= "\n" . 'class ' . $entityName . ' extends EntityQuery';
         $class .= "\n" . '{';
 
@@ -314,6 +324,7 @@ class Generator
         $classes .= "\n";
         $classes .= "\n" . 'use '.$namespace.'\Field;';
         $classes .= "\n" . 'use '.$namespace.'\query\EntityQuery;';
+        $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
 
         // Iterate all structures
         foreach ($this->entityNavigations() as $structureRow) {
