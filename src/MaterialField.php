@@ -16,6 +16,9 @@ class MaterialField extends \samson\activerecord\materialfield
     const F_PRIMARY = 'MaterialFieldID';
     const F_DELETION = 'Active';
     const F_LOCALE = 'locale';
+    const F_VALUE = 'Value';
+    const F_NUMERIC = 'numeric_value';
+    const F_KEY = 'key_value';
 
     /** @var integer Primary key */
     public $FieldID;

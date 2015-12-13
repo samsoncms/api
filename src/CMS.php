@@ -1,6 +1,12 @@
 <?php
 namespace samsoncms\api;
 
+require('src/generated/Material.php');
+require('src/generated/Field.php');
+require('src/generated/MaterialField.php');
+require('src/generated/Structure.php');
+require('src/generated/StructureField.php');
+
 use samson\activerecord\structurefield;
 use samson\activerecord\structurematerial;
 use samson\activerecord\TableRelation;

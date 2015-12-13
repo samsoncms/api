@@ -77,12 +77,12 @@ class Field extends \samson\activerecord\field
     {
         switch ($type) {
             case self::TYPE_NUMERIC:
-                return 'numeric_value';
+                return MaterialField::F_NUMERIC;
             case self::TYPE_ENTITYID:
             case self::TYPE_NAVIGATION:
-                return 'key_value';
+                return MaterialField::F_KEY;
             default:
-                return 'Value';
+                return MaterialField::F_VALUE;
         }
     }
 
