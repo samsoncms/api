@@ -16,7 +16,7 @@ use samsonframework\orm\QueryInterface;
  * Material with additional fields query.
  * @package samsoncms\api
  */
-class Generic
+class Material
 {
     /** @var array Collection of all supported entity fields */
     protected static $parentFields = array(

@@ -18,7 +18,7 @@ use samsonframework\orm\QueryInterface;
  * Generic SamsonCMS Entity query.
  * @package samsoncms\api\query
  */
-class EntityQuery extends Generic
+class Entity extends Material
 {
     /** @var array Collection of all additional fields names */
     protected static $fieldNames = array();
