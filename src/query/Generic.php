@@ -139,7 +139,25 @@ class Generic
     public function find()
     {
         // Proxy to regular database query
-        return $this->query->entity(static::$identifier)->whereCondition($this->conditions)->exec();
+        return $this->query
+            ->entity(static::$identifier)
+            ->whereCondition($this->conditions)
+            ->exec();
+    }
+
+    /**
+     * Perform SamsonCMS query and get collection of entities fields.
+     *
+     * @param string $fieldName Entity field name
+     * @return array Collection of entity fields
+     */
+    public function fields($fieldName)
+    {
+        // Proxy to regular database query
+        return $this->query
+            ->entity(static::$identifier)
+            ->whereCondition($this->conditions)
+            ->fields($fieldName);
     }
 
     /**

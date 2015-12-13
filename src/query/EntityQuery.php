@@ -189,9 +189,9 @@ class EntityQuery extends Generic
     }
 
     /**
-     * Perform SamsonCMS query and get entities collection.
+     * Perform SamsonCMS query and get collection of entities.
      *
-     * @return mixed[] Collection of found entities
+     * @return \samsoncms\api\Entity[] Collection of entity fields
      */
     public function find()
     {
@@ -225,6 +225,43 @@ class EntityQuery extends Generic
                 }
                 // Store entity by identifier
                 $return[$item[Material::F_PRIMARY]] = $item;
+            }
+        }
+
+        //elapsed('Finish SamsonCMS '.static::$identifier.' query');
+
+        return $return;
+    }
+
+    /**
+     * Perform SamsonCMS query and get collection of entities fields.
+     *
+     * @param string $fieldName Entity field name
+     * @return array Collection of entity fields
+     * @throws EntityFieldNotFound
+     */
+    public function fields($fieldName)
+    {
+        //elapsed('Start SamsonCMS '.static::$identifier.' query');
+        // TODO: Find and describe approach with maximum generic performance
+        $entityIDs = $this->findByNavigationIDs();
+        //elapsed('End navigation filter');
+        $entityIDs = $this->findByAdditionalFields($this->fieldFilter, $entityIDs);
+        //elapsed('End fields filter');
+
+        $return = array();
+        // We should have entities at least filtered by navigation identifiers
+        if (sizeof($entityIDs)) {
+            // Check if our entity has this field
+            $fieldID = &static::$fieldNames[$fieldName];
+            if (isset($fieldID)) {
+                $return = $this->query
+                    ->entity(MaterialField::ENTITY)
+                    ->where(Material::F_PRIMARY, $entityIDs)
+                    ->where(Field::F_PRIMARY, $fieldID)
+                    ->fields(static::$fieldValueColumns[$fieldID]);
+            } else {
+                throw new EntityFieldNotFound($fieldName);
             }
         }
 
