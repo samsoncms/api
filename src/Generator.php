@@ -184,6 +184,7 @@ class Generator
         $constants .= "\n\t" .'/** Entity full class name */';
         $constants .= "\n\t" . 'const ENTITY = "'.$this->fullEntityName($entityName).'";';
         $variables = '';
+        $methods = '';
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
@@ -200,9 +201,31 @@ class Generator
         $class .= "\n\t" . 'protected static $viewName = "' . $navigationName . '";';
         $class .= "\n\t";
         $class .= $variables;
+
         $class .= "\n" . '}';
 
         return $class;
+    }
+
+    /**
+     * Generate FieldsTable::values() analog for specific field.
+     *
+     * @param string $fieldName Field name
+     * @param string $fieldId Field primary identifier
+     * @param string $fieldType Field PHP type
+     * @return string Generated PHP method code
+     */
+    protected function generateTableFieldMethod($fieldName, $fieldId, $fieldType)
+    {
+        $code = "\n\t" . '/**';
+        $code .= "\n\t" . ' * Get table column '.$fieldName.'(#' . $fieldId . ') values.';
+        $code .= "\n\t" . ' * @return array Collection('.Field::phpType($fieldType).') of table column values';
+        $code .= "\n\t" . ' */';
+        $code .= "\n\t" . 'public function ' . $fieldName . '()';
+        $code .= "\n\t" . "{";
+        $code .= "\n\t\t" . 'return $this->values('.$fieldId.');';
+
+        return $code . "\n\t" . "}"."\n";
     }
 
     /**
@@ -224,19 +247,32 @@ class Generator
         $class .= "\n" . '{';
 
         // Iterate additional fields
+        $constants = '';
         $variables = '';
+        $methods = '';
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
-            $variables .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . '*/';
-            $variables .= "\n\t" . 'public $' . $fieldName . ';';
+            $methods .= $this->generateTableFieldMethod(
+                $fieldName,
+                $fieldRow[Field::F_PRIMARY],
+                $fieldRow[Field::F_TYPE]
+            );
+            $constants .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name */';
+            $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldName.'";';
+
+            $variables .= "\n\t" . '/** @var array Collection of '.$fieldRow['Description'].' Field #' . $fieldID . ' values */';
+            $variables .= "\n\t" . 'protected $' . $fieldName . ';';
         }
 
+        $class .= $constants;
+        $class .= "\n\t";
         $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
         $class .= "\n\t" . 'protected static $navigationIDs = array(' . $navigationID . ');';
         $class .= "\n\t";
         $class .= $variables;
         $class .= "\n\t";
+        $class .= $methods;
         $class .= "\n\t".'/**';
         $class .= "\n\t".' * @param QueryInterface $query Database query instance';
         $class .= "\n\t".' * @param integer $entityID Entity identifier to whom this table belongs';
