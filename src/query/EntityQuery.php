@@ -8,6 +8,7 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
+use samsoncms\api\exception\EntityFieldNotFound;
 use samsoncms\api\Field;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
