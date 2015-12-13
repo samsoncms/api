@@ -206,6 +206,43 @@ class Generator
     }
 
     /**
+     * Create fields table PHP class code.
+     *
+     * @param integer $navigationID Entity navigation identifier
+     * @param string $navigationName Original entity name
+     * @param string $entityName PHP entity name
+     * @param array $navigationFields Collection of entity additional fields
+     * @return string Generated entity query PHP class code
+     */
+    protected function createTableClass($navigationID, $navigationName, $entityName, $navigationFields)
+    {
+        $class = "\n";
+        $class .= "\n" . '/**';
+        $class .= "\n" . ' * Class for getting "'.$navigationName.'" fields table';
+        $class .= "\n" . ' */';
+        $class .= "\n" . 'class ' . $entityName . ' extends FieldsTable';
+        $class .= "\n" . '{';
+
+        // Iterate additional fields
+        $variables = '';
+        foreach ($navigationFields as $fieldID => $fieldRow) {
+            $fieldName = $this->fieldName($fieldRow['Name']);
+
+            $variables .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . '*/';
+            $variables .= "\n\t" . 'public $' . $fieldName . ';';
+        }
+
+        $class .= "\n\t";
+        $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
+        $class .= "\n\t" . 'protected static $navigationIDs = array(' . $navigationID . ');';
+        $class .= "\n\t";
+        $class .= $variables;
+        $class .= "\n" . '}';
+
+        return $class;
+    }
+
+    /**
      * Create entity query PHP class code.
      *
      * @param integer $navigationID Entity navigation identifier
@@ -325,6 +362,7 @@ class Generator
         $classes .= "\n";
         $classes .= "\n" . 'use '.$namespace.'\Field;';
         $classes .= "\n" . 'use '.$namespace.'\query\EntityQuery;';
+        $classes .= "\n" . 'use '.$namespace.'\FieldsTable;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
 
         // Iterate all structures
@@ -344,6 +382,20 @@ class Generator
                 $entityName.'Query',
                 $navigationFields
             );
+        }
+
+        // Iterate table structures
+        foreach ($this->entityNavigations(1) as $structureRow) {
+            $navigationFields = $this->navigationFields($structureRow['StructureID']);
+            $entityName = $this->entityName($structureRow['Name']);
+
+            $classes .= $this->createTableClass(
+                $structureRow['StructureID'],
+                $structureRow['Name'],
+                $entityName.'Table',
+                $navigationFields
+            );
+
         }
 
         // Make correct code formatting

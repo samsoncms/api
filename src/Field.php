@@ -38,6 +38,8 @@ class Field extends \samson\activerecord\field
     const TYPE_DATETIME = 10;
     /** Additional field storing boolean value */
     const TYPE_BOOL = 11;
+    /** Additional field navigation identifier value */
+    const TYPE_NAVIGATION = 12;
 
     /** @var array Collection of field type to php variable type relations */
     protected static $phpTYPE = array(
@@ -45,10 +47,11 @@ class Field extends \samson\activerecord\field
         self::TYPE_RESOURCE => 'string',
         self::TYPE_OPTIONS => 'string',
         self::TYPE_LONGTEXT => 'string',
-        self::TYPE_BOOL => 'int',
+        self::TYPE_BOOL => 'bool',
         self::TYPE_ENTITYID => 'int',
         self::TYPE_NUMERIC => 'int',
-        self::TYPE_DATETIME => 'bool'
+        self::TYPE_DATETIME => 'int',
+        self::TYPE_NAVIGATION => 'int'
     );
 
     /**
@@ -76,6 +79,7 @@ class Field extends \samson\activerecord\field
             case self::TYPE_NUMERIC:
                 return 'numeric_value';
             case self::TYPE_ENTITYID:
+            case self::TYPE_NAVIGATION:
                 return 'key_value';
             default:
                 return 'Value';
