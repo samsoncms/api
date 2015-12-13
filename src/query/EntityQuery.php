@@ -7,13 +7,11 @@
  */
 namespace samsoncms\api\query;
 
-use samson\activerecord\dbQuery;
 use samsoncms\api\exception\EntityFieldNotFound;
 use samsoncms\api\Field;
-use samsoncms\api\MaterialField;
+use samsoncms\api\Material;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
-use samsoncms\api\Material;
 use samsonframework\orm\QueryInterface;
 
 /**
@@ -270,7 +268,7 @@ class EntityQuery extends Generic
             $fieldID = &static::$fieldNames[$fieldName];
             if (isset($fieldID)) {
                 $return = $this->query
-                    ->entity(MaterialField::ENTITY)
+                    ->entity(\samsoncms\api\MaterialField::ENTITY)
                     ->where(Material::F_PRIMARY, $entityIDs)
                     ->where(Field::F_PRIMARY, $fieldID)
                     ->fields(static::$fieldValueColumns[$fieldID]);
