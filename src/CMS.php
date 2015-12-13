@@ -6,7 +6,7 @@ use samson\core\CompressableService;
 use samson\activerecord\dbMySQLConnector;
 
 require('generated/field.php');
-require('generated/material.php');
+require('generated/Material.php');
 require('generated/Structure.php');
 require('generated/MaterialField.php');
 
