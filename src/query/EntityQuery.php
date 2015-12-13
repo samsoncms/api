@@ -85,6 +85,16 @@ class EntityQuery extends Generic
         return $this;
     }
 
+    /** @return array Collection of entity identifiers */
+    protected function findEntityIDs()
+    {
+        // TODO: Find and describe approach with maximum generic performance
+        return $this->findByAdditionalFields(
+            $this->fieldFilter,
+            $this->findByNavigationIDs()
+        );
+    }
+
     /**
      * Get collection of entity identifiers filtered by navigation identifiers.
      *
@@ -195,15 +205,8 @@ class EntityQuery extends Generic
      */
     public function find()
     {
-        //elapsed('Start SamsonCMS '.static::$identifier.' query');
-        // TODO: Find and describe approach with maximum generic performance
-        $entityIDs = $this->findByNavigationIDs();
-        //elapsed('End navigation filter');
-        $entityIDs = $this->findByAdditionalFields($this->fieldFilter, $entityIDs);
-        //elapsed('End fields filter');
-
         $return = array();
-        if (sizeof($entityIDs)) {
+        if (sizeof($entityIDs = $this->findEntityIDs())) {
             $additionalFields = $this->findAdditionalFields($entityIDs);
 
             // Set entity primary keys
@@ -234,6 +237,23 @@ class EntityQuery extends Generic
     }
 
     /**
+     * Perform SamsonCMS query and get first matching entity.
+     *
+     * @return \samsoncms\api\Entity Firt matching entity
+     */
+    public function first()
+    {
+        $return = array();
+        if (sizeof($entityIDs = $this->findEntityIDs())) {
+            $this->primary($entityIDs);
+
+            $return = parent::first();
+        }
+
+        return $return;
+    }
+
+    /**
      * Perform SamsonCMS query and get collection of entities fields.
      *
      * @param string $fieldName Entity field name
@@ -242,16 +262,8 @@ class EntityQuery extends Generic
      */
     public function fields($fieldName)
     {
-        //elapsed('Start SamsonCMS '.static::$identifier.' query');
-        // TODO: Find and describe approach with maximum generic performance
-        $entityIDs = $this->findByNavigationIDs();
-        //elapsed('End navigation filter');
-        $entityIDs = $this->findByAdditionalFields($this->fieldFilter, $entityIDs);
-        //elapsed('End fields filter');
-
         $return = array();
-        // We should have entities at least filtered by navigation identifiers
-        if (sizeof($entityIDs)) {
+        if (sizeof($entityIDs = $this->findEntityIDs())) {
             // Check if our entity has this field
             $fieldID = &static::$fieldNames[$fieldName];
             if (isset($fieldID)) {
