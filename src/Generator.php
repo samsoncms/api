@@ -7,7 +7,7 @@
  */
 namespace samsoncms\api;
 
-use samsoncms\api\query\Material;
+use samsoncms\api\query\Generic;
 use samsonframework\orm\DatabaseInterface;
 
 /**
@@ -310,7 +310,7 @@ class Generator
         $class .= "\n" . ' * @method '.$entityName.' modified($value) Query for chaining';
         $class .= "\n" . ' * @method '.$entityName.' published($value) Query for chaining';
         $class .= "\n" . ' */';
-        $class .= "\n" . 'class ' . $entityName . ' extends Entity';
+        $class .= "\n" . 'class ' . $entityName . ' extends \samsoncms\api\query\Entity';
         $class .= "\n" . '{';
 
         // Iterate additional fields

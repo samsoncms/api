@@ -16,7 +16,7 @@ use samsonframework\orm\QueryInterface;
  * Material with additional fields query.
  * @package samsoncms\api
  */
-class Material
+class Generic
 {
     /** @var array Collection of all supported entity fields */
     protected static $parentFields = array(
@@ -74,7 +74,7 @@ class Material
      *
      * @param string $value Field value
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function primary($value)
     {
@@ -86,7 +86,7 @@ class Material
      *
      * @param string $value Field value
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function identifier($value)
     {
@@ -98,7 +98,7 @@ class Material
      *
      * @param string $value Field value
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function published($value)
     {
@@ -111,7 +111,7 @@ class Material
      * @param string $value Field value
      * @param string $relation @see ArgumentInterface types
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function created($value, $relation = ArgumentInterface::EQUAL)
     {
@@ -124,7 +124,7 @@ class Material
      * @param string $value Field value
      * @param string $relation @see ArgumentInterface types
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function modified($value, $relation = ArgumentInterface::EQUAL)
     {
