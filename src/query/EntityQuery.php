@@ -271,6 +271,7 @@ class EntityQuery extends Generic
                     ->entity(\samsoncms\api\MaterialField::ENTITY)
                     ->where(Material::F_PRIMARY, $entityIDs)
                     ->where(Field::F_PRIMARY, $fieldID)
+                    ->where(\samsoncms\api\MaterialField::F_DELETION, true)
                     ->fields(static::$fieldValueColumns[$fieldID]);
             } else {
                 throw new EntityFieldNotFound($fieldName);
