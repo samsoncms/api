@@ -168,7 +168,7 @@ class EntityQuery extends Generic
         }
 
         // Get additional fields values for current entity identifiers
-        foreach ((new dbQuery())->entity(\samsoncms\api\MaterialField::ENTITY)
+        foreach ($this->query->entity(\samsoncms\api\MaterialField::ENTITY)
                      ->where(Material::F_PRIMARY, $entityIDs)
                      ->whereCondition($condition)
                      ->where(Material::F_DELETION, true)

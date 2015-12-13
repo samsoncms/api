@@ -8,6 +8,7 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
+use samson\cms\Material;
 use samsoncms\api\Field;
 use samsoncms\api\CMS;
 
@@ -27,7 +28,8 @@ class MaterialField extends Relational
         parent::__construct(
             new dbQuery(),
             $identifier,
-            Field::$_primary,
+            Material::F_PRIMARY,
+            Field::F_PRIMARY,
             CMS::MATERIAL_FIELD_RELATION_ENTITY,
             $filteringIDs
         );

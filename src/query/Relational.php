@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api\query;
 
+use samsoncms\api\Material;
 use samsonframework\orm\QueryInterface;
 
 /**
@@ -15,7 +16,7 @@ use samsonframework\orm\QueryInterface;
  *
  * @package samsoncms\api
  */
-class Relational extends Base
+class Relational
 {
     /** @var string Related entity primary field */
     protected $relationPrimary;
@@ -23,10 +24,40 @@ class Relational extends Base
     /** @var string Relation entity identifier */
     protected $relationIdentifier;
 
+    /** @var QueryInterface Database query instance */
+    protected $query;
+
+    /** @var string Entity identifier */
+    protected $identifier;
+
+    /** @var string Entity primary field name */
+    protected $primaryField;
+
+    /** @var array Collection of entity identifiers for filtering */
+    protected $filteringIDs = array();
+
+    /**
+     * Get current entity instances collection by their identifiers.
+     * Method can accept different query executors.
+     *
+     * @param string|array $entityIDs Entity identifier or their collection
+     * @param string $executor Method name for query execution
+     * @return mixed[] Collection of entity instances
+     */
+    public function byIDs($entityIDs, $executor)
+    {
+        return $this->query
+            ->entity($this->identifier)
+            ->where($this->primaryField, $entityIDs)
+            ->where(Material::F_DELETION, 1)
+            ->$executor();
+    }
+
     /**
      * Entity constructor.
      * @param QueryInterface $query Database query instance
      * @param string $identifier Entity identifier
+     * @param string $primary Entity primary identifier
      * @param string $relationPrimary Relation entity primary field name
      * @param string $relationIdentifier Relation entity identifier
      * @param array $filteringIDs Collection of entity identifiers for filtering
@@ -34,14 +65,17 @@ class Relational extends Base
     public function __construct(
         QueryInterface $query,
         $identifier,
+        $primary,
         $relationPrimary,
         $relationIdentifier,
         $filteringIDs = array()
     ) {
-        parent::__construct($query, $identifier, $filteringIDs);
-
-        $this->relationPrimary = $relationPrimary;
+        $this->query = $query;
+        $this->identifier = $identifier;
         $this->relationIdentifier = $relationIdentifier;
+        $this->relationPrimary = $relationPrimary;
+        $this->filteringIDs = $filteringIDs;
+        $this->primaryField = $primary;
     }
 
     /**
@@ -58,7 +92,7 @@ class Relational extends Base
         $this->query
             ->entity($this->relationIdentifier)
             ->where($this->relationPrimary, $relationID)
-            ->where(self::DELETE_FLAG_FIELD, 1);
+            ->where(Material::F_DELETION, 1);
 
         // Add entity identifier filter if passed
         if (sizeof($filteringIDs)) {
