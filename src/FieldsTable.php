@@ -180,11 +180,11 @@ class FieldsTable
      * FieldsTable constructor.
      *
      * @param QueryInterface $query Database query interface
-     * @param integer $navigationID Navigation identifier for table structure
+     * @param mixed $navigationID Navigation identifier for table structure
      * @param integer $materialID Table parent material identifier
      * @param string $locale Locale identifier
      */
-    public function __construct(QueryInterface $query, $navigationID, $materialID, $locale = DEFAULT_LOCALE)
+    public function __construct(QueryInterface $query, $navigationID, $materialID, $locale = '')
     {
         $this->query = $query;
         $this->navigationID = $navigationID;

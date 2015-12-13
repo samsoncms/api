@@ -232,11 +232,20 @@ class Generator
             $variables .= "\n\t" . 'public $' . $fieldName . ';';
         }
 
-        $class .= "\n\t";
         $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
         $class .= "\n\t" . 'protected static $navigationIDs = array(' . $navigationID . ');';
         $class .= "\n\t";
         $class .= $variables;
+        $class .= "\n\t";
+        $class .= "\n\t".'/**';
+        $class .= "\n\t".' * @param QueryInterface $query Database query instance';
+        $class .= "\n\t".' * @param integer $entityID Entity identifier to whom this table belongs';
+        $class .= "\n\t".' * @param string $locale Localization identifier';
+        $class .= "\n\t".' */';
+        $class .= "\n\t".'public function __construct(QueryInterface $query, $entityID, $locale = "")';
+        $class .= "\n\t".'{';
+        $class .= "\n\t\t".'parent::__construct($query, static::$navigationIDs, $entityID, $locale);';
+        $class .= "\n\t".'}';
         $class .= "\n" . '}';
 
         return $class;
@@ -364,6 +373,7 @@ class Generator
         $classes .= "\n" . 'use '.$namespace.'\query\EntityQuery;';
         $classes .= "\n" . 'use '.$namespace.'\FieldsTable;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
+        $classes .= "\n" . 'use \samsonframework\orm\QueryInterface;';
 
         // Iterate all structures
         foreach ($this->entityNavigations() as $structureRow) {
@@ -385,7 +395,7 @@ class Generator
         }
 
         // Iterate table structures
-        foreach ($this->entityNavigations(1) as $structureRow) {
+        foreach ($this->entityNavigations(2) as $structureRow) {
             $navigationFields = $this->navigationFields($structureRow['StructureID']);
             $entityName = $this->entityName($structureRow['Name']);
 
