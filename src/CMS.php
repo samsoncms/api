@@ -1,11 +1,14 @@
 <?php
 namespace samsoncms\api;
 
-use samson\activerecord\structurefield;
-use samson\activerecord\structurematerial;
 use samson\activerecord\TableRelation;
 use samson\core\CompressableService;
 use samson\activerecord\dbMySQLConnector;
+
+require('generated/field.php');
+require('generated/material.php');
+require('generated/Structure.php');
+require('generated/MaterialField.php');
 
 /**
  * SamsonCMS API
