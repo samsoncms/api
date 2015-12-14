@@ -175,7 +175,7 @@ class Generator
      */
     protected function createEntityClass($navigationName, $entityName, $navigationFields)
     {
-        $class = "\n\n" . '/** Class for getting "'.$navigationName.'" instances from database */';
+        $class = "\n\n" . '/** "'.$navigationName.'" entity class */';
         $class .= "\n" . 'class ' . $entityName . ' extends Entity';
         $class .= "\n" . '{';
 
@@ -184,7 +184,6 @@ class Generator
         $constants .= "\n\t" .'/** Entity full class name */';
         $constants .= "\n\t" . 'const ENTITY = "'.$this->fullEntityName($entityName).'";';
         $variables = '';
-        $methods = '';
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 

@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api\query;
 
+use samsoncms\api\CMS;
 use samsoncms\api\exception\EntityFieldNotFound;
 use samsoncms\api\Field;
 use samsoncms\api\Material;
@@ -35,11 +36,15 @@ class Entity extends Generic
     /** @var  @var array Collection of additional fields value column names */
     protected static $fieldValueColumns = array();
 
+
     /** @var array Collection of entity field filter */
     protected $fieldFilter = array();
 
     /** @var string Query locale */
     protected $locale = '';
+
+    /** @var array Collection of ordering parameters */
+    protected $orderBy = array();
 
     /**
      * Select specified entity fields.
@@ -62,6 +67,17 @@ class Entity extends Generic
         }
 
         return $this;
+    }
+
+    /**
+     * Set additional field for sorting.
+     *
+     * @param string $fieldName Additional field name
+     * @param string $order Sorting order
+     */
+    public function orderBy($fieldName, $order = 'ASC')
+    {
+        $this->orderBy = array($fieldName, $order);
     }
 
     /**
@@ -89,10 +105,17 @@ class Entity extends Generic
     protected function findEntityIDs()
     {
         // TODO: Find and describe approach with maximum generic performance
-        return $this->findByAdditionalFields(
+        $entityIDs = $this->findByAdditionalFields(
             $this->fieldFilter,
             $this->findByNavigationIDs()
         );
+
+        // Perform sorting if necessary
+        if (sizeof($this->orderBy) == 2) {
+            $entityIDs = $this->applySorting($entityIDs, $this->orderBy[0], $this->orderBy[1]);
+        }
+
+        return $entityIDs;
     }
 
     /**
@@ -132,6 +155,28 @@ class Entity extends Generic
         }
 
         return $entityIDs;
+    }
+
+    /**
+     * Add sorting to entity identifiers.
+     *
+     * @param array $entityIDs
+     * @param string $fieldName Additional field name for sorting
+     * @param string $order Sorting order(ASC|DESC)
+     * @return array Collection of entity identifiers ordered by additional field value
+     */
+    protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
+    {
+        // Get additional field metadata
+        $fieldID = static::$fieldNames[$fieldName];
+        $valueColumn = static::$fieldValueColumns[$fieldID];
+
+        return $this->query
+            ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
+            ->where(Field::F_PRIMARY, $fieldID)
+            ->where(Material::F_PRIMARY, $entityIDs)
+            ->orderBy($valueColumn, $order)
+            ->fields(Material::F_PRIMARY);
     }
 
     /**
@@ -178,7 +223,7 @@ class Entity extends Generic
         }
 
         // Get additional fields values for current entity identifiers
-        foreach ($this->query->entity(\samsoncms\api\MaterialField::ENTITY)
+        foreach ($this->query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
                      ->where(Material::F_PRIMARY, $entityIDs)
                      ->whereCondition($condition)
                      ->where(Material::F_DELETION, true)

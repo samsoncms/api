@@ -1,13 +1,13 @@
 <?php
 namespace samsoncms\api;
 
-require('src/generated/Material.php');
-require('src/generated/Field.php');
-require('src/generated/MaterialField.php');
-require('src/generated/Structure.php');
-require('src/generated/StructureField.php');
+// Backward compatibility
+require('generated/Material.php');
+require('generated/Field.php');
+require('generated/MaterialField.php');
+require('generated/Structure.php');
+require('generated/StructureField.php');
 
-use samson\activerecord\structurefield;
 use samson\activerecord\structurematerial;
 use samson\activerecord\TableRelation;
 use samson\core\CompressableService;
