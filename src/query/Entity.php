@@ -46,6 +46,9 @@ class Entity extends Generic
     /** @var array Collection of ordering parameters */
     protected $orderBy = array();
 
+    /** @var array Collection of limit parameters */
+    protected $limit = array();
+
     /**
      * Select specified entity fields.
      * If this method is called then only selected entity fields
@@ -74,10 +77,27 @@ class Entity extends Generic
      *
      * @param string $fieldName Additional field name
      * @param string $order Sorting order
+     * @return self Chaining
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
         $this->orderBy = array($fieldName, $order);
+
+        return $this;
+    }
+
+    /**
+     * Set resulting query limits.
+     *
+     * @param integer $offset Starting index
+     * @param integer|null $count Entities count
+     * @return self Chaining
+     */
+    public function limit($offset, $count = null)
+    {
+        $this->limit = array($offset, $count);
+
+        return $this;
     }
 
     /**
