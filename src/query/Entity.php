@@ -124,15 +124,28 @@ class Entity extends Generic
     /** @return array Collection of entity identifiers */
     protected function findEntityIDs()
     {
+        $entityIDs = array();
+        if ($this->conditions) {
+            $entityIDs = $this->query
+                ->entity(Material::ENTITY)
+                ->whereCondition($this->conditions)
+                ->fields(Material::F_PRIMARY);
+        }
+
         // TODO: Find and describe approach with maximum generic performance
         $entityIDs = $this->findByAdditionalFields(
             $this->fieldFilter,
-            $this->findByNavigationIDs()
+            $this->findByNavigationIDs($entityIDs)
         );
 
         // Perform sorting if necessary
         if (sizeof($this->orderBy) == 2) {
             $entityIDs = $this->applySorting($entityIDs, $this->orderBy[0], $this->orderBy[1]);
+        }
+
+        // Perform limits if necessary
+        if (sizeof($this->limit)) {
+            $entityIDs = array_slice($entityIDs, $this->limit[0], $this->limit[1]);
         }
 
         return $entityIDs;
@@ -264,6 +277,30 @@ class Entity extends Generic
     }
 
     /**
+     * Fill entity additional fields.
+     *
+     * @param Entity $entity Entity instance for filling
+     * @param array $additionalFields Collection of additional field values
+     * @return Entity With filled additional field values
+     */
+    protected function fillEntityFields($entity, array $additionalFields)
+    {
+        // If we have list of additional fields that we need
+        $fieldIDs = sizeof($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
+
+        // Iterate all entity additional fields
+        foreach ($fieldIDs as $variable) {
+            // Set only existing additional fields
+            $pointer = &$additionalFields[$entity[Material::F_PRIMARY]][$variable];
+            if (isset($pointer)) {
+                $entity->$variable = $pointer;
+            }
+        }
+
+        return $entity;
+    }
+
+    /**
      * Perform SamsonCMS query and get collection of entities.
      *
      * @return \samsoncms\api\Entity[] Collection of entity fields
@@ -280,17 +317,8 @@ class Entity extends Generic
             //elapsed('End fields values');
             /** @var \samsoncms\api\Entity $item Find entity instances */
             foreach (parent::find() as $item) {
-                // If we have list of additional fields that we need
-                $fieldIDs = sizeof($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
+                $item = $this->fillEntityFields($item, $additionalFields);
 
-                // Iterate all entity additional fields
-                foreach ($fieldIDs as $variable) {
-                    // Set only existing additional fields
-                    $pointer = &$additionalFields[$item[Material::F_PRIMARY]][$variable];
-                    if (isset($pointer)) {
-                        $item->$variable = $pointer;
-                    }
-                }
                 // Store entity by identifier
                 $return[$item[Material::F_PRIMARY]] = $item;
             }
@@ -311,8 +339,8 @@ class Entity extends Generic
         $return = array();
         if (sizeof($entityIDs = $this->findEntityIDs())) {
             $this->primary($entityIDs);
-
-            $return = parent::first();
+            $additionalFields = $this->findAdditionalFields($entityIDs);
+            $return = $this->fillEntityFields(parent::first(), $additionalFields);
         }
 
         return $return;
@@ -354,7 +382,7 @@ class Entity extends Generic
      * @param QueryInterface $query Database query instance
      * @param string $locale Query localizaation
      */
-    public function __construct(QueryInterface $query, $locale = '')
+    public function __construct(QueryInterface $query, $locale = NULL)
     {
         $this->locale = $locale;
 

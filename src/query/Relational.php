@@ -95,8 +95,9 @@ class Relational
             ->where(Material::F_DELETION, 1);
 
         // Add entity identifier filter if passed
-        if (sizeof($filteringIDs)) {
-            $this->query->where($this->primaryField, $filteringIDs);
+        $this->filteringIDs = array_merge($this->filteringIDs, $filteringIDs);
+        if (sizeof($this->filteringIDs)) {
+            $this->query->where($this->primaryField, $this->filteringIDs);
         }
 
         // Perform database query and get only material identifiers collection
