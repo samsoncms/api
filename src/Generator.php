@@ -7,6 +7,8 @@
  */
 namespace samsoncms\api;
 
+use samson\activerecord\dbMySQLConnector;
+use samson\cms\CMSMaterial;
 use samsoncms\api\query\Generic;
 use samsonframework\orm\DatabaseInterface;
 
@@ -18,6 +20,9 @@ class Generator
 {
     /** @var DatabaseInterface */
     protected $database;
+
+    /** @var \samsonphp\generator\Generator */
+    protected $generator;
 
     /**
      * Transliterate string to english.
@@ -175,35 +180,51 @@ class Generator
      */
     protected function createEntityClass($navigationName, $entityName, $navigationFields)
     {
-        $class = "\n\n" . '/** "'.$navigationName.'" entity class */';
-        $class .= "\n" . 'class ' . $entityName . ' extends Entity';
-        $class .= "\n" . '{';
+        $this->generator->multicomment(array('"'.$navigationName.'" entity class'));
+        $this->generator->defclass($entityName, 'Entity');
 
-        // Iterate additional fields
-        $constants = '';
-        $constants .= "\n\t" .'/** Entity full class name */';
-        $constants .= "\n\t" . 'const ENTITY = "'.$this->fullEntityName($entityName).'";';
-        $variables = '';
+        $this->generator->comment('Entity full class name');
+        $this->generator->defvar('const ENTITY', $this->fullEntityName($entityName));
+
+        $this->generator->comment('@var string Not transliterated entity name');
+        $this->generator->defvar('protected static $viewName', $navigationName);
+
+        $select = \samson\activerecord\material::$_sql_select;
+        $attributes = \samson\activerecord\material::$_attributes;
+        $map = \samson\activerecord\material::$_map;
+        $from = \samson\activerecord\material::$_sql_from;
+        $group = \samson\activerecord\material::$_own_group;
+
+        $select['this'] = ' STRAIGHT_JOIN ' . $select['this'];
+        $from['this'] .= "\n" . 'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf on ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
+        $group[] = dbMySQLConnector::$prefix . 'material.MaterialID';
+
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
-            $constants .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name */';
-            $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldName.'";';
+            $attributes[$fieldName] = $fieldName;
+            $map[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
 
-            $variables .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . '*/';
-            $variables .= "\n\t" . 'public $' . $fieldName . ';';
+            $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale = \"' . ($fieldRow['local'] ? locale() : "") . '\"))';
+
+            // Save additional field
+            $select['this'] .= "\n\t\t".',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
+
+            $this->generator->comment(Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name');
+            $this->generator->defvar('const F_' . strtoupper($fieldName), $fieldName);
+            $this->generator->comment(Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID);
+            $this->generator->defvar('public $'.$fieldName.';');
         }
 
-        $class .= $constants;
-        $class .= "\n\t";
-        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
-        $class .= "\n\t" . 'protected static $viewName = "' . $navigationName . '";';
-        $class .= "\n\t";
-        $class .= $variables;
+        $this->generator->defvar('public static $_sql_select', $select);
+        $this->generator->defvar('public static $_attributes', $attributes);
+        $this->generator->defvar('public static $_map', $map);
+        $this->generator->defvar('public static $_sql_from', $from);
+        $this->generator->defvar('public static $_own_group', $group);
 
-        $class .= "\n" . '}';
+        $this->generator->endclass();
 
-        return $class;
+        return $this->generator->flush();
     }
 
     /**
@@ -453,6 +474,7 @@ class Generator
      */
     public function __construct(DatabaseInterface $database)
     {
+        $this->generator = new \samsonphp\generator\Generator(__NAMESPACE__);
         $this->database = $database;
     }
 }

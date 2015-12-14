@@ -89,17 +89,7 @@ class CMS extends CompressableService
         // Initiate migration mechanism
         $this->database->migration(get_class($this), array($this, 'migrator'));
 
-        // Generate entities classes file
-        $generator = new Generator($this->database);
-        $file = md5($generator->entityHash()).'.php';
-        if ($this->cache_refresh($file)) {
-            file_put_contents($file, '<?php '.$generator->createEntityClasses());
-        }
-
-        // Include entities file
-        require($file);
-
-        // Define permanent table relations
+                // Define permanent table relations
         new TableRelation('material', 'user', 'UserID', 0, 'user_id');
         new TableRelation('material', 'gallery', 'MaterialID', TableRelation::T_ONE_TO_MANY);
         new TableRelation('material', 'materialfield', 'MaterialID', TableRelation::T_ONE_TO_MANY);
@@ -130,6 +120,19 @@ class CMS extends CompressableService
         new TableRelation('structure', 'structure', 'parents_relations.parent_id', TableRelation::T_ONE_TO_MANY, 'StructureID', 'parents');
         new TableRelation('structurematerial', 'structure_relation', 'StructureID', TableRelation::T_ONE_TO_MANY, 'parent_id');
         new TableRelation('groupright', 'right', 'RightID', TableRelation::T_ONE_TO_MANY);
+
+        m('activerecord')->relations();
+
+        // Generate entities classes file
+        $generator = new Generator($this->database);
+        $file = md5($generator->entityHash()).'.php';
+        if ($this->cache_refresh($file)) {
+
+        }
+        file_put_contents($file, '<?php '.$generator->createEntityClasses());
+
+        // Include entities file
+        require($file);
 
         return parent::prepare();
     }
