@@ -426,7 +426,6 @@ class Generator
         $classes = "\n" . 'namespace ' . $namespace . ';';
         $classes .= "\n";
         $classes .= "\n" . 'use '.$namespace.'\Field;';
-        $classes .= "\n" . 'use '.$namespace.'\query\EntityQuery;';
         $classes .= "\n" . 'use '.$namespace.'\FieldsTable;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\QueryInterface;';

@@ -51,6 +51,25 @@ class CMS extends CompressableService
         parent::__construct($path, $vid, $resources);
     }
 
+
+    public function beforeCompress(& $obj = null, array & $code = null)
+    {
+
+    }
+
+    public function afterCompress(& $obj = null, array & $code = null)
+    {
+        // Iterate through generated php code
+        $files = array();
+        foreach (\samson\core\File::dir($this->cache_path, 'php', '', $files, 1) as $file) {
+            // No namespace for global function file
+            $ns = strpos($file, 'func') === false ? __NAMESPACE__ : '';
+
+            // Compress generated php code
+            $obj->compress_php($file, $this, $code, $ns);
+        }
+    }
+
     //[PHPCOMPRESSOR(remove,start)]
     /**
      * Read SQL file with variables placeholders pasting
