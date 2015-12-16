@@ -16,6 +16,9 @@ class MaterialField extends \samson\activerecord\materialfield
     const F_PRIMARY = 'MaterialFieldID';
     const F_DELETION = 'Active';
     const F_LOCALE = 'locale';
+    const F_VALUE = 'Value';
+    const F_NUMERIC = 'numeric_value';
+    const F_KEY = 'key_value';
 
     /** @var integer Primary key */
     public $FieldID;
@@ -73,14 +76,14 @@ class MaterialField extends \samson\activerecord\materialfield
      * @param string $fieldID Additional field identifier
      * @param mixed $return Variable to return found database record
      * @param string $locale Locale identifier
-     * @return bool|null|self[]  Field instance or null if 3rd parameter not passed
+     * @return bool|null|self  Field instance or null if 3rd parameter not passed
      */
     public static function byFieldIDAndMaterialID(
         QueryInterface $query,
         $materialID,
         $fieldID,
         &$return = null,
-        $locale = DEFAULT_LOCALE
+        $locale = null
     ) {
         $return = $query->entity(get_called_class())
             ->where(Material::F_PRIMARY, $materialID)

@@ -8,6 +8,7 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
+use samsoncms\api\Material;
 use samsoncms\api\Field;
 use samsoncms\api\CMS;
 
@@ -27,7 +28,8 @@ class MaterialField extends Relational
         parent::__construct(
             new dbQuery(),
             $identifier,
-            Field::$_primary,
+            Material::F_PRIMARY,
+            Field::F_PRIMARY,
             CMS::MATERIAL_FIELD_RELATION_ENTITY,
             $filteringIDs
         );
@@ -50,7 +52,7 @@ class MaterialField extends Relational
         if (Field::byID($this->query, $relationID, $fieldRecord)) {
             // Get material identifiers by field
             $this->query->entity($this->relationIdentifier)
-                ->where(self::DELETE_FLAG_FIELD, 1)
+                ->where(\samsoncms\api\MaterialField::F_DELETION, 1)
                 ->where($this->relationPrimary, $relationID)
                 ->where($fieldRecord->valueFieldName(), $relationValue);
 

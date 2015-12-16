@@ -74,7 +74,7 @@ class Generic
      *
      * @param string $value Field value
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function primary($value)
     {
@@ -86,7 +86,7 @@ class Generic
      *
      * @param string $value Field value
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function identifier($value)
     {
@@ -98,7 +98,7 @@ class Generic
      *
      * @param string $value Field value
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function published($value)
     {
@@ -111,7 +111,7 @@ class Generic
      * @param string $value Field value
      * @param string $relation @see ArgumentInterface types
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function created($value, $relation = ArgumentInterface::EQUAL)
     {
@@ -124,7 +124,7 @@ class Generic
      * @param string $value Field value
      * @param string $relation @see ArgumentInterface types
      * @return self Chaining
-     * @see Generic::where()
+     * @see Material::where()
      */
     public function modified($value, $relation = ArgumentInterface::EQUAL)
     {
@@ -139,7 +139,25 @@ class Generic
     public function find()
     {
         // Proxy to regular database query
-        return $this->query->entity(static::$identifier)->whereCondition($this->conditions)->exec();
+        return $this->query
+            ->entity(static::$identifier)
+            ->whereCondition($this->conditions)
+            ->exec();
+    }
+
+    /**
+     * Perform SamsonCMS query and get collection of entities fields.
+     *
+     * @param string $fieldName Entity field name
+     * @return array Collection of entity fields
+     */
+    public function fields($fieldName)
+    {
+        // Proxy to regular database query
+        return $this->query
+            ->entity(static::$identifier)
+            ->whereCondition($this->conditions)
+            ->fields($fieldName);
     }
 
     /**

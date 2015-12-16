@@ -59,29 +59,6 @@ class FieldsTable
     }
 
     /**
-     * Get collection of entities by field identifier.
-     *
-     * @param integer $fieldID Column name(Field identifier)
-     * @param string $entityIdentifier Entity identifier for creating new entities
-     * @return array
-     */
-    public function entities($fieldID, $entityIdentifier = Material::ENTITY)
-    {
-        $return = array();
-        $field = &$this->fields[$fieldID];
-        // If we have this field and this is entity identifier field
-        if (isset($field) && $field->Type == Field::TYPE_ENTITYID) {
-            // Execute database request to get entity instances
-            $return = $entityIdentifier::collectionByColumn(
-                $this->query,
-                Material::F_PRIMARY,
-                $this->values($fieldID)
-            );
-        }
-        return $return;
-    }
-
-    /**
      * Get field table as multidimensional array.
      *
      * @return array Field table represented as array
@@ -180,11 +157,11 @@ class FieldsTable
      * FieldsTable constructor.
      *
      * @param QueryInterface $query Database query interface
-     * @param integer $navigationID Navigation identifier for table structure
+     * @param mixed $navigationID Navigation identifier for table structure
      * @param integer $materialID Table parent material identifier
      * @param string $locale Locale identifier
      */
-    public function __construct(QueryInterface $query, $navigationID, $materialID, $locale = DEFAULT_LOCALE)
+    public function __construct(QueryInterface $query, $navigationID, $materialID, $locale = '')
     {
         $this->query = $query;
         $this->navigationID = $navigationID;

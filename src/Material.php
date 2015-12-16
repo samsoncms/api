@@ -74,7 +74,7 @@ class Material extends \samson\activerecord\material
      * @param string $value Value to be stored
      * @param string $locale Locale identifier
      */
-    public function setFieldByID($fieldID, $value, $locale = DEFAULT_LOCALE)
+    public function setFieldByID($fieldID, $value, $locale = null)
     {
         /** @var QueryInterface $query This should be removed to use $this->database*/
         $query = new dbQuery();
@@ -82,15 +82,19 @@ class Material extends \samson\activerecord\material
         /** @var Field $fieldRecord Try to find this additional field */
         $fieldRecord = null;
         if (Field::byID($query, $fieldID, $fieldRecord)) {
-            /** @var MaterialField[] $materialFieldRecord Try to find additional field value */
+            /** @var MaterialField $materialFieldRecord Try to find additional field value */
             $materialFieldRecord = null;
-            if (!MaterialField::byFieldIDAndMaterialID($query, $this->id, $fieldRecord->id, $materialFieldRecord)) {
+            if (!MaterialField::byFieldIDAndMaterialID($query, $this->id, $fieldRecord->id, $materialFieldRecord, $locale)) {
                 // Create new additional field value record if it does not exists
                 $materialFieldRecord = new MaterialField();
                 $materialFieldRecord->FieldID = $fieldRecord->id;
                 $materialFieldRecord->MaterialID = $this->id;
                 $materialFieldRecord->Active = 1;
-                $materialFieldRecord->locale = $locale;
+
+                // Add locale if field needs it
+                if ($fieldRecord->localized()) {
+                    $materialFieldRecord->locale = $locale;
+                }
             } else { // Get first record(actually it should be only one)
                 $materialFieldRecord = array_shift($materialFieldRecord);
             }

@@ -15,6 +15,18 @@ use samsonframework\orm\QueryInterface;
  */
 class Navigation extends structure
 {
+    /** Store entity name */
+    const ENTITY = __CLASS__;
+
+    /** Entity field names constants for using in code */
+    const F_PRIMARY = 'StructureID';
+    const F_IDENTIFIER = 'Url';
+    const F_DELETION = 'Active';
+    const F_PARENT = 'ParentID';
+    const F_PRIORITY = 'priority';
+    const F_CREATED = 'Created';
+    const F_MODIFIED = 'Modyfied';
+
     /** @var string Navigation string identifier */
     public $url;
 

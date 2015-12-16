@@ -7,6 +7,8 @@
  */
 namespace samsoncms\api;
 
+use samson\activerecord\dbMySQLConnector;
+use samson\cms\CMSMaterial;
 use samsoncms\api\query\Generic;
 use samsonframework\orm\DatabaseInterface;
 
@@ -18,6 +20,9 @@ class Generator
 {
     /** @var DatabaseInterface */
     protected $database;
+
+    /** @var \samsonphp\generator\Generator */
+    protected $generator;
 
     /**
      * Transliterate string to english.
@@ -175,31 +180,128 @@ class Generator
      */
     protected function createEntityClass($navigationName, $entityName, $navigationFields)
     {
-        $class = "\n\n" . '/** Class for getting "'.$navigationName.'" instances from database */';
-        $class .= "\n" . 'class ' . $entityName . ' extends Entity';
+        $this->generator->multicomment(array('"'.$navigationName.'" entity class'));
+        $this->generator->defclass($entityName, 'Entity');
+
+        $this->generator->comment('Entity full class name');
+        $this->generator->defvar('const ENTITY', $this->fullEntityName($entityName));
+
+        $this->generator->comment('@var string Not transliterated entity name');
+        $this->generator->defvar('protected static $viewName', $navigationName);
+
+        $select = \samson\activerecord\material::$_sql_select;
+        $attributes = \samson\activerecord\material::$_attributes;
+        $map = \samson\activerecord\material::$_map;
+        $from = \samson\activerecord\material::$_sql_from;
+        $group = \samson\activerecord\material::$_own_group;
+
+        $select['this'] = ' STRAIGHT_JOIN ' . $select['this'];
+        $from['this'] .= "\n" . 'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf on ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
+        $group[] = dbMySQLConnector::$prefix . 'material.MaterialID';
+
+        foreach ($navigationFields as $fieldID => $fieldRow) {
+            $fieldName = $this->fieldName($fieldRow['Name']);
+
+            $attributes[$fieldName] = $fieldName;
+            $map[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
+
+            $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "'.locale().'"' : 'IS NULL').'))';
+
+            // Save additional field
+            $select['this'] .= "\n\t\t".',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
+
+            $this->generator->comment(Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name');
+            $this->generator->defvar('const F_' . strtoupper($fieldName), $fieldName);
+            $this->generator->comment(Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID);
+            $this->generator->defvar('public $'.$fieldName.';');
+        }
+
+        $this->generator->defvar('public static $_sql_select', $select);
+        $this->generator->defvar('public static $_attributes', $attributes);
+        $this->generator->defvar('public static $_map', $map);
+        $this->generator->defvar('public static $_sql_from', $from);
+        $this->generator->defvar('public static $_own_group', $group);
+
+        $this->generator->endclass();
+
+        return $this->generator->flush();
+    }
+
+    /**
+     * Generate FieldsTable::values() analog for specific field.
+     *
+     * @param string $fieldName Field name
+     * @param string $fieldId Field primary identifier
+     * @param string $fieldType Field PHP type
+     * @return string Generated PHP method code
+     */
+    protected function generateTableFieldMethod($fieldName, $fieldId, $fieldType)
+    {
+        $code = "\n\t" . '/**';
+        $code .= "\n\t" . ' * Get table column '.$fieldName.'(#' . $fieldId . ') values.';
+        $code .= "\n\t" . ' * @return array Collection('.Field::phpType($fieldType).') of table column values';
+        $code .= "\n\t" . ' */';
+        $code .= "\n\t" . 'public function ' . $fieldName . '()';
+        $code .= "\n\t" . "{";
+        $code .= "\n\t\t" . 'return $this->values('.$fieldId.');';
+
+        return $code . "\n\t" . "}"."\n";
+    }
+
+    /**
+     * Create fields table PHP class code.
+     *
+     * @param integer $navigationID Entity navigation identifier
+     * @param string $navigationName Original entity name
+     * @param string $entityName PHP entity name
+     * @param array $navigationFields Collection of entity additional fields
+     * @return string Generated entity query PHP class code
+     */
+    protected function createTableClass($navigationID, $navigationName, $entityName, $navigationFields)
+    {
+        $class = "\n";
+        $class .= "\n" . '/**';
+        $class .= "\n" . ' * Class for getting "'.$navigationName.'" fields table';
+        $class .= "\n" . ' */';
+        $class .= "\n" . 'class ' . $entityName . ' extends FieldsTable';
         $class .= "\n" . '{';
 
         // Iterate additional fields
         $constants = '';
-        $constants .= "\n\t" .'/** Entity full class name */';
-        $constants .= "\n\t" . 'const ENTITY = "'.$this->fullEntityName($entityName).'";';
         $variables = '';
+        $methods = '';
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
+            $methods .= $this->generateTableFieldMethod(
+                $fieldName,
+                $fieldRow[Field::F_PRIMARY],
+                $fieldRow[Field::F_TYPE]
+            );
             $constants .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name */';
             $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldName.'";';
 
-            $variables .= "\n\t" . '/** @var ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . '*/';
-            $variables .= "\n\t" . 'public $' . $fieldName . ';';
+            $variables .= "\n\t" . '/** @var array Collection of '.$fieldRow['Description'].' Field #' . $fieldID . ' values */';
+            $variables .= "\n\t" . 'protected $' . $fieldName . ';';
         }
 
         $class .= $constants;
         $class .= "\n\t";
-        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
-        $class .= "\n\t" . 'protected static $viewName = "' . $navigationName . '";';
+        $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
+        $class .= "\n\t" . 'protected static $navigationIDs = array(' . $navigationID . ');';
         $class .= "\n\t";
         $class .= $variables;
+        $class .= "\n\t";
+        $class .= $methods;
+        $class .= "\n\t".'/**';
+        $class .= "\n\t".' * @param QueryInterface $query Database query instance';
+        $class .= "\n\t".' * @param integer $entityID Entity identifier to whom this table belongs';
+        $class .= "\n\t".' * @param string $locale Localization identifier';
+        $class .= "\n\t".' */';
+        $class .= "\n\t".'public function __construct(QueryInterface $query, $entityID, $locale = "")';
+        $class .= "\n\t".'{';
+        $class .= "\n\t\t".'parent::__construct($query, static::$navigationIDs, $entityID, $locale);';
+        $class .= "\n\t".'}';
         $class .= "\n" . '}';
 
         return $class;
@@ -228,7 +330,7 @@ class Generator
         $class .= "\n" . ' * @method '.$entityName.' modified($value) Query for chaining';
         $class .= "\n" . ' * @method '.$entityName.' published($value) Query for chaining';
         $class .= "\n" . ' */';
-        $class .= "\n" . 'class ' . $entityName . ' extends EntityQuery';
+        $class .= "\n" . 'class ' . $entityName . ' extends \samsoncms\api\query\Entity';
         $class .= "\n" . '{';
 
         // Iterate additional fields
@@ -324,8 +426,9 @@ class Generator
         $classes = "\n" . 'namespace ' . $namespace . ';';
         $classes .= "\n";
         $classes .= "\n" . 'use '.$namespace.'\Field;';
-        $classes .= "\n" . 'use '.$namespace.'\query\EntityQuery;';
+        $classes .= "\n" . 'use '.$namespace.'\FieldsTable;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
+        $classes .= "\n" . 'use \samsonframework\orm\QueryInterface;';
 
         // Iterate all structures
         foreach ($this->entityNavigations() as $structureRow) {
@@ -346,6 +449,20 @@ class Generator
             );
         }
 
+        // Iterate table structures
+        foreach ($this->entityNavigations(2) as $structureRow) {
+            $navigationFields = $this->navigationFields($structureRow['StructureID']);
+            $entityName = $this->entityName($structureRow['Name']);
+
+            $classes .= $this->createTableClass(
+                $structureRow['StructureID'],
+                $structureRow['Name'],
+                $entityName.'Table',
+                $navigationFields
+            );
+
+        }
+
         // Make correct code formatting
         return str_replace("\t", '    ', $classes);
     }
@@ -356,6 +473,7 @@ class Generator
      */
     public function __construct(DatabaseInterface $database)
     {
+        $this->generator = new \samsonphp\generator\Generator(__NAMESPACE__);
         $this->database = $database;
     }
 }

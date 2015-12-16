@@ -10,6 +10,7 @@ namespace samsoncms\api\query;
 use samson\activerecord\dbQuery;
 use samsoncms\api\CMS;
 use samsoncms\api\Navigation;
+use samsoncms\api\Field;
 
 /**
  * Additional field to navigation relation query.
@@ -25,8 +26,9 @@ class FieldNavigation extends Relational
     {
         parent::__construct(
             new dbQuery(),
-            '\samsoncms\api\Field',
-            Navigation::$_primary,
+            Field::ENTITY,
+            Field::F_PRIMARY,
+            Navigation::F_PRIMARY,
             CMS::FIELD_NAVIGATION_RELATION_ENTITY,
             $filteringIDs
         );

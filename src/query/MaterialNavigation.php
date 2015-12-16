@@ -9,6 +9,7 @@ namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
 use samsoncms\api\CMS;
+use samsoncms\api\Material;
 use samsoncms\api\Navigation;
 
 /**
@@ -27,7 +28,8 @@ class MaterialNavigation extends Relational
         parent::__construct(
             new dbQuery(),
             $identifier,
-            Navigation::$_primary,
+            Material::F_PRIMARY,
+            Navigation::F_PRIMARY,
             CMS::MATERIAL_NAVIGATION_RELATION_ENTITY,
             $filteringIDs
         );
