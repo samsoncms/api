@@ -171,6 +171,29 @@ class Generator
     }
 
     /**
+     * Generate Query::where() analog for specific field.
+     *
+     * @param string $fieldName Field name
+     * @param string $fieldId Field primary identifier
+     * @param string $fieldType Field PHP type
+     * @return string Generated PHP method code
+     */
+    protected function generateLocalizedFieldConditionMethod($fieldName, $fieldId, $fieldType)
+    {
+        $code = "\n\t" . '/**';
+        $code .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldId . ') field query condition.';
+        $code .= "\n\t" . ' * @param '.Field::phpType($fieldType).' $value Field value';
+        $code .= "\n\t" . ' * @return self Chaining';
+        $code .= "\n\t" . ' * @see Generic::where()';
+        $code .= "\n\t" . ' */';
+        $code .= "\n\t" . 'public function ' . $fieldName . '($value)';
+        $code .= "\n\t" . "{";
+        $code .= "\n\t\t" . 'return $this->where("'.$fieldName.'", $value);';
+
+        return $code . "\n\t" . "}"."\n";
+    }
+
+    /**
      * Create entity PHP class code.
      *
      * @param string $navigationName Original entity name
@@ -189,12 +212,14 @@ class Generator
         $this->generator->comment('@var string Not transliterated entity name');
         $this->generator->defvar('protected static $viewName', $navigationName);
 
+        // Get old AR collections of metadata
         $select = \samson\activerecord\material::$_sql_select;
         $attributes = \samson\activerecord\material::$_attributes;
         $map = \samson\activerecord\material::$_map;
         $from = \samson\activerecord\material::$_sql_from;
         $group = \samson\activerecord\material::$_own_group;
 
+        // Add SamsonCMS material needed data
         $select['this'] = ' STRAIGHT_JOIN ' . $select['this'];
         $from['this'] .= "\n" . 'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf on ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
         $group[] = dbMySQLConnector::$prefix . 'material.MaterialID';

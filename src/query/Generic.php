@@ -94,6 +94,18 @@ class Generic
     }
 
     /**
+     * Add active flag condition.
+     *
+     * @param bool $value Field value
+     * @return self Chaining
+     * @see Material::where()
+     */
+    public function active($value)
+    {
+        return $this->where(Material::F_DELETION, $value);
+    }
+
+    /**
      * Add entity published field query condition.
      *
      * @param string $value Field value
@@ -163,7 +175,7 @@ class Generic
     /**
      * Perform SamsonCMS query and get first matching entity.
      *
-     * @return \samsoncms\api\Entity Firt matching entity
+     * @return \samsoncms\api\Entity First matching entity
      */
     public function first()
     {
@@ -175,6 +187,20 @@ class Generic
             ->exec();
 
         return array_shift($return);
+    }
+
+    /**
+     * Perform SamsonCMS query and get amount resulting entities.
+     *
+     * @return int Amount of resulting entities
+     */
+    public function count()
+    {
+        // Proxy to regular database query
+        return $this->query
+            ->entity(static::$identifier)
+            ->whereCondition($this->conditions)
+            ->count();
     }
 
     /**
