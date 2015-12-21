@@ -74,7 +74,6 @@ class Field extends \samson\activerecord\field
         if (isset($pointer)) {
             return $pointer;
         } else {
-			trace($fieldType, 1);
             throw new AdditionalFieldTypeNotFound();
         }
     }
