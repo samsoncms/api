@@ -26,6 +26,8 @@ class Field extends \samson\activerecord\field
     const TYPE_TEXT = 0;
     /** Additional field storing resource link */
     const TYPE_RESOURCE = 1;
+	    /** Additional field storing date value */
+    const TYPE_DATE = 3;
     /** Additional field storing options value */
     const TYPE_OPTIONS = 4;
     /** Additional field storing other entity identifier */
@@ -34,6 +36,8 @@ class Field extends \samson\activerecord\field
     const TYPE_NUMERIC = 7;
     /** Additional field storing long text value */
     const TYPE_LONGTEXT = 8;
+	    /** Additional field storing gallery value */
+    const TYPE_GALLERY = 9;
     /** Additional field storing datetime value */
     const TYPE_DATETIME = 10;
     /** Additional field storing boolean value */
@@ -51,6 +55,8 @@ class Field extends \samson\activerecord\field
         self::TYPE_ENTITYID => 'int',
         self::TYPE_NUMERIC => 'int',
         self::TYPE_DATETIME => 'int',
+        self::TYPE_DATE => 'int',
+        self::TYPE_GALLERY => 'int',
         self::TYPE_NAVIGATION => 'int'
     );
 
@@ -68,6 +74,7 @@ class Field extends \samson\activerecord\field
         if (isset($pointer)) {
             return $pointer;
         } else {
+			trace($fieldType, 1);
             throw new AdditionalFieldTypeNotFound();
         }
     }
