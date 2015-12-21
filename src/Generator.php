@@ -372,6 +372,7 @@ class Generator
         $allFieldIDs = array();
         $allFieldNames = array();
         $allFieldValueColumns = array();
+        $realNames = array();
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
@@ -383,6 +384,7 @@ class Generator
             ));
 
             // Store field metadata
+            $realNames[$fieldRow['Name']] = $fieldName;
             $allFieldIDs[$fieldID] = $fieldName;
             $allFieldNames[$fieldName] = $fieldID;
             $allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
@@ -394,10 +396,12 @@ class Generator
         }
 
         return $this->generator
-            ->commentVar('string', 'Not transliterated entity name')
-            ->defClassVar('$identifier', 'protected static', $this->fullEntityName($navigationName))
             ->commentVar('array', 'Collection of navigation identifiers')
             ->defClassVar('$navigationIDs', 'public static', array($navigationID))
+            ->commentVar('array', 'Collection of real additional field names')
+            ->defClassVar('$fieldRealNames', 'public static', $realNames)
+            ->commentVar('string', 'Not transliterated entity name')
+            ->defClassVar('$identifier', 'protected static', $this->fullEntityName($navigationName))
             ->commentVar('array', 'Collection of localized additional fields identifiers')
             ->defClassVar('$localizedFieldIDs', 'protected static', $localizedFieldIDs)
             ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
