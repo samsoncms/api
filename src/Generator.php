@@ -230,6 +230,10 @@ class Generator
         $map = \samson\activerecord\material::$_map;
         $from = \samson\activerecord\material::$_sql_from;
         $group = \samson\activerecord\material::$_own_group;
+        $relationAlias = \samson\activerecord\material::$_relation_alias;
+        $relationType = \samson\activerecord\material::$_relation_type;
+        $relations = \samson\activerecord\material::$_relations;
+
 
         // Add SamsonCMS material needed data
         $select['this'] = ' STRAIGHT_JOIN ' . $select['this'];
@@ -260,6 +264,9 @@ class Generator
             ->defClassVar('$_map', 'public static ', $map)
             ->defClassVar('$_sql_from', 'public static ', $from)
             ->defClassVar('$_own_group', 'public static ', $group)
+            ->defClassVar('$_relation_alias', 'public static ', $relationAlias)
+            ->defClassVar('$_relation_type', 'public static ', $relationType)
+            ->defClassVar('$_relations', 'public static ', $relations)
             ->endclass()
             ->flush();
     }
@@ -398,10 +405,10 @@ class Generator
         }
 
         return $this->generator
-            ->commentVar('array', 'Collection of navigation identifiers')
-            ->defClassVar('$navigationIDs', 'public static', array($navigationID))
             ->commentVar('array', 'Collection of real additional field names')
             ->defClassVar('$fieldRealNames', 'public static', $realNames)
+            ->commentVar('array', 'Collection of navigation identifiers')
+            ->defClassVar('$navigationIDs', 'protected static', array($navigationID))
             ->commentVar('string', 'Not transliterated entity name')
             ->defClassVar('$identifier', 'protected static', $this->fullEntityName($navigationName))
             ->commentVar('array', 'Collection of localized additional fields identifiers')

@@ -34,6 +34,13 @@ class Generic
     /** @var string Entity navigation identifiers */
     protected static $navigationIDs = array();
 
+    /**
+     * @var string Collection of entity field names
+     * @deprecated Created for old application who need real additional field names
+     */
+    public static $fieldRealNames = array();
+
+
     /** @var QueryInterface Database query instance */
     protected $query;
 
