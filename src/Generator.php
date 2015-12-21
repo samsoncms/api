@@ -109,7 +109,18 @@ class Generator
      */
     protected function entityName($navigationName)
     {
-        return ucfirst($this->transliterated($navigationName));
+        return ucfirst($this->getValidName($this->transliterated($navigationName)));
+    }
+	
+    /**
+     * Remove all wrong characters from entity name
+     *
+     * @param string $navigationName Original navigation entity name
+     * @return string Correct PHP-supported entity name
+     */
+    protected function getValidName($navigationName)
+    {
+        return preg_replace('/(^\d*)|([^\w\d_])/', '', $navigationName);
     }
 
     /**
