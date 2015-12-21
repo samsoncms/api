@@ -216,9 +216,11 @@ class Generator
     {
         $this->generator
             ->multicomment(array('"'.$navigationName.'" entity class'))
-            ->defclass($entityName, 'Entity')
-            ->defClassConst('ENTITY', $this->fullEntityName($entityName), 'Entity full class name')
-            ->defClassVar('$viewName', 'protected static', '@var string Not transliterated entity name', $navigationName);
+            ->defClass($entityName, 'Entity')
+            ->commentVar('string', 'Entity full class name')
+            ->defClassConst('ENTITY', $this->fullEntityName($entityName))
+            ->commentVar('string', 'Not transliterated entity name')
+            ->defClassVar('$viewName', 'protected static');
 
         // Get old AR collections of metadata
         $select = \samson\activerecord\material::$_sql_select;
@@ -244,23 +246,18 @@ class Generator
             $select['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
 
             $this->generator
-                ->defClassConst(
-                    'F_' . $fieldName,
-                    $fieldName,
-                    $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name'
-                )->defClassVar(
-                    '$' . $fieldName,
-                    'public',
-                    '@var ' . Field::phpType($fieldRow['Type']) . ' ' . $fieldRow['Description'] . ' Field #' . $fieldID
-                );
+                ->commentVar('string', $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name')
+                ->defClassConst('F_' . $fieldName, $fieldName)
+                ->commentVar(Field::phpType($fieldRow['Type']), $fieldRow['Description'] . ' Field #' . $fieldID)
+                ->defClassVar('$' . $fieldName, 'public');
         }
 
         return $this->generator
-            ->defClassVar('$_sql_select', 'public static ', '', $select)
-            ->defClassVar('$_attributes', 'public static ', '', $attributes)
-            ->defClassVar('$_map', 'public static ', '', $map)
-            ->defClassVar('$_sql_from', 'public static ', '', $from)
-            ->defClassVar('$_own_group', 'public static ', '', $group)
+            ->defClassVar('$_sql_select', 'public static ', $select)
+            ->defClassVar('$_attributes', 'public static ', $attributes)
+            ->defClassVar('$_map', 'public static ', $map)
+            ->defClassVar('$_sql_from', 'public static ', $from)
+            ->defClassVar('$_own_group', 'public static ', $group)
             ->endclass()
             ->flush();
     }
@@ -356,20 +353,18 @@ class Generator
      */
     protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
-        $class = "\n";
-        $class .= "\n" . '/**';
-        $class .= "\n" . ' * Class for getting "'.$navigationName.'" instances from database';
-        $class .= "\n" . ' * @method '.$this->entityName($navigationName).'[] find() Get entities collection';
-        $class .= "\n" . ' * @method '.$this->entityName($navigationName).' first() Get entity';
-        $class .= "\n" . ' * @method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)';
-        $class .= "\n" . ' * @method '.$entityName.' primary($value) Query for chaining';
-        $class .= "\n" . ' * @method '.$entityName.' identifier($value) Query for chaining';
-        $class .= "\n" . ' * @method '.$entityName.' created($value) Query for chaining';
-        $class .= "\n" . ' * @method '.$entityName.' modified($value) Query for chaining';
-        $class .= "\n" . ' * @method '.$entityName.' published($value) Query for chaining';
-        $class .= "\n" . ' */';
-        $class .= "\n" . 'class ' . $entityName . ' extends \samsoncms\api\query\Entity';
-        $class .= "\n" . '{';
+        $this->generator->multicomment(array(
+            'Class for getting "'.$navigationName.'" instances from database',
+            '@method '.$this->entityName($navigationName).'[] find() Get entities collection',
+            '@method '.$this->entityName($navigationName).' first() Get entity',
+            '@method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)',
+            '@method '.$entityName.' primary($value) Query for chaining',
+            '@method '.$entityName.' identifier($value) Query for chaining',
+            '@method '.$entityName.' created($value) Query for chaining',
+            '@method '.$entityName.' modified($value) Query for chaining',
+            '@method '.$entityName.' published($value) Query for chaining'
+        ))->defClass($entityName, '\samsoncms\api\query\Entity')
+        ;
 
         // Iterate additional fields
         $localizedFieldIDs = array();
@@ -381,42 +376,41 @@ class Generator
             $fieldName = $this->fieldName($fieldRow['Name']);
 
             // TODO: Add different method generation depending on their field type
-            $class .= $this->generateFieldConditionMethod(
+            $this->generator->text($this->generateFieldConditionMethod(
                 $fieldName,
                 $fieldRow[Field::F_PRIMARY],
                 $fieldRow[Field::F_TYPE]
-            );
+            ));
 
             // Store field metadata
-            $allFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
-            $allFieldNames[] = '"' . $fieldName . '" => "' . $fieldID . '"';
-            $allFieldValueColumns[] = '"' . $fieldID . '" => "' . Field::valueColumn($fieldRow[Field::F_TYPE]) . '"';
+            $allFieldIDs[$fieldID] = $fieldName;
+            $allFieldNames[$fieldName] = $fieldID;
+            $allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
             if ($fieldRow[Field::F_LOCALIZED] == 1) {
-                $localizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
+                $localizedFieldIDs[$fieldID] = $fieldName;
             } else {
-                $notLocalizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
+                $notLocalizedFieldIDs[$fieldID] = $fieldName;
             }
         }
 
-        $class .= "\n\t";
-        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
-        $class .= "\n\t" . 'protected static $identifier = "'.$this->fullEntityName($navigationName).'";';
-        $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
-        $class .= "\n\t" . 'protected static $navigationIDs = array(' . $navigationID . ');';
-        $class .= "\n\t" . '/** @var array Collection of localized additional fields identifiers */';
-        $class .= "\n\t" . 'protected static $localizedFieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $localizedFieldIDs) . "\n\t".');';
-        $class .= "\n\t" . '/** @var array Collection of NOT localized additional fields identifiers */';
-        $class .= "\n\t" . 'protected static $notLocalizedFieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $notLocalizedFieldIDs) . "\n\t".');';
-        $class .= "\n\t" . '/** @var array Collection of all additional fields identifiers */';
-        $class .= "\n\t" . 'protected static $fieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldIDs) . "\n\t".');';
-        $class .= "\n\t" . '/** @var array Collection of additional fields value column names */';
-        $class .= "\n\t" . 'protected static $fieldValueColumns = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldValueColumns) . "\n\t".');';
-        $class .= "\n\t" . '/** @var array Collection of additional field names */';
-        $class .= "\n\t" . 'public static $fieldNames = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldNames) . "\n\t".');';
-        $class .= "\n" . '}';
-
-        // Replace tabs with spaces
-        return $class;
+        return $this->generator
+            ->commentVar('string', 'Not transliterated entity name')
+            ->defClassVar('$identifier', 'protected static', $this->fullEntityName($navigationName))
+            ->commentVar('array', 'Collection of navigation identifiers')
+            ->defClassVar('$navigationIDs', 'public static', array($navigationID))
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$localizedFieldIDs', 'protected static', $localizedFieldIDs)
+            ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
+            ->defClassVar('$notLocalizedFieldIDs', 'protected static', $notLocalizedFieldIDs)
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$fieldIDs', 'protected static', $allFieldIDs)
+            ->commentVar('array', 'Collection of additional fields value column names')
+            ->defClassVar('$fieldValueColumns', 'protected static', $allFieldValueColumns)
+            ->commentVar('array', 'Collection of additional field names')
+            ->defClassVar('$fieldNames', 'protected static', $allFieldNames)
+            ->endClass()
+            ->flush()
+        ;
     }
 
     /** @return string Entity state hash */
