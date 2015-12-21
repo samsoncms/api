@@ -21,6 +21,9 @@ use samsonframework\orm\QueryInterface;
  */
 class Collection extends Paged
 {
+    /** @var string Entity manager instance */
+    protected $managerEntity = '\samsoncms\api\query\Generic';
+
     /** @var array Collection for current filtered material identifiers */
     protected $materialIDs = array();
 
