@@ -219,6 +219,8 @@ class Generator
             ->defClass($entityName, 'Entity')
             ->commentVar('string', 'Entity full class name')
             ->defClassConst('ENTITY', $this->fullEntityName($entityName))
+            ->commentVar('string', 'Entity manager full class name')
+            ->defClassConst('MANAGER', $this->fullEntityName($entityName.'Query'))
             ->commentVar('string', 'Not transliterated entity name')
             ->defClassVar('$viewName', 'protected static');
 
