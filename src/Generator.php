@@ -214,14 +214,11 @@ class Generator
      */
     protected function createEntityClass($navigationName, $entityName, $navigationFields)
     {
-        $this->generator->multicomment(array('"'.$navigationName.'" entity class'));
-        $this->generator->defclass($entityName, 'Entity');
-
-        $this->generator->comment('Entity full class name');
-        $this->generator->defvar('const ENTITY', $this->fullEntityName($entityName));
-
-        $this->generator->comment('@var string Not transliterated entity name');
-        $this->generator->defvar('protected static $viewName', $navigationName);
+        $this->generator
+            ->multicomment(array('"'.$navigationName.'" entity class'))
+            ->defclass($entityName, 'Entity')
+            ->defClassConst('ENTITY', $this->fullEntityName($entityName), 'Entity full class name')
+            ->defClassVar('$viewName', 'protected static', '@var string Not transliterated entity name', $navigationName);
 
         // Get old AR collections of metadata
         $select = \samson\activerecord\material::$_sql_select;
@@ -241,26 +238,31 @@ class Generator
             $attributes[$fieldName] = $fieldName;
             $map[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
 
-            $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "'.locale().'"' : 'IS NULL').'))';
+            $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "' . locale() . '"' : 'IS NULL') . '))';
 
             // Save additional field
-            $select['this'] .= "\n\t\t".',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
+            $select['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
 
-            $this->generator->comment(Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name');
-            $this->generator->defvar('const F_' . strtoupper($fieldName), $fieldName);
-            $this->generator->comment(Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID);
-            $this->generator->defvar('public $'.$fieldName.';');
+            $this->generator
+                ->defClassConst(
+                    'F_' . $fieldName,
+                    $fieldName,
+                    $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name'
+                )->defClassVar(
+                    '$' . $fieldName,
+                    'public',
+                    '@var ' . Field::phpType($fieldRow['Type']) . ' ' . $fieldRow['Description'] . ' Field #' . $fieldID
+                );
         }
 
-        $this->generator->defvar('public static $_sql_select', $select);
-        $this->generator->defvar('public static $_attributes', $attributes);
-        $this->generator->defvar('public static $_map', $map);
-        $this->generator->defvar('public static $_sql_from', $from);
-        $this->generator->defvar('public static $_own_group', $group);
-
-        $this->generator->endclass();
-
-        return $this->generator->flush();
+        return $this->generator
+            ->defClassVar('$_sql_select', 'public static ', '', $select)
+            ->defClassVar('$_attributes', 'public static ', '', $attributes)
+            ->defClassVar('$_map', 'public static ', '', $map)
+            ->defClassVar('$_sql_from', 'public static ', '', $from)
+            ->defClassVar('$_own_group', 'public static ', '', $group)
+            ->endclass()
+            ->flush();
     }
 
     /**
