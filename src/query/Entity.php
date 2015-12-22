@@ -22,7 +22,7 @@ use samsonframework\orm\QueryInterface;
 class Entity extends Generic
 {
     /** @var array Collection of all additional fields names */
-    protected static $fieldNames = array();
+    public static $fieldNames = array();
 
     /** @var array Collection of localized additional fields identifiers */
     protected static $localizedFieldIDs = array();
