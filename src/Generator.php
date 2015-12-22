@@ -420,7 +420,7 @@ class Generator
             ->commentVar('array', 'Collection of additional fields value column names')
             ->defClassVar('$fieldValueColumns', 'protected static', $allFieldValueColumns)
             ->commentVar('array', 'Collection of additional field names')
-            ->defClassVar('$fieldNames', 'protected static', $allFieldNames)
+            ->defClassVar('$fieldNames', 'public static', $allFieldNames)
             ->endClass()
             ->flush()
         ;

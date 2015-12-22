@@ -40,6 +40,9 @@ class Generic
      */
     public static $fieldRealNames = array();
 
+    /** @var string Collection of entity field names */
+    public static $fieldNames = array();
+
 
     /** @var QueryInterface Database query instance */
     protected $query;
