@@ -51,12 +51,12 @@ class CMS extends CompressableService
      * @param SystemInterface $system
      * @param RequestInterface $request
      */
-    public function  __construct($path, ResourcesInterface $resources, SystemInterface $system, RequestInterface $request)
+    public function  __construct($path, ResourcesInterface $resources, SystemInterface $system)
     {
         // TODO: This should changed to normal DI
         $this->database = db();
 
-        parent::__construct($path, $resources, $system, $request);
+        parent::__construct($path, $resources, $system);
     }
 
 
