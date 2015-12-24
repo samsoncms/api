@@ -362,6 +362,8 @@ class Collection extends Paged
         if (!empty($this->search)) {
             // Create array containing all navigation identifiers
             foreach ($this->navigation as $navigation) {
+                // Navigation hook for searching action
+                $navigation = is_array($navigation) ? $navigation : array($navigation);
                 $navigationArray = array_merge($navigationArray, $navigation);
             }
 
@@ -388,12 +390,18 @@ class Collection extends Paged
                 $materialCondition->add('Name', '%' . $searchString . '%', dbRelation::LIKE)
                     ->add('Url', '%' . $searchString . '%', dbRelation::LIKE);
 
+
                 // Try to find search value in material table
                 $this->query->className('material')
-                    ->cond('MaterialID', $filteredIds)
                     ->cond($materialCondition)
-                    ->cond('Active', 1)
-                    ->fields('MaterialID', $materialFilter);
+                    ->cond('Active', 1);
+
+                // If we have not empty collection of filtering identifiers
+                if (sizeof($filteredIds)) {
+                    $this->query->cond('MaterialID', $filteredIds);
+                }
+
+                $materialFilter = $this->query->fields('MaterialID');
 
                 // If there are no materials with specified conditions
                 if (empty($materialFilter) && empty($fieldFilter)) {
