@@ -8,7 +8,9 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
-use samson\activerecord\structurematerial;
+use samsonframework\core\RequestInterface;
+use samsonframework\core\ResourcesInterface;
+use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
 use samson\core\CompressableService;
 use samson\activerecord\dbMySQLConnector;
@@ -39,16 +41,17 @@ class CMS extends CompressableService
 
     /**
      * CMS constructor.
-     * @param null|string $path
-     * @param null|string $vid
-     * @param mixed|null $resources
+     *
+     * @param string $path
+     * @param ResourcesInterface $resources
+     * @param SystemInterface $system
      */
-    public function __construct($path, $vid, $resources)
+    public function  __construct($path, ResourcesInterface $resources, SystemInterface $system)
     {
         // TODO: This should changed to normal DI
         $this->database = db();
 
-        parent::__construct($path, $vid, $resources);
+        parent::__construct($path, $resources, $system);
     }
 
 
