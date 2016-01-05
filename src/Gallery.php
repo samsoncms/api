@@ -5,51 +5,81 @@
  * Date: 05.01.2016
  * Time: 15:25
  */
-
 namespace samsoncms\api;
 
+use samson\cms\CMSGallery;
+use samsoncms\api\MaterialField;
+
+/***
+ *  Gallery additional field for material.
+ *  This class enables getting all information about additional fields gallery for specific material.
+ */
 class Gallery
 {
-    /** @var integer Table parent materialField identifier */
+    /** @var integer materialFieldId Table materialField identifier */
     protected $materialFieldId = null;
 
+    /** @var QueryInterface Database query interface */
+    protected $query;
+
     /**
-     * Constructor Gallery
+     * Constructor Gallery.
+     * This constructor finds identifier additional field gallery from database record its material and field identifiers.
+     *
+     * @param QueryInterface $query Database query interface
      * @param integer $materialId material identifier
      * @param integer $fieldId field identifier
      */
-    public function __construct($materialId, $fieldId)
+    public function __construct(QueryInterface $query, $materialId, $fieldId)
     {
-        $mf = null;
+        /** @var object $materialField additional field value database record*/
+        $materialField = null;
+
+        //set query interface
+        $this->query = $query;
+
+        // Checking params by type
         if (is_int($materialId) && is_int($fieldId)) {
-            if (dbQuery('materialfield')->cond('MaterialID', $materialId)->cond('FieldID', $fieldId)->first($mf)) {
-                $this->materialFieldId = $mf->id;
+            //Find additional field value database record by its material and field identifiers.
+            if (MaterialField::byFieldIDAndMaterialID($query, $materialId, $fieldId, $materialField)) {
+                //Getting first record
+                $materialField = array_shift($materialField);
+                //Set materialFieldId
+                $this->materialFieldId = $materialField->id;
             }
         }
     }
 
     /**
-     * Get all images in gallery
+     * Check on empty gallery.
+     *
+     * @return boolean
+     **/
+    public function hasImages()
+    {
+        return (isset($this->materialFieldId));
+    }
+
+    /**
+     * Get collection of images for material by gallery additional field selector. If none is passed
+     * all images from gallery table would be returned empty array.
+     *
      * @return array
      */
     public function getImages()
     {
-        if ($this->issetImages()) {
-            // array images from gallery
-            $images = null;
-            if (dbQuery('gallery')->cond('MaterialFieldID', $this->materialFieldId)->exec($images)) {
-                return $images;
-            }
-        }
-        return array();
-    }
+        /** @var $images[] Get material images for this gallery */
+        $images = array();
 
-    /**
-     * Check on empty gallery
-     * @return boolean
-     **/
-    public function issetImages()
-    {
-        return (isset($this->materialFieldId)) ? true : false;
+        if ($this->hasImages()) {
+            //Get All images for materialFieldId
+            $images = $this->query
+                ->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
+                ->cond(Field::F_DELETION, 1)
+                ->where(MaterialField::F_PRIMARY, $this->materialFieldId)
+                ->exec();
+        }
+
+        return $images;
     }
 }
