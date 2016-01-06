@@ -9,6 +9,7 @@ namespace samsoncms\api;
 
 use samson\cms\CMSGallery;
 use samsoncms\api\MaterialField;
+use samsonframework\orm\QueryInterface;
 
 /***
  *  Gallery additional field for material.
@@ -51,13 +52,23 @@ class Gallery
     }
 
     /**
-     * Check on empty gallery.
+     * Check on empty gallery. If materialFieldId = 0 and quantity images not more 1 then material not has images.
      *
      * @return boolean
      **/
     public function hasImages()
     {
-        return (isset($this->materialFieldId));
+        if (isset($this->materialFieldId)) {
+            // Getting quantity images, if quantity more 0 then material has images
+            if ($this->query
+            ->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
+            ->cond(Field::F_DELETION, 1)
+            ->where(MaterialField::F_PRIMARY, $this->materialFieldId)
+            ->count() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
