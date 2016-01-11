@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by PhpStorm.
  * User: VITALYIEGOROV
@@ -522,3 +523,5 @@ class Generator
         $this->database = $database;
     }
 }
+
+//[PHPCOMPRESSOR(remove,end)]
