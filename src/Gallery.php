@@ -9,6 +9,7 @@ namespace samsoncms\api;
 
 use samson\cms\CMSGallery;
 use samsoncms\api\MaterialField;
+use samsoncms\api\Material;
 use samsonframework\orm\QueryInterface;
 
 /***
@@ -40,16 +41,18 @@ class Gallery
         //set query interface
         $this->query = $query;
 
-        // Checking params by type
-        if (is_int($materialId) && is_int($fieldId)) {
-            //Find additional field value database record by its material and field identifiers.
-            if (MaterialField::byFieldIDAndMaterialID($query, $materialId, $fieldId, $materialField)) {
-                //Getting first record
-                $materialField = array_shift($materialField);
-                //Set materialFieldId
-                $this->materialFieldId = $materialField->id;
-            }
+        //Find additional field value database record by its material and field identifiers.
+        $materialField = $this->query->entity(MaterialField::ENTITY)
+            ->where(Material::F_PRIMARY, $materialId)
+            ->where(Field::F_PRIMARY, $fieldId)
+            ->where(Material::F_DELETION, 1)
+            ->first();
+
+        if ($materialField) {
+            //Set materialFieldId
+            $this->materialFieldId = $materialField->id;
         }
+
     }
 
     /**
@@ -66,12 +69,13 @@ class Gallery
             // Getting quantity images, if quantity more 0 then material has images
             if ($this->query
             ->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
-            ->cond(Field::F_DELETION, 1)
-            ->cond(MaterialField::F_PRIMARY, $this->materialFieldId)
+            ->where(Field::F_DELETION, 1)
+            ->where(MaterialField::F_PRIMARY, $this->materialFieldId)
             ->count() > 0) {
                 $hasImages = true;
             }
         }
+
         return $hasImages;
     }
 
@@ -89,8 +93,8 @@ class Gallery
             // Getting quantity images for gallery
             $count = $this->query
                 ->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
-                ->cond(Field::F_DELETION, 1)
-                ->cond(MaterialField::F_PRIMARY, $this->materialFieldId)
+                ->where(Field::F_DELETION, 1)
+                ->where(MaterialField::F_PRIMARY, $this->materialFieldId)
                 ->count();
         }
 
@@ -117,8 +121,8 @@ class Gallery
             // Select all images in DB by materialFieldId
             $query = $this->query
                 ->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
-                ->cond(Field::F_DELETION, 1)
-                ->cond(MaterialField::F_PRIMARY, $this->materialFieldId);
+                ->where(Field::F_DELETION, 1)
+                ->where(MaterialField::F_PRIMARY, $this->materialFieldId);
 
             if (isset($currentPage) && $currentPage > 0) {
                 //Set limit for query
