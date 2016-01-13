@@ -55,8 +55,8 @@ class FieldsTableTest extends \PHPUnit_Framework_TestCase
 
         $this->query
             ->method('exec')
-            ->willReturn([$materialField, $materialField2]);
+            ->willReturn(array($materialField, $materialField2));
 
-		$table = new FieldsTable($this->query, 1, 1);
+//		$table = new FieldsTable($this->query, 1, 1);
 	}
 }
