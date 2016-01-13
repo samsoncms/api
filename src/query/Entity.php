@@ -57,7 +57,7 @@ class Entity extends Generic
             $condition->addCondition(
                 (new Condition())
                     ->add(Field::F_PRIMARY, $fieldID)
-                    ->add(Field::F_LOCALIZED, $this->locale)
+                    ->add(\samsoncms\api\MaterialField::F_LOCALE, $this->locale)
             );
         }
 
@@ -274,7 +274,7 @@ class Entity extends Generic
             $condition->addCondition(
                 (new Condition())
                     ->add(Field::F_PRIMARY, $fieldID)
-                    ->add(Field::F_LOCALIZED, $this->locale)
+                    ->add(\samsoncms\api\MaterialField::F_LOCALE, $this->locale)
             );
         }
 
