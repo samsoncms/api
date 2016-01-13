@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by PhpStorm.
  * User: VITALYIEGOROV
@@ -109,7 +110,18 @@ class Generator
      */
     protected function entityName($navigationName)
     {
-        return ucfirst($this->transliterated($navigationName));
+        return ucfirst($this->getValidName($this->transliterated($navigationName)));
+    }
+	
+    /**
+     * Remove all wrong characters from entity name
+     *
+     * @param string $navigationName Original navigation entity name
+     * @return string Correct PHP-supported entity name
+     */
+    protected function getValidName($navigationName)
+    {
+        return preg_replace('/(^\d*)|([^\w\d_])/', '', $navigationName);
     }
 
     /**
@@ -171,6 +183,29 @@ class Generator
     }
 
     /**
+     * Generate Query::where() analog for specific field.
+     *
+     * @param string $fieldName Field name
+     * @param string $fieldId Field primary identifier
+     * @param string $fieldType Field PHP type
+     * @return string Generated PHP method code
+     */
+    protected function generateLocalizedFieldConditionMethod($fieldName, $fieldId, $fieldType)
+    {
+        $code = "\n\t" . '/**';
+        $code .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldId . ') field query condition.';
+        $code .= "\n\t" . ' * @param '.Field::phpType($fieldType).' $value Field value';
+        $code .= "\n\t" . ' * @return self Chaining';
+        $code .= "\n\t" . ' * @see Generic::where()';
+        $code .= "\n\t" . ' */';
+        $code .= "\n\t" . 'public function ' . $fieldName . '($value)';
+        $code .= "\n\t" . "{";
+        $code .= "\n\t\t" . 'return $this->where("'.$fieldName.'", $value);';
+
+        return $code . "\n\t" . "}"."\n";
+    }
+
+    /**
      * Create entity PHP class code.
      *
      * @param string $navigationName Original entity name
@@ -180,21 +215,28 @@ class Generator
      */
     protected function createEntityClass($navigationName, $entityName, $navigationFields)
     {
-        $this->generator->multicomment(array('"'.$navigationName.'" entity class'));
-        $this->generator->defclass($entityName, 'Entity');
+        $this->generator
+            ->multicomment(array('"'.$navigationName.'" entity class'))
+            ->defClass($entityName, 'Entity')
+            ->commentVar('string', 'Entity full class name')
+            ->defClassConst('ENTITY', $this->fullEntityName($entityName))
+            ->commentVar('string', 'Entity manager full class name')
+            ->defClassConst('MANAGER', $this->fullEntityName($entityName.'Query'))
+            ->commentVar('string', 'Not transliterated entity name')
+            ->defClassVar('$viewName', 'protected static');
 
-        $this->generator->comment('Entity full class name');
-        $this->generator->defvar('const ENTITY', $this->fullEntityName($entityName));
-
-        $this->generator->comment('@var string Not transliterated entity name');
-        $this->generator->defvar('protected static $viewName', $navigationName);
-
+        // Get old AR collections of metadata
         $select = \samson\activerecord\material::$_sql_select;
         $attributes = \samson\activerecord\material::$_attributes;
         $map = \samson\activerecord\material::$_map;
         $from = \samson\activerecord\material::$_sql_from;
         $group = \samson\activerecord\material::$_own_group;
+        $relationAlias = \samson\activerecord\material::$_relation_alias;
+        $relationType = \samson\activerecord\material::$_relation_type;
+        $relations = \samson\activerecord\material::$_relations;
 
+
+        // Add SamsonCMS material needed data
         $select['this'] = ' STRAIGHT_JOIN ' . $select['this'];
         $from['this'] .= "\n" . 'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf on ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
         $group[] = dbMySQLConnector::$prefix . 'material.MaterialID';
@@ -205,26 +247,29 @@ class Generator
             $attributes[$fieldName] = $fieldName;
             $map[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
 
-            $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale = \"' . ($fieldRow['local'] ? locale() : "") . '\"))';
+            $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
 
             // Save additional field
-            $select['this'] .= "\n\t\t".',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
+            $select['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
 
-            $this->generator->comment(Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name');
-            $this->generator->defvar('const F_' . strtoupper($fieldName), $fieldName);
-            $this->generator->comment(Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID);
-            $this->generator->defvar('public $'.$fieldName.';');
+            $this->generator
+                ->commentVar('string', $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name')
+                ->defClassConst('F_' . $fieldName, $fieldName)
+                ->commentVar(Field::phpType($fieldRow['Type']), $fieldRow['Description'] . ' Field #' . $fieldID)
+                ->defClassVar('$' . $fieldName, 'public');
         }
 
-        $this->generator->defvar('public static $_sql_select', $select);
-        $this->generator->defvar('public static $_attributes', $attributes);
-        $this->generator->defvar('public static $_map', $map);
-        $this->generator->defvar('public static $_sql_from', $from);
-        $this->generator->defvar('public static $_own_group', $group);
-
-        $this->generator->endclass();
-
-        return $this->generator->flush();
+        return $this->generator
+            ->defClassVar('$_sql_select', 'public static ', $select)
+            ->defClassVar('$_attributes', 'public static ', $attributes)
+            ->defClassVar('$_map', 'public static ', $map)
+            ->defClassVar('$_sql_from', 'public static ', $from)
+            ->defClassVar('$_own_group', 'public static ', $group)
+            ->defClassVar('$_relation_alias', 'public static ', $relationAlias)
+            ->defClassVar('$_relation_type', 'public static ', $relationType)
+            ->defClassVar('$_relations', 'public static ', $relations)
+            ->endclass()
+            ->flush();
     }
 
     /**
@@ -318,20 +363,18 @@ class Generator
      */
     protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
-        $class = "\n";
-        $class .= "\n" . '/**';
-        $class .= "\n" . ' * Class for getting "'.$navigationName.'" instances from database';
-        $class .= "\n" . ' * @method '.$this->entityName($navigationName).'[] find() Get entities collection';
-        $class .= "\n" . ' * @method '.$this->entityName($navigationName).' first() Get entity';
-        $class .= "\n" . ' * @method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)';
-        $class .= "\n" . ' * @method '.$entityName.' primary($value) Query for chaining';
-        $class .= "\n" . ' * @method '.$entityName.' identifier($value) Query for chaining';
-        $class .= "\n" . ' * @method '.$entityName.' created($value) Query for chaining';
-        $class .= "\n" . ' * @method '.$entityName.' modified($value) Query for chaining';
-        $class .= "\n" . ' * @method '.$entityName.' published($value) Query for chaining';
-        $class .= "\n" . ' */';
-        $class .= "\n" . 'class ' . $entityName . ' extends \samsoncms\api\query\Entity';
-        $class .= "\n" . '{';
+        $this->generator->multicomment(array(
+            'Class for getting "'.$navigationName.'" instances from database',
+            '@method '.$this->entityName($navigationName).'[] find() Get entities collection',
+            '@method '.$this->entityName($navigationName).' first() Get entity',
+            '@method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)',
+            '@method '.$entityName.' primary($value) Query for chaining',
+            '@method '.$entityName.' identifier($value) Query for chaining',
+            '@method '.$entityName.' created($value) Query for chaining',
+            '@method '.$entityName.' modified($value) Query for chaining',
+            '@method '.$entityName.' published($value) Query for chaining'
+        ))->defClass($entityName, '\samsoncms\api\query\Entity')
+        ;
 
         // Iterate additional fields
         $localizedFieldIDs = array();
@@ -339,46 +382,49 @@ class Generator
         $allFieldIDs = array();
         $allFieldNames = array();
         $allFieldValueColumns = array();
+        $realNames = array();
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
             // TODO: Add different method generation depending on their field type
-            $class .= $this->generateFieldConditionMethod(
+            $this->generator->text($this->generateFieldConditionMethod(
                 $fieldName,
                 $fieldRow[Field::F_PRIMARY],
                 $fieldRow[Field::F_TYPE]
-            );
+            ));
 
             // Store field metadata
-            $allFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
-            $allFieldNames[] = '"' . $fieldName . '" => "' . $fieldID . '"';
-            $allFieldValueColumns[] = '"' . $fieldID . '" => "' . Field::valueColumn($fieldRow[Field::F_TYPE]) . '"';
+            $realNames[$fieldRow['Name']] = $fieldName;
+            $allFieldIDs[$fieldID] = $fieldName;
+            $allFieldNames[$fieldName] = $fieldID;
+            $allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
             if ($fieldRow[Field::F_LOCALIZED] == 1) {
-                $localizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
+                $localizedFieldIDs[$fieldID] = $fieldName;
             } else {
-                $notLocalizedFieldIDs[] = '"' . $fieldID . '" => "' . $fieldName . '"';
+                $notLocalizedFieldIDs[$fieldID] = $fieldName;
             }
         }
 
-        $class .= "\n\t";
-        $class .= "\n\t" . '/** @var string Not transliterated entity name */';
-        $class .= "\n\t" . 'protected static $identifier = "'.$this->fullEntityName($navigationName).'";';
-        $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
-        $class .= "\n\t" . 'protected static $navigationIDs = array(' . $navigationID . ');';
-        $class .= "\n\t" . '/** @var array Collection of localized additional fields identifiers */';
-        $class .= "\n\t" . 'protected static $localizedFieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $localizedFieldIDs) . "\n\t".');';
-        $class .= "\n\t" . '/** @var array Collection of NOT localized additional fields identifiers */';
-        $class .= "\n\t" . 'protected static $notLocalizedFieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $notLocalizedFieldIDs) . "\n\t".');';
-        $class .= "\n\t" . '/** @var array Collection of all additional fields identifiers */';
-        $class .= "\n\t" . 'protected static $fieldIDs = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldIDs) . "\n\t".');';
-        $class .= "\n\t" . '/** @var array Collection of additional fields value column names */';
-        $class .= "\n\t" . 'protected static $fieldValueColumns = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldValueColumns) . "\n\t".');';
-        $class .= "\n\t" . '/** @var array Collection of additional field names */';
-        $class .= "\n\t" . 'public static $fieldNames = array(' . "\n\t\t". implode(','."\n\t\t", $allFieldNames) . "\n\t".');';
-        $class .= "\n" . '}';
-
-        // Replace tabs with spaces
-        return $class;
+        return $this->generator
+            ->commentVar('array', 'Collection of real additional field names')
+            ->defClassVar('$fieldRealNames', 'public static', $realNames)
+            ->commentVar('array', 'Collection of navigation identifiers')
+            ->defClassVar('$navigationIDs', 'protected static', array($navigationID))
+            ->commentVar('string', 'Not transliterated entity name')
+            ->defClassVar('$identifier', 'protected static', $this->fullEntityName($navigationName))
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$localizedFieldIDs', 'protected static', $localizedFieldIDs)
+            ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
+            ->defClassVar('$notLocalizedFieldIDs', 'protected static', $notLocalizedFieldIDs)
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$fieldIDs', 'protected static', $allFieldIDs)
+            ->commentVar('array', 'Collection of additional fields value column names')
+            ->defClassVar('$fieldValueColumns', 'protected static', $allFieldValueColumns)
+            ->commentVar('array', 'Collection of additional field names')
+            ->defClassVar('$fieldNames', 'public static', $allFieldNames)
+            ->endClass()
+            ->flush()
+        ;
     }
 
     /** @return string Entity state hash */
@@ -426,7 +472,6 @@ class Generator
         $classes = "\n" . 'namespace ' . $namespace . ';';
         $classes .= "\n";
         $classes .= "\n" . 'use '.$namespace.'\Field;';
-        $classes .= "\n" . 'use '.$namespace.'\query\EntityQuery;';
         $classes .= "\n" . 'use '.$namespace.'\FieldsTable;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\QueryInterface;';
@@ -478,3 +523,5 @@ class Generator
         $this->database = $database;
     }
 }
+
+//[PHPCOMPRESSOR(remove,end)]

@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by PhpStorm.
  * User: VITALYIEGOROV
@@ -19,3 +20,4 @@ if (!class_exists('\samson\activerecord\structure', false)) {
 
     }
 }
+//[PHPCOMPRESSOR(remove,end)]

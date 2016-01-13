@@ -22,7 +22,7 @@ use samsonframework\orm\QueryInterface;
 class Entity extends Generic
 {
     /** @var array Collection of all additional fields names */
-    protected static $fieldNames = array();
+    public static $fieldNames = array();
 
     /** @var array Collection of localized additional fields identifiers */
     protected static $localizedFieldIDs = array();
@@ -48,6 +48,34 @@ class Entity extends Generic
 
     /** @var array Collection of limit parameters */
     protected $limit = array();
+
+    protected function localizedFieldsCondition($fieldIDs, $locale)
+    {
+        // Prepare localized additional field query condition
+        $condition = new Condition(Condition::DISJUNCTION);
+        foreach ($fieldIDs as $fieldID => $fieldName) {
+            $condition->addCondition(
+                (new Condition())
+                    ->add(Field::F_PRIMARY, $fieldID)
+                    ->add(Field::F_LOCALIZED, $this->locale)
+            );
+        }
+
+        return $condition;
+    }
+
+    public function save(\samsoncms\api\Entity &$instance, $locale = null)
+    {
+        $this->query->entity(\samsoncms\api\MaterialField::ENTITY)
+            ->where(\samsoncms\api\Field::F_PRIMARY, array_keys(static::$fieldIDs))
+            ->where(\samsoncms\api\Material::F_PRIMARY, $instance->id)
+            ->exec();
+
+        foreach (static::$fieldIDs as $fieldID => $fieldName) {
+
+        }
+    }
+
 
     /**
      * Select specified entity fields.
@@ -377,15 +405,34 @@ class Entity extends Generic
     }
 
     /**
+     * Perform SamsonCMS query and get amount resulting entities.
+     *
+     * @return int Amount of resulting entities
+     */
+    public function count()
+    {
+        $return = 0;
+        if (sizeof($entityIDs = $this->findEntityIDs())) {
+            $this->primary($entityIDs);
+            $return = parent::count();
+        }
+
+        return $return;
+    }
+
+    /**
      * Generic constructor.
      *
      * @param QueryInterface $query Database query instance
-     * @param string $locale Query localizaation
+     * @param string $locale Query localization
      */
     public function __construct(QueryInterface $query, $locale = NULL)
     {
         $this->locale = $locale;
 
         parent::__construct($query);
+
+        // Work only with active entities
+        $this->active(true);
     }
 }
