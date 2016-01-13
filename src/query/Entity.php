@@ -11,6 +11,7 @@ use samsoncms\api\CMS;
 use samsoncms\api\exception\EntityFieldNotFound;
 use samsoncms\api\Field;
 use samsoncms\api\Material;
+use samsoncms\api\MaterialField;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
 use samsonframework\orm\QueryInterface;
@@ -57,7 +58,7 @@ class Entity extends Generic
             $condition->addCondition(
                 (new Condition())
                     ->add(Field::F_PRIMARY, $fieldID)
-                    ->add(Field::F_LOCALIZED, $this->locale)
+                    ->add(MaterialField::F_LOCALE, $this->locale)
             );
         }
 
@@ -274,7 +275,7 @@ class Entity extends Generic
             $condition->addCondition(
                 (new Condition())
                     ->add(Field::F_PRIMARY, $fieldID)
-                    ->add(Field::F_LOCALIZED, $this->locale)
+                    ->add(MaterialField::F_LOCALE, $this->locale)
             );
         }
 
