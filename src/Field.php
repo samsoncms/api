@@ -44,7 +44,9 @@ class Field extends \samson\activerecord\field
     const TYPE_BOOL = 11;
     /** Additional field navigation identifier value */
     const TYPE_NAVIGATION = 12;
-
+    /** Additional field external picture identifier value */
+    const TYPE_EXTERNALPICTURE = 13;
+	
     /** @var array Collection of field type to php variable type relations */
     protected static $phpTYPE = array(
         self::TYPE_TEXT => 'string',
@@ -57,7 +59,8 @@ class Field extends \samson\activerecord\field
         self::TYPE_DATETIME => 'int',
         self::TYPE_DATE => 'int',
         self::TYPE_GALLERY => 'int',
-        self::TYPE_NAVIGATION => 'int'
+        self::TYPE_NAVIGATION => 'int',
+		self::TYPE_EXTERNALPICTURE => 'string'
     );
 
     /**
