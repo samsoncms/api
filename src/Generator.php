@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by PhpStorm.
  * User: VITALYIEGOROV
@@ -246,7 +247,7 @@ class Generator
             $attributes[$fieldName] = $fieldName;
             $map[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
 
-            $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "' . locale() . '"' : 'IS NULL') . '))';
+            $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
 
             // Save additional field
             $select['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
@@ -522,3 +523,5 @@ class Generator
         $this->database = $database;
     }
 }
+
+//[PHPCOMPRESSOR(remove,end)]

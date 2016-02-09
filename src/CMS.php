@@ -8,6 +8,8 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
+use samsonframework\core\RequestInterface;
+use samson\activerecord\dbQuery;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
@@ -35,6 +37,9 @@ class CMS extends CompressableService
     /** @var \samsonframework\orm\DatabaseInterface */
     protected $database;
 
+    /** @var array[string] Collection of generated queries */
+    protected $queries;
+
     /** @var string Database table names prefix */
     public $tablePrefix = '';
 
@@ -53,6 +58,16 @@ class CMS extends CompressableService
         parent::__construct($path, $resources, $system);
     }
 
+    /**
+     * Module initialization.
+     *
+     * @param array $params Initialization parameters
+     * @return bool Initialization result
+     */
+    public function init(array $params = array())
+    {
+        $this->rewriteEntityLocale();
+    }
 
     public function beforeCompress(& $obj = null, array & $code = null)
     {
@@ -69,6 +84,20 @@ class CMS extends CompressableService
 
             // Compress generated php code
             $obj->compress_php($file, $this, $code, $ns);
+        }
+    }
+
+    /**
+     * Entity additional fields localization support.
+     */
+    protected function rewriteEntityLocale()
+    {
+        // Iterate all generated entity classes
+        foreach (get_declared_classes() as $entityClass) {
+            if (is_subclass_of($entityClass, '\samsoncms\api\Entity')) {
+                // Insert current application locale
+                str_replace('@locale', locale(), $entityClass::$_sql_select);
+            }
         }
     }
 
@@ -97,6 +126,13 @@ class CMS extends CompressableService
      */
     public function prepare()
     {
+        // Update table to new structure
+        db()->execute('ALTER TABLE `material` CHANGE `parent_id` `parent_id` INT(11) NULL DEFAULT NULL;');
+        db()->execute('UPDATE `material` SET `parent_id` = NULL WHERE `parent_id` = 0;');
+
+        db()->execute('ALTER TABLE `materialfield` CHANGE COLUMN `locale` `locale` VARCHAR(10) NULL DEFAULT NULL;');
+        db()->execute("UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';");
+
         // Perform this migration and execute only once
         if ($this->migrator() != 40) {
             // Perform SQL table creation
@@ -142,15 +178,17 @@ class CMS extends CompressableService
         new TableRelation('structurematerial', 'structure_relation', 'StructureID', TableRelation::T_ONE_TO_MANY, 'parent_id');
         new TableRelation('groupright', 'right', 'RightID', TableRelation::T_ONE_TO_MANY);
 
+        // TODO: Should be removed
         m('activerecord')->relations();
 
         // Generate entities classes file
         $generator = new Generator($this->database);
+
+        // Create cache file
         $file = md5($generator->entityHash()).'.php';
         if ($this->cache_refresh($file)) {
-
+            file_put_contents($file, '<?php '.$generator->createEntityClasses());
         }
-        file_put_contents($file, '<?php '.$generator->createEntityClasses());
 
         // Include entities file
         require($file);
