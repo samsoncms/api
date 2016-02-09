@@ -8,6 +8,7 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
+use samsonframework\core\RequestInterface;
 use samson\activerecord\dbQuery;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
@@ -24,11 +25,11 @@ class CMS extends CompressableService
     /** Database entity name for relations between material and navigation */
     const MATERIAL_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurematerial';
     /** Database entity name for relations between material and images */
-    const MATERIAL_IMAGES_RELATION_ENTITY = '\samson\activerecord\gallery';
+    const MATERIAL_IMAGES_RELATION_ENTITY = GalleryField::class;
     /** Database entity name for relations between additional fields and navigation */
     const FIELD_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurefield';
     /** Database entity name for relations between material and additional fields values */
-    const MATERIAL_FIELD_RELATION_ENTITY = MaterialField::ENTITY;
+    const MATERIAL_FIELD_RELATION_ENTITY = MaterialField::class;
 
     /** Identifier */
     protected $id = 'cmsapi2';
