@@ -325,7 +325,7 @@ class Generator
             );
             $constants .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name */';
             // Store original field name
-            $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldRow['Name'].'";';
+            $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldRow['FieldID'].'";';
 
             $variables .= "\n\t" . '/** @var array Collection of '.$fieldRow['Description'].' Field #' . $fieldID . ' values */';
             $variables .= "\n\t" . 'protected $' . $fieldName . ';';
@@ -344,9 +344,9 @@ class Generator
         $class .= "\n\t".' * @param integer $entityID Entity identifier to whom this table belongs';
         $class .= "\n\t".' * @param string $locale Localization identifier';
         $class .= "\n\t".' */';
-        $class .= "\n\t".'public function __construct(QueryInterface $query, $entityID, $locale = null)';
+        $class .= "\n\t".'public function __construct(QueryInterface $query, ViewInterface $renderer, $entityID, $locale = null)';
         $class .= "\n\t".'{';
-        $class .= "\n\t\t".'parent::__construct($query, static::$navigationIDs, $entityID, $locale);';
+        $class .= "\n\t\t".'parent::__construct($query, $renderer, static::$navigationIDs, $entityID, $locale);';
         $class .= "\n\t".'}';
         $class .= "\n" . '}';
 
@@ -472,8 +472,8 @@ class Generator
     {
         $classes = "\n" . 'namespace ' . $namespace . ';';
         $classes .= "\n";
-        $classes .= "\n" . 'use '.$namespace.'\Field;';
-        $classes .= "\n" . 'use '.$namespace.'\FieldsTable;';
+        $classes .= "\n" . 'use '.$namespace.'\renderable\FieldsTable;';
+        $classes .= "\n" . 'use \samsonframework\core\ViewInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\QueryInterface;';
 

@@ -60,13 +60,7 @@ class FieldsTable extends \samsoncms\api\FieldsTable implements RenderInterface
      */
     public function renderRow(array $row)
     {
-        // Generator should be modified
-        $values = array();
-        foreach ($row as $fieldId => $column) {
-            $values[$this->fields[$fieldId]->Name] = $column;
-        }
-
-        return $this->renderer->view($this->rowView)->row($values)->output();
+        return $this->renderer->view($this->rowView)->row($row)->output();
     }
 
     /**
