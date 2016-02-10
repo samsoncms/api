@@ -2,7 +2,6 @@
 namespace tests;
 
 use samsoncms\api\Field;
-use samsoncms\api\FieldsTable;
 use samsoncms\api\Material;
 use samsoncms\api\MaterialField;
 use samsonframework\orm\QueryInterface;
@@ -25,8 +24,6 @@ class FieldsTableTest extends \PHPUnit_Framework_TestCase
 	/** Tests init */
 	public function setUp()
 	{
-        \samson\core\Error::$OUTPUT = false;
-
         // Create Request mock
         $this->query = $this->getMockBuilder('\samsonframework\orm\Query')
             ->disableOriginalConstructor()
@@ -35,7 +32,10 @@ class FieldsTableTest extends \PHPUnit_Framework_TestCase
 
 	public function testCreate()
 	{
-        $materialField = new MaterialField();
+
+        $materialField = $this->getMockBuilder('\samsoncms\api\MaterialField')
+            ->disableOriginalConstructor()
+            ->getMock();
         $materialField[MaterialField::F_PRIMARY] = 1;
         $materialField[Field::F_PRIMARY] = 1;
         $materialField[Material::F_PRIMARY] = 1;
@@ -44,7 +44,9 @@ class FieldsTableTest extends \PHPUnit_Framework_TestCase
         $materialField[MaterialField::F_KEY] = '1';
         $materialField[MaterialField::F_DELETION] = true;
 
-        $materialField2 = new MaterialField();
+        $materialField2 = $this->getMockBuilder('\samsoncms\api\MaterialField')
+            ->disableOriginalConstructor()
+            ->getMock();
         $materialField2[MaterialField::F_PRIMARY] = 2;
         $materialField2[Field::F_PRIMARY] = 2;
         $materialField2[Material::F_PRIMARY] = 2;
