@@ -8,6 +8,8 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
+use samsonframework\core\RequestInterface;
+use samson\activerecord\dbQuery;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
@@ -23,11 +25,11 @@ class CMS extends CompressableService
     /** Database entity name for relations between material and navigation */
     const MATERIAL_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurematerial';
     /** Database entity name for relations between material and images */
-    const MATERIAL_IMAGES_RELATION_ENTITY = '\samson\activerecord\gallery';
+    const MATERIAL_IMAGES_RELATION_ENTITY = GalleryField::class;
     /** Database entity name for relations between additional fields and navigation */
     const FIELD_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurefield';
     /** Database entity name for relations between material and additional fields values */
-    const MATERIAL_FIELD_RELATION_ENTITY = MaterialField::ENTITY;
+    const MATERIAL_FIELD_RELATION_ENTITY = MaterialField::class;
 
     /** Identifier */
     protected $id = 'cmsapi2';
@@ -124,6 +126,13 @@ class CMS extends CompressableService
      */
     public function prepare()
     {
+        // Update table to new structure
+        db()->execute('ALTER TABLE `material` CHANGE `parent_id` `parent_id` INT(11) NULL DEFAULT NULL;');
+        db()->execute('UPDATE `material` SET `parent_id` = NULL WHERE `parent_id` = 0;');
+
+        db()->execute('ALTER TABLE `materialfield` CHANGE COLUMN `locale` `locale` VARCHAR(10) NULL DEFAULT NULL;');
+        db()->execute("UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';");
+
         // Perform this migration and execute only once
         if ($this->migrator() != 40) {
             // Perform SQL table creation
