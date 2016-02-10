@@ -159,9 +159,9 @@ class FieldsTable
      * @param QueryInterface $query Database query interface
      * @param mixed $navigationID Navigation identifier for table structure
      * @param integer $materialID Table parent material identifier
-     * @param string $locale Locale identifier
+     * @param string|null $locale Locale identifier
      */
-    public function __construct(QueryInterface $query, $navigationID, $materialID, $locale = '')
+    public function __construct(QueryInterface $query, $navigationID, $materialID, $locale = null)
     {
         $this->query = $query;
         $this->navigationID = $navigationID;
