@@ -19,7 +19,11 @@ class MyTable extends \samsoncms\api\MyGeneratedTable
     protected $indexView = 'specify a path to index view file';
     protected $rowView = 'specify a path to row view file';
 }
+
+// Creating an instance, with QueryInterface, ViewInterface and Entity identifier
+$table = new MyTable($query, $this, $material->MaterialID)
 ```
+
 This class will contain generated generic methods for retrieving collection of table column values with according field name,
 for example if you have additional field with name ```age``` method ```age()``` would be generated to get collection of ```age```
 values in all table rows.
