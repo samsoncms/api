@@ -29,8 +29,8 @@ for example if you have additional field with name ```age``` method ```age()``` 
 values in all table rows.
 
 ###Rendering custom additional field tables
-[SamsonCMS]() will generate all created [Table structure]() for automatically to simplify your code creation, the only thing
-that needs to be done is extending  its classes and creating a views for outputting.
+[SamsonCMS]() will generate all created [Table structure]() automatically to simplify your code creation, the only thing
+that needs to be done is extending this generated classes and creating a views for outputting.
 
 >Remember ```\samsoncms\api\field\Table``` is dependent on ```\samsonframework\core\ViewInterface``` instance and uses it for
  rendering its views, so the path to views and views themselves should be located within this instance.
