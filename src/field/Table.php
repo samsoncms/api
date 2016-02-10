@@ -5,20 +5,27 @@
  * Date: 09.12.15
  * Time: 09:57
  */
-namespace samsoncms\api;
+namespace samsoncms\api\field;
 
+use samsoncms\api\CMS;
+use samsoncms\api\Material;
+use samsoncms\api\MaterialField;
 use samsoncms\api\query\FieldNavigation;
 use samsoncms\api\query\MaterialNavigation;
 use samsonframework\orm\Condition;
 use samsonframework\orm\ConditionInterface;
 use samsonframework\orm\QueryInterface;
+use samsoncms\api\Field;
 
 /**
  * Material additional fields table.
  * @package samsoncms\api
  */
-class FieldsTable
+class Table
 {
+    /** @var array Collection of real row field names  */
+    protected static $fieldsRealNames = array();
+
     /** @var integer Navigation identifier for table structure */
     protected $navigationID;
 
@@ -34,8 +41,11 @@ class FieldsTable
     /** @var string Locale identifier */
     protected $locale;
 
-    /** @var array Fields table collection */
+    /** @var Row[] Fields table rows collection */
     protected $collection;
+
+    /** @var string Row class name */
+    protected $rowInstance = '\samsoncms\api\field\Row';
 
     /** @return array Get field table column names collection */
     public function columns()
@@ -47,15 +57,12 @@ class FieldsTable
      * Get collection of table column values as array.
      *
      * @param string $fieldID Additional field identifier
+     *
      * @return array Collection of table column values as array
      */
     public function values($fieldID)
     {
-        $return = array();
-        if (isset($this->fields[$fieldID])) {
-            $return = array_column($this->collection, $fieldID);
-        }
-        return $return;
+        return (null !== $this->fields[$fieldID]) ? array_column($this->collection, $fieldID) : array();
     }
 
     /**
@@ -73,7 +80,7 @@ class FieldsTable
     {
         // Get collection of nested materials
         return $this->query
-            ->entity(Material::ENTITY)
+            ->entity(Material::class)
             ->where(Material::F_DELETION, 1)
             ->where(Material::F_PRIMARY, (new MaterialNavigation())->idsByRelationID($this->navigationID))
             ->where(Material::F_PARENT, $this->materialID)
@@ -85,6 +92,7 @@ class FieldsTable
      * Build correct localized field request for retrieving additional fields records.
      *
      * @param Field[] $fields Collection of additional fields
+     *
      * @return Condition Built condition for query
      */
     protected function fieldsCondition($fields)
@@ -104,7 +112,7 @@ class FieldsTable
         // Create field condition
         $fieldsCondition = new Condition(ConditionInterface::DISJUNCTION);
         // Create localized condition
-        if (sizeof($localizedColumns)) {
+        if (count($localizedColumns)) {
             $localizedCondition = new Condition(ConditionInterface::CONJUNCTION);
             $localizedCondition->add(Field::F_PRIMARY, $localizedColumns)
                 ->add(MaterialField::F_LOCALE, $this->locale);
@@ -114,7 +122,7 @@ class FieldsTable
         }
 
         // Create not localized condition
-        if (sizeof($notLocalizedColumns)) {
+        if (count($notLocalizedColumns)) {
             $fieldsCondition->add(Field::F_PRIMARY, $notLocalizedColumns);
         }
 
@@ -129,7 +137,8 @@ class FieldsTable
         // Get table Fields instances
         $this->fields = (new FieldNavigation())->byRelationID($this->navigationID);
 
-        if (sizeof($rowIDs = $this->rowIDs())) {
+        $collection = array();
+        if (count($rowIDs = $this->rowIDs())) {
             /** @var MaterialField $fieldValue Get additional field value instances */
             foreach ($this->query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
                          // Get only needed rows(materials)
@@ -137,18 +146,29 @@ class FieldsTable
                          ->where(Material::F_DELETION, 1)
                          // Get correct localizes field condition for columns
                          ->whereCondition($this->fieldsCondition($this->fields))
-                         ->exec() as $fieldValue
-            ) {
+                         ->exec() as $fieldValue) {
                 /** @var Field $field Try to find Field instance by identifier */
                 $field = &$this->fields[$fieldValue[Field::F_PRIMARY]];
-                if (isset($field)) {
+                if (null !== $field) {
+                    /**
+                     * As we generate camelCase names for fields we need to store
+                     * original names to get their values and correctly set row
+                     * fields.
+                     */
+                    $fieldName = null !== static::$fieldsRealNames[$field->Name]
+                        ? static::$fieldsRealNames[$field->Name] : $field->Name;
                     /**
                      * Store table row(material) as it primary, store columns(Fields)
                      * by field primary. Use correct column for value.
                      */
-                    $this->collection[$fieldValue[Material::F_PRIMARY]][$fieldValue[Field::F_PRIMARY]]
+                    $collection[$fieldValue[Material::F_PRIMARY]][$fieldName]
                         = $fieldValue[$field->valueFieldName()];
                 }
+            }
+
+            // Go through collection again and created specific rows
+            foreach ($collection as $materialID => $fields) {
+                $this->collection[$materialID] = new $this->rowInstance($materialID, $fields);
             }
         }
     }
@@ -156,10 +176,10 @@ class FieldsTable
     /**
      * FieldsTable constructor.
      *
-     * @param QueryInterface $query Database query interface
-     * @param mixed $navigationID Navigation identifier for table structure
-     * @param integer $materialID Table parent material identifier
-     * @param string|null $locale Locale identifier
+     * @param QueryInterface $query        Database query interface
+     * @param mixed          $navigationID Navigation identifier for table structure
+     * @param integer        $materialID   Table parent material identifier
+     * @param string|null    $locale       Locale identifier
      */
     public function __construct(QueryInterface $query, $navigationID, $materialID, $locale = null)
     {

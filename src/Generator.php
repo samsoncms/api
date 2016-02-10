@@ -294,63 +294,102 @@ class Generator
     }
 
     /**
-     * Create fields table PHP class code.
+     * Create fields table row PHP class code.
      *
-     * @param integer $navigationID Entity navigation identifier
      * @param string $navigationName Original entity name
      * @param string $entityName PHP entity name
      * @param array $navigationFields Collection of entity additional fields
      * @return string Generated entity query PHP class code
      */
-    protected function createTableClass($navigationID, $navigationName, $entityName, $navigationFields)
+    protected function createTableRowClass($navigationName, $entityName, $navigationFields)
     {
         $class = "\n";
         $class .= "\n" . '/**';
-        $class .= "\n" . ' * Class for getting "'.$navigationName.'" fields table';
+        $class .= "\n" . ' * Class for getting "'.$navigationName.'" fields table rows';
         $class .= "\n" . ' */';
-        $class .= "\n" . 'class ' . $entityName . ' extends FieldsTable';
+        $class .= "\n" . 'class ' . $entityName . ' extends Row';
         $class .= "\n" . '{';
 
         // Iterate additional fields
         $constants = '';
         $variables = '';
-        $methods = '';
         foreach ($navigationFields as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
-            $methods .= $this->generateTableFieldMethod(
-                $fieldName,
-                $fieldRow[Field::F_PRIMARY],
-                $fieldRow[Field::F_TYPE]
-            );
             $constants .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name */';
             // Store original field name
-            $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldRow['FieldID'].'";';
+            $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldName.'";';
 
-            $variables .= "\n\t" . '/** @var array Collection of '.$fieldRow['Description'].' Field #' . $fieldID . ' values */';
-            $variables .= "\n\t" . 'protected $' . $fieldName . ';';
+            $variables .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' row value */';
+            $variables .= "\n\t" . 'public $' . $fieldName . ';';
         }
 
         $class .= $constants;
         $class .= "\n\t";
-        $class .= "\n\t" . '/** @var array Collection of navigation identifiers */';
-        $class .= "\n\t" . 'protected static $navigationIDs = array(' . $navigationID . ');';
-        $class .= "\n\t";
         $class .= $variables;
-        $class .= "\n\t";
-        $class .= $methods;
-        $class .= "\n\t".'/**';
+        $class .= "\n" . '}';
+
+        return $class;
+    }
+
+    /**
+     * Create fields table PHP class code.
+     *
+     * @param integer $navigationID     Entity navigation identifier
+     * @param string  $navigationName   Original entity name
+     * @param string  $entityName       PHP entity name
+     * @param array   $navigationFields Collection of entity additional fields
+     * @param string  $rowClassName Row class name
+     *
+     * @return string Generated entity query PHP class code
+     * @throws exception\AdditionalFieldTypeNotFound
+     */
+    protected function createTableClass($navigationID, $navigationName, $entityName, $navigationFields, $rowClassName)
+    {
+        $this->generator
+            ->multiComment(array('Class for getting "'.$navigationName.'" fields table'))
+            ->defClass($entityName, 'FieldsTable');
+
+        // Iterate additional fields
+        $fields = array();
+        foreach ($navigationFields as $fieldID => $fieldRow) {
+            $fieldName = $this->fieldName($fieldRow['Name']);
+
+            $this->generator
+                ->text($this->generateTableFieldMethod(
+                    $fieldName,
+                    $fieldRow[Field::F_PRIMARY],
+                    $fieldRow[Field::F_TYPE]
+                ))
+                ->commentVar(Field::phpType($fieldRow['Type']), $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name')
+                ->defClassConst('F_' . $fieldName, $fieldName);
+
+            // Collection original to new one field names
+            $fields[$fieldRow['Name']] = $fieldName;
+        }
+
+        $class = "\n\t".'/**';
         $class .= "\n\t".' * @param QueryInterface $query Database query instance';
+        $class .= "\n\t".' * @param ViewInterface $renderer Rendering instance';
         $class .= "\n\t".' * @param integer $entityID Entity identifier to whom this table belongs';
         $class .= "\n\t".' * @param string $locale Localization identifier';
         $class .= "\n\t".' */';
         $class .= "\n\t".'public function __construct(QueryInterface $query, ViewInterface $renderer, $entityID, $locale = null)';
         $class .= "\n\t".'{';
         $class .= "\n\t\t".'parent::__construct($query, $renderer, static::$navigationIDs, $entityID, $locale);';
-        $class .= "\n\t".'}';
-        $class .= "\n" . '}';
+        $class .= "\n\t".'}'."\n";
 
-        return $class;
+        $this->generator->text($class);
+
+        return $this->generator
+            ->commentVar('array', 'Collection of real additional field names')
+            ->defClassVar('$fieldsRealNames', 'public static', $fields)
+            ->commentVar('array', 'Collection of navigation identifiers')
+            ->defClassVar('$navigationIDs', 'protected static', array($navigationID))
+            ->commentVar('string', 'Row class name')
+            ->defClassVar('$identifier', 'protected', $this->fullEntityName($rowClassName))
+            ->endClass()
+            ->flush();
     }
 
     /**
@@ -473,6 +512,7 @@ class Generator
         $classes = "\n" . 'namespace ' . $namespace . ';';
         $classes .= "\n";
         $classes .= "\n" . 'use '.$namespace.'\renderable\FieldsTable;';
+        $classes .= "\n" . 'use '.$namespace.'\field\Row;';
         $classes .= "\n" . 'use \samsonframework\core\ViewInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\QueryInterface;';
@@ -501,11 +541,20 @@ class Generator
             $navigationFields = $this->navigationFields($structureRow['StructureID']);
             $entityName = $this->entityName($structureRow['Name']);
 
+            $rowClassName = $entityName.'TableRow';
+
+            $classes .= $this->createTableRowClass(
+                $structureRow['Name'],
+                $rowClassName,
+                $navigationFields
+            );
+
             $classes .= $this->createTableClass(
                 $structureRow['StructureID'],
                 $structureRow['Name'],
                 $entityName.'Table',
-                $navigationFields
+                $navigationFields,
+                $rowClassName
             );
 
         }

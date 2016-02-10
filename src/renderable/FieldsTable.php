@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api\renderable;
 
+use samsoncms\api\field\Row;
 use samsonframework\core\RenderInterface;
 use samsonframework\core\ViewInterface;
 use samsonframework\orm\QueryInterface;
@@ -21,10 +22,13 @@ use samsonframework\orm\QueryInterface;
  *
  * @package samsoncms\api\renderable
  */
-class FieldsTable extends \samsoncms\api\FieldsTable implements RenderInterface
+class FieldsTable extends \samsoncms\api\field\Table implements RenderInterface
 {
     /** Name of the rows variable in index view */
     const ROWS_VIEW_VARIABLE = 'rows';
+
+    /** Name of the row prefix for variable in row view */
+    const ROW_VIEW_VARIABLE = 'row';
 
     /** @var string Index view path */
     protected $indexView = 'index';
@@ -40,27 +44,28 @@ class FieldsTable extends \samsoncms\api\FieldsTable implements RenderInterface
      *
      * @param QueryInterface $query
      * @param ViewInterface $renderer
-     * @param string|null $entityID
-     * @param string|null $locale
+     * @param int[] $navigationID Collection of entity navigation identifiers
+     * @param int $entityID Entity identifier
+     * @param string|null $locale Table localization
      */
-    public function __construct(QueryInterface $query, ViewInterface $renderer, $entityID, $locale = null)
+    public function __construct(QueryInterface $query, ViewInterface $renderer, $navigationID, $entityID, $locale = null)
     {
         // Store renderer
         $this->renderer = $renderer;
 
-        parent::__construct($query, $entityID, $locale);
+        parent::__construct($query, $navigationID, $entityID, $locale);
     }
 
     /**
      * Render table row.
      *
-     * @param array $row Collection of column values.
+     * @param Row $row Collection of column values.
      *
      * @return string Rendered HTML
      */
-    public function renderRow(array $row)
+    public function renderRow(Row $row)
     {
-        return $this->renderer->view($this->rowView)->row($row)->output();
+        return $this->renderer->view($this->rowView)->set(self::ROW_VIEW_VARIABLE, $row)->output();
     }
 
     /**
