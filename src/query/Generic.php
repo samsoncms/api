@@ -53,6 +53,9 @@ class Generic
     /** @var Condition Query conditions */
     protected $conditions;
 
+    /** @var array Collection of ordering parameters */
+    protected $orderBy = array();
+
     /**
      * Convert date value to database format.
      * TODO: Must implement at database layer
@@ -160,9 +163,15 @@ class Generic
      */
     public function find()
     {
+        $this->query->entity(static::$identifier);
+
+        // Add query sorter for showed page
+        if (count($this->orderBy) === 2) {
+            $this->query->order_by($this->orderBy[0], $this->orderBy[1]);
+        }
+
         // Proxy to regular database query
         return $this->query
-            ->entity(static::$identifier)
             ->whereCondition($this->conditions)
             ->exec();
     }

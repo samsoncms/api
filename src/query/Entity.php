@@ -43,9 +43,6 @@ class Entity extends Generic
     /** @var string Query locale */
     protected $locale = '';
 
-    /** @var array Collection of ordering parameters */
-    protected $orderBy = array();
-
     /** @var array Collection of limit parameters */
     protected $limit = array();
 
@@ -167,12 +164,12 @@ class Entity extends Generic
         );
 
         // Perform sorting if necessary
-        if (sizeof($this->orderBy) == 2) {
+        if (count($this->orderBy) == 2) {
             $entityIDs = $this->applySorting($entityIDs, $this->orderBy[0], $this->orderBy[1]);
         }
 
         // Perform limits if necessary
-        if (sizeof($this->limit)) {
+        if (count($this->limit)) {
             $entityIDs = array_slice($entityIDs, $this->limit[0], $this->limit[1]);
         }
 
@@ -210,7 +207,7 @@ class Entity extends Generic
             $entityIDs = (new MaterialField($entityIDs))->idsByRelationID($fieldID, $fieldValue);
 
             // Stop execution if we have no entities found at this step
-            if (!sizeof($entityIDs)) {
+            if (!count($entityIDs)) {
                 break;
             }
         }
@@ -255,7 +252,7 @@ class Entity extends Generic
         $notLocalized = static::$notLocalizedFieldIDs;
 
         // If we filter additional fields that we need to receive
-        if (sizeof($this->selectedFields)) {
+        if (count($this->selectedFields)) {
             foreach ($this->selectedFields as $fieldID => $fieldName) {
                 // Filter localized and not fields by selected fields
                 if (!isset(static::$localizedFieldIDs[$fieldID])) {
@@ -314,7 +311,7 @@ class Entity extends Generic
     protected function fillEntityFields($entity, array $additionalFields)
     {
         // If we have list of additional fields that we need
-        $fieldIDs = sizeof($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
+        $fieldIDs = count($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
 
         // Iterate all entity additional fields
         foreach ($fieldIDs as $variable) {
@@ -336,7 +333,7 @@ class Entity extends Generic
     public function find()
     {
         $return = array();
-        if (sizeof($entityIDs = $this->findEntityIDs())) {
+        if (count($entityIDs = $this->findEntityIDs())) {
             $additionalFields = $this->findAdditionalFields($entityIDs);
 
             // Set entity primary keys
@@ -365,7 +362,7 @@ class Entity extends Generic
     public function first()
     {
         $return = array();
-        if (sizeof($entityIDs = $this->findEntityIDs())) {
+        if (count($entityIDs = $this->findEntityIDs())) {
             $this->primary($entityIDs);
             $additionalFields = $this->findAdditionalFields($entityIDs);
             $return = $this->fillEntityFields(parent::first(), $additionalFields);
@@ -384,7 +381,7 @@ class Entity extends Generic
     public function fields($fieldName)
     {
         $return = array();
-        if (sizeof($entityIDs = $this->findEntityIDs())) {
+        if (count($entityIDs = $this->findEntityIDs())) {
             // Check if our entity has this field
             $fieldID = &static::$fieldNames[$fieldName];
             if (isset($fieldID)) {
@@ -412,7 +409,7 @@ class Entity extends Generic
     public function count()
     {
         $return = 0;
-        if (sizeof($entityIDs = $this->findEntityIDs())) {
+        if (count($entityIDs = $this->findEntityIDs())) {
             $this->primary($entityIDs);
             $return = parent::count();
         }
