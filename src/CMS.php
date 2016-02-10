@@ -9,7 +9,6 @@ require('generated/Structure.php');
 require('generated/StructureField.php');
 
 use samsonframework\core\RequestInterface;
-use samson\activerecord\dbQuery;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;

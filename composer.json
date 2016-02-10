@@ -16,8 +16,6 @@
     "samsonframework/base": "*",
     "samsonframework/collection": "*",
     "samsonframework/orm": "*",
-    "samsonos/php_core":"*",
-    "samsonos/php_activerecord":"*",
     "samsonphp/generator":"*"
   },
   "require-dev": {

@@ -18,6 +18,7 @@ use samsonframework\orm\QueryInterface;
  * Collection query builder for filtering
  * @package samsonos\cms\collection
  * @author Egorov Vitaly <egorov@samsonos.com>
+ * @deprecated Use generated Enities and EntityQueries classes.
  */
 class Collection extends Paged
 {

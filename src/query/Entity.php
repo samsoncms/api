@@ -46,34 +46,6 @@ class Entity extends Generic
     /** @var array Collection of limit parameters */
     protected $limit = array();
 
-    protected function localizedFieldsCondition($fieldIDs, $locale)
-    {
-        // Prepare localized additional field query condition
-        $condition = new Condition(Condition::DISJUNCTION);
-        foreach ($fieldIDs as $fieldID => $fieldName) {
-            $condition->addCondition(
-                (new Condition())
-                    ->add(Field::F_PRIMARY, $fieldID)
-                    ->add(\samsoncms\api\MaterialField::F_LOCALE, $this->locale)
-            );
-        }
-
-        return $condition;
-    }
-
-    public function save(\samsoncms\api\Entity &$instance, $locale = null)
-    {
-        $this->query->entity(\samsoncms\api\MaterialField::ENTITY)
-            ->where(\samsoncms\api\Field::F_PRIMARY, array_keys(static::$fieldIDs))
-            ->where(\samsoncms\api\Material::F_PRIMARY, $instance->id)
-            ->exec();
-
-        foreach (static::$fieldIDs as $fieldID => $fieldName) {
-
-        }
-    }
-
-
     /**
      * Select specified entity fields.
      * If this method is called then only selected entity fields
@@ -88,7 +60,7 @@ class Entity extends Generic
         foreach ((!is_array($fieldNames) ? array($fieldNames) : $fieldNames) as $fieldName) {
             // Try to find entity additional field
             $pointer = &static::$fieldNames[$fieldName];
-            if (isset($pointer)) {
+            if (null !== $pointer) {
                 // Store selected additional field buy FieldID and Field name
                 $this->selectedFields[$pointer] = $fieldName;
             }
