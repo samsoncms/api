@@ -368,6 +368,7 @@ class Generator
             $fields[$fieldRow['Name']] = $fieldName;
         }
 
+        // TODO: Add generator method generation logic
         $class = "\n\t".'/**';
         $class .= "\n\t".' * @param QueryInterface $query Database query instance';
         $class .= "\n\t".' * @param ViewInterface $renderer Rendering instance';

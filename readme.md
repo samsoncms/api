@@ -9,6 +9,52 @@
 
 > SamsonCMS API for interaction with materials, fields and structures.
 
+##Additional fields table
+After creating corresponding [Table structure]() and setting its [Additional fields]() you can
+get additional fields table object(```\samsoncms\api\field\Table```) ancestor for a specific ```\samsoncms\api\Material``` ancestor you need to create class
+that extends generated additional fields table:
+```php
+class MyTable extends \samsoncms\api\MyGeneratedTable
+{
+    protected $indexView = 'specify a path to index view file';
+    protected $rowView = 'specify a path to row view file';
+}
+```
+This class will contain generated generic methods for retrieving collection of table column values with according field name,
+for example if you have additional field with name ```age``` method ```age()``` would be generated to get collection of ```age```
+values in all table rows.
+
+###Rendering custom additional field tables
+[SamsonCMS]() will generate all created [Table structure]() for automatically to simplify your code creation, the only thing
+that needs to be done is extending  its classes and creating a views for outputting.
+
+>Remember ```\samsoncms\api\field\Table``` is dependent on ```\samsonframework\core\ViewInterface``` instance and uses it for
+ rendering its views, so the path to views and views themselves should be located within this instance.
+ 
+###Default index view file
+By default index view renders all rendered rows into view variable with name stored in ```\samsoncms\api\field\Table::ROWS_VIEW_VAR``` - ```rows```:
+```php
+<div class='my-table'>
+    <h2>Table title<h2>
+    <div class="my-table-rows">
+        <?php echo $rows ?>
+    </div>
+</div>
+```
+
+###Default row view file
+By default ```\samsoncms\api\field\Row``` ancestor view object is stored in ```\samsoncms\api\field\Table::ROW_VIEW_VAR``` - ```row```:
+```php
+<?php /** @var \myapplication\MyTableRow $row */?>
+<div class="my-row">
+    <div class="name"><?php echo $row->field1 ?></div>
+    <div class="name"><?php echo $row->field2 ?></div>
+    <div class="name"><?php echo $row->field3 ?></div>
+</div>
+```
+> Give a type hint to a generated ```\samsoncms\api\field\Row``` ancestor and IDE will help outputting needed row data.
+
+
 #Navigation
 
 #Material
