@@ -10,6 +10,7 @@ namespace samsoncms\api;
 
 use samson\activerecord\dbMySQLConnector;
 use samsoncms\api\query\Generic;
+use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\DatabaseInterface;
 
 /**
@@ -176,9 +177,9 @@ class Generator
         $code .= "\n\t" . ' * @return $this Chaining';
         $code .= "\n\t" . ' * @see Generic::where()';
         $code .= "\n\t" . ' */';
-        $code .= "\n\t" . 'public function ' . $fieldName . '($value)';
+        $code .= "\n\t" . 'public function ' . $fieldName . '($value, $relation = ArgumentInterface::EQUAL)';
         $code .= "\n\t" . "{";
-        $code .= "\n\t\t" . 'return $this->where("'.$fieldName.'", $value);';
+        $code .= "\n\t\t" . 'return $this->where("'.$fieldName.'", $value, $relation);';
 
         return $code . "\n\t" . "}"."\n";
     }
