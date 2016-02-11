@@ -406,11 +406,98 @@ class Generator
      * @param array $navigationFields Collection of entity additional fields
      * @return string Generated entity query PHP class code
      */
+    protected function createCollectionClass($navigationID, $navigationName, $entityName, $navigationFields)
+    {
+        $this->generator->multiComment(array(
+            'Class for getting "'.$navigationName.'" instances from database',
+            '@method '.$this->entityName($navigationName).'[] find($page = null, $count = null) Get entities collection',
+            '@method '.$this->entityName($navigationName).' first() Get entity',
+            '@method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)',
+            '@method '.$entityName.' primary($value) Query for chaining',
+            '@method '.$entityName.' identifier($value) Query for chaining',
+            '@method '.$entityName.' created($value) Query for chaining',
+            '@method '.$entityName.' modified($value) Query for chaining',
+            '@method '.$entityName.' published($value) Query for chaining'
+        ))->defClass($entityName, '\samsoncms\api\renderable\Collection')
+        ;
+
+        // Iterate additional fields
+        $localizedFieldIDs = array();
+        $notLocalizedFieldIDs = array();
+        $allFieldIDs = array();
+        $allFieldNames = array();
+        $allFieldValueColumns = array();
+        $realNames = array();
+        foreach ($navigationFields as $fieldID => $fieldRow) {
+            $fieldName = $this->fieldName($fieldRow['Name']);
+
+            // TODO: Add different method generation depending on their field type
+            $this->generator->text($this->generateFieldConditionMethod(
+                $fieldName,
+                $fieldRow[Field::F_PRIMARY],
+                $fieldRow[Field::F_TYPE]
+            ));
+
+            // Store field metadata
+            $realNames[$fieldRow['Name']] = $fieldName;
+            $allFieldIDs[$fieldID] = $fieldName;
+            $allFieldNames[$fieldName] = $fieldID;
+            $allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
+            if ($fieldRow[Field::F_LOCALIZED] == 1) {
+                $localizedFieldIDs[$fieldID] = $fieldName;
+            } else {
+                $notLocalizedFieldIDs[$fieldID] = $fieldName;
+            }
+        }
+
+        // TODO: Add generator method generation logic
+        $class = "\n\t".'/**';
+        $class .= "\n\t".' * @param ViewInterface $renderer Rendering instance';
+        $class .= "\n\t".' * @param QueryInterface $query Querying instance';
+        $class .= "\n\t".' * @param string $locale Localization identifier';
+        $class .= "\n\t".' */';
+        $class .= "\n\t".'public function __construct(ViewInterface $renderer, QueryInterface $query = null, $locale = null)';
+        $class .= "\n\t".'{';
+        $class .= "\n\t\t".'parent::__construct($query === null ? new dbQuery() : $query, $renderer, $locale);';
+        $class .= "\n\t".'}'."\n";
+
+        return $this->generator
+            ->commentVar('array', 'Collection of real additional field names')
+            ->defClassVar('$fieldRealNames', 'public static', $realNames)
+            ->commentVar('array', 'Collection of navigation identifiers')
+            ->defClassVar('$navigationIDs', 'protected static', array($navigationID))
+            ->commentVar('string', 'Not transliterated entity name')
+            ->defClassVar('$identifier', 'protected static', $this->fullEntityName($navigationName))
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$localizedFieldIDs', 'protected static', $localizedFieldIDs)
+            ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
+            ->defClassVar('$notLocalizedFieldIDs', 'protected static', $notLocalizedFieldIDs)
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$fieldIDs', 'protected static', $allFieldIDs)
+            ->commentVar('array', 'Collection of additional fields value column names')
+            ->defClassVar('$fieldValueColumns', 'protected static', $allFieldValueColumns)
+            ->commentVar('array', 'Collection of additional field names')
+            ->defClassVar('$fieldNames', 'public static', $allFieldNames)
+            ->text($class)
+            ->endClass()
+            ->flush()
+            ;
+    }
+
+    /**
+     * Create entity query PHP class code.
+     *
+     * @param integer $navigationID Entity navigation identifier
+     * @param string $navigationName Original entity name
+     * @param string $entityName PHP entity name
+     * @param array $navigationFields Collection of entity additional fields
+     * @return string Generated entity query PHP class code
+     */
     protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
         $this->generator->multiComment(array(
             'Class for getting "'.$navigationName.'" instances from database',
-            '@method '.$this->entityName($navigationName).'[] find() Get entities collection',
+            '@method '.$this->entityName($navigationName).'[] find($page = null, $count = null) Get entities collection',
             '@method '.$this->entityName($navigationName).' first() Get entity',
             '@method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)',
             '@method '.$entityName.' primary($value) Query for chaining',
@@ -450,6 +537,16 @@ class Generator
             }
         }
 
+        // TODO: Add generator method generation logic
+        $class = "\n\t".'/**';
+        $class .= "\n\t".' * @param QueryInterface $query Rendering instance';
+        $class .= "\n\t".' * @param string $locale Localization identifier';
+        $class .= "\n\t".' */';
+        $class .= "\n\t".'public function __construct(QueryInterface $query = null, $locale = null)';
+        $class .= "\n\t".'{';
+        $class .= "\n\t\t".'parent::__construct($query === null ? new dbQuery() : $query, $locale);';
+        $class .= "\n\t".'}'."\n";
+
         return $this->generator
             ->commentVar('array', 'Collection of real additional field names')
             ->defClassVar('$fieldRealNames', 'public static', $realNames)
@@ -467,6 +564,7 @@ class Generator
             ->defClassVar('$fieldValueColumns', 'protected static', $allFieldValueColumns)
             ->commentVar('array', 'Collection of additional field names')
             ->defClassVar('$fieldNames', 'public static', $allFieldNames)
+            ->text($class)
             ->endClass()
             ->flush()
         ;
@@ -519,6 +617,7 @@ class Generator
         $classes .= "\n" . 'use '.$namespace.'\renderable\FieldsTable;';
         $classes .= "\n" . 'use '.$namespace.'\field\Row;';
         $classes .= "\n" . 'use \samsonframework\core\ViewInterface;';
+        $classes .= "\n" . 'use \samson\activerecord\dbQuery;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\QueryInterface;';
 
@@ -538,6 +637,13 @@ class Generator
                 $structureRow['StructureID'],
                 $structureRow['Name'],
                 $entityName.'Query',
+                $navigationFields
+            );
+
+            $classes .= $this->createCollectionClass(
+                $structureRow['StructureID'],
+                $structureRow['Name'],
+                $entityName.'Collection',
                 $navigationFields
             );
         }

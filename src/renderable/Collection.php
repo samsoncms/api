@@ -54,28 +54,35 @@ class Collection extends \samsoncms\api\query\Entity
     /**
      * Set index view path.
      * @param string $indexView Index view path
+     * @return self Chaining
      */
     public function indexView($indexView)
     {
         $this->indexView = $indexView;
+        return $this;
     }
 
     /**
      * Set item view path.
      * @param string $itemView Item view path
+     * @return self Chaining
      */
     public function itemView($itemView)
     {
         $this->itemView = $itemView;
+
+        return $this;
     }
 
     /**
      * Set empty view path.
-     * @param string $itemView Empty view path
+     * @param string $emptyView Empty view path
+     * @return self Chaining
      */
     public function emptyView($emptyView)
     {
         $this->emptyView = $emptyView;
+        return $this;
     }
 
     /**
