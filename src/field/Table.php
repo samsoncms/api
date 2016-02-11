@@ -42,7 +42,7 @@ class Table
     protected $locale;
 
     /** @var Row[] Fields table rows collection */
-    protected $collection;
+    protected $collection = array();
 
     /** @var string Row class name */
     protected $rowInstance = '\samsoncms\api\field\Row';
