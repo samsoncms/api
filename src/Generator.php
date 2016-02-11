@@ -216,7 +216,7 @@ class Generator
     protected function createEntityClass($navigationName, $entityName, $navigationFields, $navigationId)
     {
         $this->generator
-            ->multicomment(array('"'.$navigationName.'" entity class'))
+            ->multiComment(array('"'.$navigationName.'" entity class'))
             ->defClass($entityName, 'Entity')
             ->commentVar('string', 'Entity full class name')
             ->defClassConst('ENTITY', $this->fullEntityName($entityName))
@@ -406,7 +406,7 @@ class Generator
      */
     protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
-        $this->generator->multicomment(array(
+        $this->generator->multiComment(array(
             'Class for getting "'.$navigationName.'" instances from database',
             '@method '.$this->entityName($navigationName).'[] find() Get entities collection',
             '@method '.$this->entityName($navigationName).' first() Get entity',
