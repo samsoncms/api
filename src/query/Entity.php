@@ -44,8 +44,8 @@ class Entity extends Generic
     /** @var string Query locale */
     protected $locale = '';
 
-    /** @var array Collection of limit parameters */
-    protected $limit = array();
+    /** @var array Collection of additional fields for ordering */
+    protected $entityOrderBy = array();
 
     /**
      * Select specified entity fields.
@@ -79,7 +79,11 @@ class Entity extends Generic
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
-        $this->orderBy = array($fieldName, $order);
+        if (array_key_exists($fieldName, static::$fieldNames)) {
+            $this->entityOrderBy = array($fieldName, $order);
+        } else {
+            parent::orderBy($fieldName, $order);
+        }
 
         return $this;
     }
@@ -137,8 +141,8 @@ class Entity extends Generic
         );
 
         // Perform sorting if necessary
-        if (count($this->orderBy) == 2) {
-            $entityIDs = $this->applySorting($entityIDs, $this->orderBy[0], $this->orderBy[1]);
+        if (count($this->entityOrderBy) === 2) {
+            $entityIDs = $this->applySorting($entityIDs, $this->entityOrderBy[0], $this->entityOrderBy[1]);
         }
 
         // Perform limits if necessary

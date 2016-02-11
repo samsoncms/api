@@ -56,6 +56,9 @@ class Generic
     /** @var array Collection of ordering parameters */
     protected $orderBy = array();
 
+    /** @var array Collection of limit parameters */
+    protected $limit = array();
+
     /**
      * Convert date value to database format.
      * TODO: Must implement at database layer
@@ -78,6 +81,22 @@ class Generic
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
         $this->conditions->add($fieldName, $fieldValue, $fieldRelation);
+
+        return $this;
+    }
+
+    /**
+     * Set field for sorting.
+     *
+     * @param string $fieldName Additional field name
+     * @param string $order Sorting order
+     * @return $this Chaining
+     */
+    public function orderBy($fieldName, $order = 'ASC')
+    {
+        if (array_key_exists($fieldName, static::$parentFields)) {
+            $this->orderBy = array($fieldName, $order);
+        }
 
         return $this;
     }
@@ -167,7 +186,7 @@ class Generic
 
         // Add query sorter for showed page
         if (count($this->orderBy) === 2) {
-            $this->query->order_by($this->orderBy[0], $this->orderBy[1]);
+            $this->query->orderBy($this->orderBy[0], $this->orderBy[1]);
         }
 
         // Proxy to regular database query
