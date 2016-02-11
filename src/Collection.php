@@ -7,9 +7,9 @@
  */
 namespace samsoncms\api;
 
-use samson\activerecord\Condition;
-use samson\activerecord\dbRelation;
+use samsonframework\orm\Condition
 use samsonframework\collection\Paged;
+use samsonframework\orm\Relation;
 use samsonframework\pager\PagerInterface;
 use samsonframework\core\RenderInterface;
 use samsonframework\orm\QueryInterface;
@@ -18,7 +18,7 @@ use samsonframework\orm\QueryInterface;
  * Collection query builder for filtering
  * @package samsonos\cms\collection
  * @author Egorov Vitaly <egorov@samsonos.com>
- * @deprecated Use generated Enities and EntityQueries classes.
+ * @deprecated Use generated Entities and EntityQueries classes.
  */
 class Collection extends Paged
 {
@@ -34,9 +34,6 @@ class Collection extends Paged
     /** @var array Collection of field filters */
     protected $field = array();
 
-    /** @var array Search string collection */
-    protected $search = array();
-
     /** @var array Collection of query handlers */
     protected $idHandlers = array();
 
@@ -48,9 +45,6 @@ class Collection extends Paged
 
     /** @var string Collection entities class name */
     protected $entityName = 'samson\cms\CMSMaterial';
-
-    /** @var array Sorter parameters collection */
-    protected $sorter = array();
 
     /**
      * Generic collection constructor
@@ -182,7 +176,7 @@ class Collection extends Paged
      * @param string $relation Additional field relation for filtering
      * @return self Chaining
      */
-    public function field($field, $value, $relation = dbRelation::EQUAL)
+    public function field($field, $value, $relation = Relation::EQUAL)
     {
         // Do not allow empty strings
         if ($this->isFieldObject($field)) {
@@ -240,10 +234,10 @@ class Collection extends Paged
                 $condition = new Condition('AND');
 
                 // Add min value for ranged condition
-                $condition->add('numeric_value', $minValue, dbRelation::GREATER_EQ);
+                $condition->add('numeric_value', $minValue, Relation::GREATER_EQ);
 
                 // Add max value for ranged condition
-                $condition->add('numeric_value', $maxValue, dbRelation::LOWER_EQ);
+                $condition->add('numeric_value', $maxValue, Relation::LOWER_EQ);
 
                 // Store created condition
                 $this->field[] = array($field, $condition);
@@ -380,7 +374,7 @@ class Collection extends Paged
                 $this->query->className('materialfield')
                     ->cond('FieldID', $fields)
                     ->cond('MaterialID', $filteredIds)
-                    ->cond('Value', '%' . $searchString . '%', dbRelation::LIKE)
+                    ->cond('Value', '%' . $searchString . '%', Relation::LIKE)
                     ->cond('Active', 1)
                     ->group_by('MaterialID')
                     ->fields('MaterialID', $fieldFilter);
@@ -388,8 +382,8 @@ class Collection extends Paged
                 // TODO: Add generic support for all native fields or their configuration
                 // Condition to search in material table by Name and URL
                 $materialCondition = new Condition('OR');
-                $materialCondition->add('Name', '%' . $searchString . '%', dbRelation::LIKE)
-                    ->add('Url', '%' . $searchString . '%', dbRelation::LIKE);
+                $materialCondition->add('Name', '%' . $searchString . '%', Relation::LIKE)
+                    ->add('Url', '%' . $searchString . '%', Relation::LIKE);
 
 
                 // Try to find search value in material table

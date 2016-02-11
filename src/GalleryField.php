@@ -9,7 +9,6 @@ use samsonframework\orm\QueryInterface;
  */
 class GalleryField extends \samson\activerecord\gallery
 {
-
     /** Entity field names constants for using in code */
     const F_PRIMARY = 'PhotoID';
     const F_DELETION = 'Active';
