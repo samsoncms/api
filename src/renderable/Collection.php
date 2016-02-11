@@ -94,7 +94,10 @@ class Collection extends \samsoncms\api\query\Entity
      */
     public function renderItem(Entity $item)
     {
-        return $this->renderer->view($this->itemView)->set(self::ITEM_VIEW_VARIABLE, $item)->output();
+        return $this->renderer
+            ->view($this->itemView)
+            ->set(self::ITEM_VIEW_VARIABLE, $item)
+            ->output();
     }
 
     /**
