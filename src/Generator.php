@@ -95,10 +95,12 @@ class Generator
         $nameByValue = array_flip((new \ReflectionClass($className))->getConstants());
 
         // Try to find constant by its value
-        if (isset($nameByValue[$value])) {
+        if (null !== $nameByValue[$value]) {
             // Return constant name
             return $nameByValue[$value];
         }
+
+        return '';
     }
 
     /**
