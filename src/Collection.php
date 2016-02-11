@@ -16,8 +16,8 @@ use samsonframework\orm\QueryInterface;
 
 /**
  * Collection query builder for filtering
- * @package samsonos\cms\collection
- * @author Egorov Vitaly <egorov@samsonos.com>
+ * @package    samsonos\cms\collection
+ * @author     Egorov Vitaly <egorov@samsonos.com>
  * @deprecated Use generated Entities and EntityQueries classes.
  */
 class Collection extends Paged
@@ -48,34 +48,39 @@ class Collection extends Paged
 
     /**
      * Generic collection constructor
+     *
      * @param RenderInterface $renderer View render object
-     * @param QueryInterface $query Query object
+     * @param QueryInterface  $query    Query object
      */
     public function __construct(RenderInterface $renderer, QueryInterface $query, PagerInterface $pager)
     {
         // Call parent initialization
-        parent::__construct($renderer, $query->className('material'), $pager);
+        parent::__construct($renderer, $query->entity('\samson\activerecord\material'), $pager);
     }
 
     /**
      * Render products collection block
-     * @param string $prefix Prefix for view variables
-     * @param array $restricted Collection of ignored keys
+     *
+     * @param string $prefix     Prefix for view variables
+     * @param array  $restricted Collection of ignored keys
+     *
      * @return array Collection key => value
      */
     public function toView($prefix = null, array $restricted = array())
     {
         // Render pager and collection
-        return array(
-            $prefix.'html' => $this->render(),
-            $prefix.'pager' => $this->pager->total > 1 ? $this->pager->toHTML() : ''
-        );
+        return array_diff(array(
+            $prefix . 'html' => $this->render(),
+            $prefix . 'pager' => $this->pager->total > 1 ? $this->pager->toHTML() : ''
+        ), $restricted);
     }
 
     /**
      * Add external identifier filter handler
+     *
      * @param callback $handler
-     * @param array $params
+     * @param array    $params
+     *
      * @return self Chaining
      */
     public function handler($handler, array $params = array())
@@ -88,8 +93,10 @@ class Collection extends Paged
 
     /**
      * Set external entity handler
+     *
      * @param callback $handler
-     * @param array $params
+     * @param array    $params
+     *
      * @return self Chaining
      */
     public function baseEntityHandler($handler, array $params = array())
@@ -102,8 +109,10 @@ class Collection extends Paged
 
     /**
      * Set external entity handler
+     *
      * @param callback $handler
-     * @param array $params
+     * @param array    $params
+     *
      * @return self Chaining
      */
     public function entityHandler($handler, array $params = array())
@@ -116,8 +125,10 @@ class Collection extends Paged
 
     /**
      * Set collection sorter parameters
-     * @param string|integer $field Field identifier or name
-     * @param string $destination ASC|DESC
+     *
+     * @param string|integer $field       Field identifier or name
+     * @param string         $destination ASC|DESC
+     *
      * @return void
      */
     public function sorter($field, $destination = 'ASC')
@@ -130,7 +141,7 @@ class Collection extends Paged
                 'name' => $field,
                 'destination' => $destination
             );
-        } else if ($this->isFieldObject($field)) {
+        } elseif ($this->isFieldObject($field)) {
             $this->sorter = array(
                 'entity' => $field,
                 'name' => $field->Name,
@@ -146,6 +157,7 @@ class Collection extends Paged
      * applied as single navigation filter to retrieve materials.
      *
      * @param string|integer|array $navigation Navigation URL or identifier for filtering
+     *
      * @return self Chaining
      */
     public function navigation($navigation)
@@ -156,9 +168,9 @@ class Collection extends Paged
             $idOrUrl = new Condition('OR');
             $idOrUrl->add('StructureID', $navigation)->add('Url', $navigation);
 
-            /** @var array $navigationIds  */
+            /** @var array $navigationIds */
             $navigationIds = null;
-            if ($this->query->className('structure')->cond($idOrUrl)->fields('StructureID', $navigationIds)) {
+            if ($this->query->entity('\samson\activerecord\structure')->where($idOrUrl)->fields('StructureID', $navigationIds)) {
                 // Store all retrieved navigation elements as navigation collection filter
                 $this->navigation[] = $navigationIds;
             }
@@ -171,9 +183,10 @@ class Collection extends Paged
     /**
      * Filter collection using additional field entity.
      *
-     * @param string|integer|Field $field Additional field identifier or name
-     * @param mixed $value Additional field value for filtering
-     * @param string $relation Additional field relation for filtering
+     * @param string|integer|Field $field    Additional field identifier or name
+     * @param mixed                $value    Additional field value for filtering
+     * @param string               $relation Additional field relation for filtering
+     *
      * @return self Chaining
      */
     public function field($field, $value, $relation = Relation::EQUAL)
@@ -182,8 +195,8 @@ class Collection extends Paged
         if ($this->isFieldObject($field)) {
             // Get field value column
             $valueField = in_array($field->Type, array(3, 7, 10)) ? 'numeric_value' : 'value';
-			$valueField = $field->Type == 6 ? 'key_value' : $valueField;
-			
+            $valueField = $field->Type == 6 ? 'key_value' : $valueField;
+
             /** @var Condition $condition Ranged condition */
             $condition = new Condition('AND');
 
@@ -203,6 +216,7 @@ class Collection extends Paged
      * If this method is called more then once, it will use materials, previously filtered by this method.
      *
      * @param string $search Search string
+     *
      * @return self Chaining
      */
     public function search($search)
@@ -218,9 +232,11 @@ class Collection extends Paged
 
     /**
      * Filter collection of numeric field in range from min to max values
-     * @param string|integer|Field $field Additional field identifier or name
-     * @param integer $minValue Min value for range filter
-     * @param integer $maxValue Max value for range filter
+     *
+     * @param string|integer|Field $field    Additional field identifier or name
+     * @param integer              $minValue Min value for range filter
+     * @param integer              $maxValue Max value for range filter
+     *
      * @return self Chaining
      */
     public function ranged($field, $minValue, $maxValue)
@@ -250,7 +266,9 @@ class Collection extends Paged
 
     /**
      * Try to find additional field record
+     *
      * @param string|integer $field Additional field identifier or name
+     *
      * @return bool True if field record has been found
      */
     protected function isFieldObject(&$field)
@@ -262,7 +280,7 @@ class Collection extends Paged
             $idOrUrl->add('FieldID', $field)->add('Name', $field);
 
             // Perform query
-            return $this->query->className('field')->cond($idOrUrl)->first($field);
+            return $this->query->entity('\samson\activerecord\field')->where($idOrUrl)->first($field);
         }
 
         // Field not found
@@ -274,6 +292,7 @@ class Collection extends Paged
      * if no navigation filtering is set - nothing will happen.
      *
      * @param array $filteredIds Collection of filtered material identifiers
+     *
      * @return bool True if ALL navigation filtering succeeded or there was no filtering at all otherwise false
      */
     protected function applyNavigationFilter(& $filteredIds = array())
@@ -281,15 +300,13 @@ class Collection extends Paged
         // Iterate all applied navigation filters
         foreach ($this->navigation as $navigation) {
             // Create navigation-material query
-            $this->query->className('structurematerial')
-
-                ->cond('StructureID', $navigation)
-                ->cond('Active', 1)
-                ->group_by('MaterialID')
-            ;
+            $this->query->entity('\samson\activerecord\structurematerial')
+                ->where('StructureID', $navigation)
+                ->where('Active', 1)
+                ->group_by('MaterialID');
 
             if (isset($filteredIds)) {
-                $this->query->cond('MaterialID', $filteredIds);
+                $this->query->where('MaterialID', $filteredIds);
             }
 
             // Perform request to get next portion of filtered material identifiers
@@ -308,6 +325,7 @@ class Collection extends Paged
      * if no field filtering is set - nothing will happen.
      *
      * @param array $filteredIds Collection of filtered material identifiers
+     *
      * @return bool True if ALL field filtering succeeded or there was no filtering at all otherwise false
      */
     protected function applyFieldFilter(& $filteredIds = array())
@@ -315,14 +333,13 @@ class Collection extends Paged
         // Iterate all applied field filters
         foreach ($this->field as $field) {
             // Create material-field query
-            $this->query->className('materialfield')
-                ->cond('FieldID', $field[0]->id)
-                ->cond($field[1])
-                ->group_by('MaterialID')
-            ;
+            $this->query->entity('\samson\activerecord\materialfield')
+                ->where('FieldID', $field[0]->id)
+                ->where($field[1])
+                ->group_by('MaterialID');
 
             if (isset($filteredIds)) {
-                $this->query->cond('MaterialID', $filteredIds);
+                $this->query->where('MaterialID', $filteredIds);
             }
 
             // Perform request to get next portion of filtered material identifiers
@@ -340,9 +357,10 @@ class Collection extends Paged
      * Try to find all materials which have fields similar to search strings
      *
      * @param array $filteredIds Collection of filtered material identifiers
+     *
      * @return bool True if ALL field filtering succeeded or there was no filtering at all otherwise false
      */
-    protected function applySearchFilter(& $filteredIds = array())
+    protected function applySearchFilter(&$filteredIds = array())
     {
         /** @var array $fields Variable to store all fields related to set navigation */
         $fields = array();
@@ -363,19 +381,19 @@ class Collection extends Paged
             }
 
             // Get all related fields
-            $this->query->className('structurefield')
-                ->cond('StructureID', $navigationArray)
+            $this->query->entity('\samson\activerecord\structurefield')
+                ->where('StructureID', $navigationArray)
                 ->group_by('FieldID')
                 ->fields('FieldID', $fields);
 
             // Iterate over search strings
             foreach ($this->search as $searchString) {
                 // Try to find search value in materialfield table
-                $this->query->className('materialfield')
-                    ->cond('FieldID', $fields)
-                    ->cond('MaterialID', $filteredIds)
-                    ->cond('Value', '%' . $searchString . '%', Relation::LIKE)
-                    ->cond('Active', 1)
+                $this->query->entity('\samson\activerecord\materialfield')
+                    ->where('FieldID', $fields)
+                    ->where('MaterialID', $filteredIds)
+                    ->where('Value', '%' . $searchString . '%', Relation::LIKE)
+                    ->where('Active', 1)
                     ->group_by('MaterialID')
                     ->fields('MaterialID', $fieldFilter);
 
@@ -387,13 +405,13 @@ class Collection extends Paged
 
 
                 // Try to find search value in material table
-                $this->query->className('material')
-                    ->cond($materialCondition)
-                    ->cond('Active', 1);
+                $this->query->entity('\samson\activerecord\material')
+                    ->where($materialCondition)
+                    ->where('Active', 1);
 
                 // If we have not empty collection of filtering identifiers
                 if (sizeof($filteredIds)) {
-                    $this->query->cond('MaterialID', $filteredIds);
+                    $this->query->where('MaterialID', $filteredIds);
                 }
 
                 $materialFilter = $this->query->fields('MaterialID');
@@ -414,18 +432,21 @@ class Collection extends Paged
 
     /**
      * Apply all possible material filters
+     *
      * @param array $filteredIds Collection of material identifiers
+     *
      * @return bool True if ALL filtering succeeded or there was no filtering at all otherwise false
      */
     protected function applyFilter(& $filteredIds = array())
     {
         return $this->applyNavigationFilter($filteredIds)
-            && $this->applyFieldFilter($filteredIds)
-            && $this->applySearchFilter($filteredIds);
+        && $this->applyFieldFilter($filteredIds)
+        && $this->applySearchFilter($filteredIds);
     }
 
     /**
      * Perform material identifiers collection sorting
+     *
      * @param array $materialIDs Variable to return sorted collection
      */
     protected function applyFieldSorter(&$materialIDs = array())
@@ -435,10 +456,10 @@ class Collection extends Paged
             // If we need to sort by entity additional field(column)
             if (!in_array($this->sorter['field'], \samson\activerecord\material::$_attributes)) {
                 // Sort material identifiers by its additional fields
-                $this->query->className('materialfield')
-                    ->cond('FieldID', $this->sorter['entity']->id)
+                $this->query->entity('\samson\activerecord\materialfield')
+                    ->where('FieldID', $this->sorter['entity']->id)
                     ->order_by($this->sorter['field'], $this->sorter['destination'])
-                    ->cond('MaterialID', $materialIDs)
+                    ->where('MaterialID', $materialIDs)
                     ->fields('MaterialID', $materialIDs);
             }
         }
@@ -446,19 +467,18 @@ class Collection extends Paged
 
     /**
      * Call handlers stack
+     *
      * @param array $handlers Collection of callbacks with their parameters
-     * @param array $params External parameters to pass to callback at first
+     * @param array $params   External parameters to pass to callback at first
+     *
      * @return bool True if all handlers succeeded
      */
-    protected function callHandlers(& $handlers = array(), $params = array())
+    protected function callHandlers(&$handlers = array(), $params = array())
     {
         // Call external handlers
         foreach ($handlers as $handler) {
             // Call external handlers chain
-            if (call_user_func_array(
-                $handler[0],
-                array_merge($params, $handler[1]) // Merge params and handler params
-            ) === false) {
+            if (call_user_func_array($handler[0], array_merge($params, $handler[1])) === false) {
                 // Stop - if one of external handlers has failed
                 return false;
             }
@@ -469,15 +489,16 @@ class Collection extends Paged
 
     /**
      * Perform filtering on base material entity
+     *
      * @param array $materialIDs Variable to return sorted collection
      */
-    protected function applyBaseEntityFilter(& $materialIDs = array())
+    protected function applyBaseEntityFilter(&$materialIDs = array())
     {
         // TODO: Change this to new OOP approach
         $class = $this->entityName;
 
         // Configure query to base entity
-        $this->query->className('samson\activerecord\material');
+        $this->query->entity('samson\activerecord\material');
 
         // Call base material entity handlers to prepare query
         $this->callHandlers($this->baseEntityHandlers, array(&$this->query));
@@ -493,11 +514,10 @@ class Collection extends Paged
 
         // Perform main entity query
         $this->materialIDs = $this->query
-            ->cond('Active', 1) // Remove deleted entities
-            ->cond('system', 0) // Remove system entities
-            ->cond($class::$_primary, $materialIDs) // Filter to current set
-            ->fields($class::$_primary)
-        ;
+            ->where('Active', 1)// Remove deleted entities
+            ->where('system', 0)// Remove system entities
+            ->where($class::$_primary, $materialIDs)// Filter to current set
+            ->fields($class::$_primary);
     }
 
     /**
@@ -516,7 +536,7 @@ class Collection extends Paged
         // If no filters is set
         if (!sizeof($this->search) && !sizeof($this->navigation) && !sizeof($this->field)) {
             // Get all entity records identifiers
-            $this->materialIDs = $this->query->cond('Active', 1)->cond('system', 0)->fields($class::$_primary);
+            $this->materialIDs = $this->query->where('Active', 1)->where('system', 0)->fields($class::$_primary);
         }
 
         // Perform material filtering
@@ -542,7 +562,7 @@ class Collection extends Paged
             $this->materialIDs = array_slice($this->materialIDs, $this->pager->start, $this->pager->end);
 
             // Create final material query
-            $this->query->className($this->entityName)->cond($class::$_primary, $this->materialIDs);
+            $this->query->entity($this->entityName)->where($class::$_primary, $this->materialIDs);
 
             // Call material query handlers
             $this->callHandlers($this->entityHandlers, array(&$this->query));
