@@ -212,7 +212,7 @@ class Generator
      * @param array $navigationFields Collection of entity additional fields
      * @return string Generated entity query PHP class code
      */
-    protected function createEntityClass($navigationName, $entityName, $navigationFields)
+    protected function createEntityClass($navigationName, $entityName, $navigationFields, $navigationId)
     {
         $this->generator
             ->multicomment(array('"'.$navigationName.'" entity class'))
@@ -221,6 +221,8 @@ class Generator
             ->defClassConst('ENTITY', $this->fullEntityName($entityName))
             ->commentVar('string', 'Entity manager full class name')
             ->defClassConst('MANAGER', $this->fullEntityName($entityName.'Query'))
+            ->commentVar('string', 'Entity database identifier')
+            ->defClassConst('IDENTIFIER', $navigationId)
             ->commentVar('string', 'Not transliterated entity name')
             ->defClassVar('$viewName', 'protected static');
 
@@ -525,7 +527,8 @@ class Generator
             $classes .= $this->createEntityClass(
                 $structureRow['Name'],
                 $entityName,
-                $navigationFields
+                $navigationFields,
+                $structureRow['StructureID']
             );
 
             $classes .= $this->createQueryClass(
