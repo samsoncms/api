@@ -178,7 +178,7 @@ class Generator
     {
         $code = "\n\t" . '/**';
         $code .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldId . ') field query condition.';
-        $code .= "\n\t" . ' * @param '.Field::phpType($fieldType).' $value Field value';
+        $code .= "\n\t" . ' * @param '.$fieldType.' $value Field value';
         $code .= "\n\t" . ' * @return $this Chaining';
         $code .= "\n\t" . ' * @see Generic::where()';
         $code .= "\n\t" . ' */';
@@ -210,53 +210,6 @@ class Generator
         $code .= "\n\t\t" . 'return $this->where("'.$fieldName.'", $value);';
 
         return $code . "\n\t" . "}"."\n";
-    }
-
-    /**
-     * Create entity PHP class code.
-     *
-     * @param Metadata $metadata Entity metadata
-     * @return string Generated entity query PHP class code
-     */
-    protected function createEntityClass(Metadata $metadata)
-    {
-        /**
-         * TODO: Parent problem
-         * Should be changed to merging fields instead of extending with OOP for structure_relation support
-         * or creating traits and using them on shared parent entities.
-         */
-
-        $this->generator
-            ->multiComment(array('"'.$metadata->entityRealName.'" entity class'))
-            ->defClass($metadata->entity, null !== $metadata->parent ? $metadata->parent->className : 'Entity')
-            ->commentVar('string', '@deprecated Entity full class name, use ::class')
-            ->defClassConst('ENTITY', $metadata->className)
-            ->commentVar('string', 'Entity manager full class name')
-            ->defClassConst('MANAGER', $metadata->className.'Query')
-            ->commentVar('string', 'Entity database identifier')
-            ->defClassConst('IDENTIFIER', $metadata->entityID)
-            ->commentVar('string', 'Not transliterated entity name')
-            ->defClassVar('$viewName', 'protected static', $metadata->entityRealName);
-
-        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
-            $this->generator
-                ->commentVar('string', $metadata->fieldDescriptions[$fieldID].' variable name')
-                ->defClassConst('F_' . $fieldName, $fieldName)
-                ->commentVar($metadata->allFieldTypes[$fieldID], $metadata->fieldDescriptions[$fieldID])
-                ->defClassVar('$' . $fieldName, 'public');
-        }
-
-        return $this->generator
-            ->defClassVar('$_sql_select', 'public static ', $metadata->arSelect)
-            ->defClassVar('$_attributes', 'public static ', $metadata->arAttributes)
-            ->defClassVar('$_map', 'public static ', $metadata->arMap)
-            ->defClassVar('$_sql_from', 'public static ', $metadata->arFrom)
-            ->defClassVar('$_own_group', 'public static ', $metadata->arGroup)
-            ->defClassVar('$_relation_alias', 'public static ', $metadata->arRelationAlias)
-            ->defClassVar('$_relation_type', 'public static ', $metadata->arRelationType)
-            ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
-            ->endClass()
-            ->flush();
     }
 
     /**
@@ -461,49 +414,76 @@ class Generator
     }
 
     /**
-     * Create entity query PHP class code.
+     * Create entity PHP class code.
      *
-     * @param integer $navigationID Entity navigation identifier
-     * @param string $navigationName Original entity name
-     * @param string $entityName PHP entity name
-     * @param array $navigationFields Collection of entity additional fields
-     * @param string $parentClass Parent entity class name
+     * @param Metadata $metadata Entity metadata
      * @return string Generated entity query PHP class code
      */
-    protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields, $parentClass = '\samsoncms\api\query\Entity')
+    protected function createEntityClass(Metadata $metadata)
     {
+        /**
+         * TODO: Parent problem
+         * Should be changed to merging fields instead of extending with OOP for structure_relation support
+         * or creating traits and using them on shared parent entities.
+         */
+
         $this->generator
-            ->multiComment(array('Class for getting "'.$navigationName.'" instances from database'))
-            ->defClass($entityName, $parentClass)
+            ->multiComment(array('"'.$metadata->entityRealName.'" entity class'))
+            ->defClass($metadata->entity, null !== $metadata->parent ? $metadata->parent->className : 'Entity')
+            ->commentVar('string', '@deprecated Entity full class name, use ::class')
+            ->defClassConst('ENTITY', $metadata->className)
+            ->commentVar('string', 'Entity manager full class name')
+            ->defClassConst('MANAGER', $metadata->className.'Query')
+            ->commentVar('string', 'Entity database identifier')
+            ->defClassConst('IDENTIFIER', $metadata->entityID)
+            ->commentVar('string', 'Not transliterated entity name')
+            ->defClassVar('$viewName', 'protected static', $metadata->entityRealName);
+
+        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
+            $this->generator
+                ->commentVar('string', $metadata->fieldDescriptions[$fieldID].' variable name')
+                ->defClassConst('F_' . $fieldName, $fieldName)
+                ->commentVar($metadata->allFieldTypes[$fieldID], $metadata->fieldDescriptions[$fieldID])
+                ->defClassVar('$' . $fieldName, 'public');
+        }
+
+        return $this->generator
+            ->defClassVar('$_sql_select', 'public static ', $metadata->arSelect)
+            ->defClassVar('$_attributes', 'public static ', $metadata->arAttributes)
+            ->defClassVar('$_map', 'public static ', $metadata->arMap)
+            ->defClassVar('$_sql_from', 'public static ', $metadata->arFrom)
+            ->defClassVar('$_own_group', 'public static ', $metadata->arGroup)
+            ->defClassVar('$_relation_alias', 'public static ', $metadata->arRelationAlias)
+            ->defClassVar('$_relation_type', 'public static ', $metadata->arRelationType)
+            ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
+            ->endClass()
+            ->flush();
+    }
+
+    /**
+     * Create entity query PHP class code.
+     *
+     * @param Metadata $metadata Entity metadata
+     * @return string Generated entity query PHP class code
+     */
+    protected function createQueryClass(Metadata $metadata)
+    {
+        //$navigationID, $navigationName, $entityName, $navigationFields, $parentClass = '\samsoncms\api\query\Entity'
+        $this->generator
+            ->multiComment(array('Class for fetching "'.$metadata->entityRealName.'" instances from database'))
+            ->defClass(
+                $metadata->entity.'Query',
+                null !== $metadata->parent ? $metadata->parent->className : '\samsoncms\api\query\Entity'
+            )
         ;
 
-        // Iterate additional fields
-        $localizedFieldIDs = array();
-        $notLocalizedFieldIDs = array();
-        $allFieldIDs = array();
-        $allFieldNames = array();
-        $allFieldValueColumns = array();
-        $realNames = array();
-        foreach ($navigationFields as $fieldID => $fieldRow) {
-            $fieldName = $this->fieldName($fieldRow['Name']);
-
+        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
             // TODO: Add different method generation depending on their field type
             $this->generator->text($this->generateFieldConditionMethod(
                 $fieldName,
-                $fieldRow[Field::F_PRIMARY],
-                $fieldRow[Field::F_TYPE]
+                $fieldID,
+                $metadata->allFieldTypes[$fieldID]
             ));
-
-            // Store field metadata
-            $realNames[$fieldRow['Name']] = $fieldName;
-            $allFieldIDs[$fieldID] = $fieldName;
-            $allFieldNames[$fieldName] = $fieldID;
-            $allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
-            if ($fieldRow[Field::F_LOCALIZED] == 1) {
-                $localizedFieldIDs[$fieldID] = $fieldName;
-            } else {
-                $notLocalizedFieldIDs[$fieldID] = $fieldName;
-            }
         }
 
         // TODO: Add generator method generation logic
@@ -518,21 +498,21 @@ class Generator
 
         return $this->generator
             ->commentVar('array', 'Collection of real additional field names')
-            ->defClassVar('$fieldRealNames', 'public static', $realNames)
+            ->defClassVar('$fieldRealNames', 'public static', $metadata->realNames)
             ->commentVar('array', 'Collection of navigation identifiers')
-            ->defClassVar('$navigationIDs', 'protected static', array($navigationID))
+            ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
             ->commentVar('string', 'Not transliterated entity name')
-            ->defClassVar('$identifier', 'protected static', $this->fullEntityName($navigationName))
+            ->defClassVar('$identifier', 'protected static', $metadata->entityRealName)
             ->commentVar('array', 'Collection of localized additional fields identifiers')
-            ->defClassVar('$localizedFieldIDs', 'protected static', $localizedFieldIDs)
+            ->defClassVar('$localizedFieldIDs', 'protected static', $metadata->localizedFieldIDs)
             ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
-            ->defClassVar('$notLocalizedFieldIDs', 'protected static', $notLocalizedFieldIDs)
+            ->defClassVar('$notLocalizedFieldIDs', 'protected static', $metadata->notLocalizedFieldIDs)
             ->commentVar('array', 'Collection of localized additional fields identifiers')
-            ->defClassVar('$fieldIDs', 'protected static', $allFieldIDs)
+            ->defClassVar('$fieldIDs', 'protected static', $metadata->allFieldIDs)
             ->commentVar('array', 'Collection of additional fields value column names')
-            ->defClassVar('$fieldValueColumns', 'protected static', $allFieldValueColumns)
+            ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns)
             ->commentVar('array', 'Collection of additional field names')
-            ->defClassVar('$fieldNames', 'public static', $allFieldNames)
+            ->defClassVar('$fieldNames', 'public static', $metadata->allFieldNames)
             ->text($class)
             ->endClass()
             ->flush()
@@ -689,20 +669,13 @@ AND s.StructureID != "' . $entityID . '"
         // Iterate all entities metadata
         foreach ($this->metadata as $metadata) {
             $classes .= $this->createEntityClass($metadata);
+            $classes .= $this->createQueryClass($metadata);
         }
 
         // Iterate all structures
         foreach ($this->entityNavigations() as $structureRow) {
             $navigationFields = $this->navigationFields($structureRow['StructureID']);
             $entityName = $this->entityName($structureRow['Name']);
-
-            $classes .= $this->createQueryClass(
-                $structureRow['StructureID'],
-                $structureRow['Name'],
-                $entityName.'Query',
-                $navigationFields,
-                isset($parentEntity) ? $parentEntity.'Query' : '\samsoncms\api\query\Entity'
-            );
 
             $classes .= $this->createCollectionClass(
                 $structureRow['StructureID'],
