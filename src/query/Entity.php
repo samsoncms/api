@@ -267,12 +267,17 @@ class Entity extends Generic
             // Get needed metadata
             $fieldID = $additionalField[Field::F_PRIMARY];
             $materialID = $additionalField[Material::F_PRIMARY];
-            $valueField = static::$fieldValueColumns[$fieldID];
-            $fieldName = static::$fieldIDs[$fieldID];
-            $fieldValue = $additionalField[$valueField];
+            $valueField = &static::$fieldValueColumns[$fieldID];
+            $fieldName = &static::$fieldIDs[$fieldID];
 
-            // Gather additional fields values by entity identifiers and field name
-            $return[$materialID][$fieldName] = $fieldValue;
+            // Check if we have this additional field in this entity query
+            if (null === $valueField || null === $fieldName) {
+                throw new EntityFieldNotFound($fieldID);
+            } else { // Add field value to result
+                $fieldValue = $additionalField[$valueField];
+                // Gather additional fields values by entity identifiers and field name
+                $return[$materialID][$fieldName] = $fieldValue;
+            }
         }
 
         return $return;
