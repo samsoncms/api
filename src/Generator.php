@@ -408,17 +408,9 @@ class Generator
      */
     protected function createCollectionClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
-        $this->generator->multiComment(array(
-            'Class for getting "'.$navigationName.'" instances from database',
-            '@method '.$this->entityName($navigationName).'[] find($page = null, $count = null) Get entities collection',
-            '@method '.$this->entityName($navigationName).' first() Get entity',
-            '@method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)',
-            '@method '.$entityName.' primary($value) Query for chaining',
-            '@method '.$entityName.' identifier($value) Query for chaining',
-            '@method '.$entityName.' created($value) Query for chaining',
-            '@method '.$entityName.' modified($value) Query for chaining',
-            '@method '.$entityName.' published($value) Query for chaining'
-        ))->defClass($entityName, '\samsoncms\api\renderable\Collection')
+        $this->generator
+            ->multiComment(array('Class for getting "'.$navigationName.'" instances from database',))
+            ->defClass($entityName, '\samsoncms\api\renderable\Collection')
         ;
 
         // Iterate additional fields
@@ -495,17 +487,9 @@ class Generator
      */
     protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
     {
-        $this->generator->multiComment(array(
-            'Class for getting "'.$navigationName.'" instances from database',
-            '@method '.$this->entityName($navigationName).'[] find($page = null, $count = null) Get entities collection',
-            '@method '.$this->entityName($navigationName).' first() Get entity',
-            '@method '.$entityName.' where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)',
-            '@method '.$entityName.' primary($value) Query for chaining',
-            '@method '.$entityName.' identifier($value) Query for chaining',
-            '@method '.$entityName.' created($value) Query for chaining',
-            '@method '.$entityName.' modified($value) Query for chaining',
-            '@method '.$entityName.' published($value) Query for chaining'
-        ))->defClass($entityName, '\samsoncms\api\query\Entity')
+        $this->generator
+            ->multiComment(array('Class for getting "'.$navigationName.'" instances from database'))
+            ->defClass($entityName, '\samsoncms\api\query\Entity')
         ;
 
         // Iterate additional fields
