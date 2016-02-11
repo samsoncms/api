@@ -170,7 +170,7 @@ class Collection extends Paged
 
             /** @var array $navigationIds */
             $navigationIds = null;
-            if ($this->query->entity('\samson\activerecord\structure')->where($idOrUrl)->fields('StructureID', $navigationIds)) {
+            if ($this->query->entity('\samson\activerecord\structure')->whereCondition($idOrUrl)->fields('StructureID', $navigationIds)) {
                 // Store all retrieved navigation elements as navigation collection filter
                 $this->navigation[] = $navigationIds;
             }
@@ -295,7 +295,7 @@ class Collection extends Paged
      *
      * @return bool True if ALL navigation filtering succeeded or there was no filtering at all otherwise false
      */
-    protected function applyNavigationFilter(& $filteredIds = array())
+    protected function applyNavigationFilter(&$filteredIds = array())
     {
         // Iterate all applied navigation filters
         foreach ($this->navigation as $navigation) {
@@ -303,9 +303,9 @@ class Collection extends Paged
             $this->query->entity('\samson\activerecord\structurematerial')
                 ->where('StructureID', $navigation)
                 ->where('Active', 1)
-                ->group_by('MaterialID');
+                ->groupBy('MaterialID');
 
-            if (isset($filteredIds)) {
+            if (null !== $filteredIds) {
                 $this->query->where('MaterialID', $filteredIds);
             }
 
@@ -336,9 +336,9 @@ class Collection extends Paged
             $this->query->entity('\samson\activerecord\materialfield')
                 ->where('FieldID', $field[0]->id)
                 ->where($field[1])
-                ->group_by('MaterialID');
+                ->groupBy('MaterialID');
 
-            if (isset($filteredIds)) {
+            if (null !== $filteredIds) {
                 $this->query->where('MaterialID', $filteredIds);
             }
 
@@ -383,7 +383,7 @@ class Collection extends Paged
             // Get all related fields
             $this->query->entity('\samson\activerecord\structurefield')
                 ->where('StructureID', $navigationArray)
-                ->group_by('FieldID')
+                ->groupBy('FieldID')
                 ->fields('FieldID', $fields);
 
             // Iterate over search strings
@@ -394,7 +394,7 @@ class Collection extends Paged
                     ->where('MaterialID', $filteredIds)
                     ->where('Value', '%' . $searchString . '%', Relation::LIKE)
                     ->where('Active', 1)
-                    ->group_by('MaterialID')
+                    ->groupBy('MaterialID')
                     ->fields('MaterialID', $fieldFilter);
 
                 // TODO: Add generic support for all native fields or their configuration
@@ -410,7 +410,7 @@ class Collection extends Paged
                     ->where('Active', 1);
 
                 // If we have not empty collection of filtering identifiers
-                if (sizeof($filteredIds)) {
+                if (count($filteredIds)) {
                     $this->query->where('MaterialID', $filteredIds);
                 }
 
@@ -452,13 +452,13 @@ class Collection extends Paged
     protected function applyFieldSorter(&$materialIDs = array())
     {
         // Check if sorter is configured
-        if (sizeof($this->sorter)) {
+        if (count($this->sorter)) {
             // If we need to sort by entity additional field(column)
             if (!in_array($this->sorter['field'], \samson\activerecord\material::$_attributes)) {
                 // Sort material identifiers by its additional fields
                 $this->query->entity('\samson\activerecord\materialfield')
                     ->where('FieldID', $this->sorter['entity']->id)
-                    ->order_by($this->sorter['field'], $this->sorter['destination'])
+                    ->orderBy($this->sorter['field'], $this->sorter['destination'])
                     ->where('MaterialID', $materialIDs)
                     ->fields('MaterialID', $materialIDs);
             }
@@ -504,11 +504,11 @@ class Collection extends Paged
         $this->callHandlers($this->baseEntityHandlers, array(&$this->query));
 
         // Check if sorter is configured
-        if (sizeof($this->sorter)) {
+        if (count($this->sorter)) {
             // If we need to sort by entity own field(column)
             if (in_array($this->sorter['field'], $class::$_attributes)) {
                 // Add material entity sorter
-                $this->query->order_by($this->sorter['field'], $this->sorter['destination']);
+                $this->query->orderBy($this->sorter['field'], $this->sorter['destination']);
             }
         }
 
@@ -534,7 +534,7 @@ class Collection extends Paged
         $class = $this->entityName;
 
         // If no filters is set
-        if (!sizeof($this->search) && !sizeof($this->navigation) && !sizeof($this->field)) {
+        if (!count($this->search) && !count($this->navigation) && !count($this->field)) {
             // Get all entity records identifiers
             $this->materialIDs = $this->query->where('Active', 1)->where('system', 0)->fields($class::$_primary);
         }
@@ -544,7 +544,7 @@ class Collection extends Paged
             // Now we have all possible material filters applied and final material identifiers collection
 
             // Store filtered collection size
-            $this->count = sizeof($this->materialIDs);
+            $this->count = count($this->materialIDs);
 
             // Call material identifier handlers
             $this->callHandlers($this->idHandlers, array(&$this->materialIDs));
@@ -556,7 +556,7 @@ class Collection extends Paged
             $this->applyFieldSorter($this->materialIDs);
 
             // Create count request to count pagination
-            $this->pager->update(sizeof($this->materialIDs));
+            $this->pager->update(count($this->materialIDs));
 
             // Cut only needed materials identifiers from array
             $this->materialIDs = array_slice($this->materialIDs, $this->pager->start, $this->pager->end);
@@ -568,8 +568,8 @@ class Collection extends Paged
             $this->callHandlers($this->entityHandlers, array(&$this->query));
 
             // Add query sorter for showed page
-            if (sizeof($this->sorter)) {
-                $this->query->order_by($this->sorter['name'], $this->sorter['destination']);
+            if (count($this->sorter)) {
+                $this->query->orderBy($this->sorter['name'], $this->sorter['destination']);
             }
 
             // Return final filtered entity query result
@@ -581,7 +581,7 @@ class Collection extends Paged
             $this->materialIDs = array();
 
             // Updated pagination
-            $this->pager->update(sizeof($this->materialIDs));
+            $this->pager->update(count($this->materialIDs));
         }
 
         // Chaining
