@@ -7,7 +7,7 @@
  */
 namespace samsoncms\api;
 
-use samsonframework\orm\Condition
+use samsonframework\orm\Condition;
 use samsonframework\collection\Paged;
 use samsonframework\orm\Relation;
 use samsonframework\pager\PagerInterface;
