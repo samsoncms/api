@@ -28,10 +28,10 @@ class FieldsTable extends \samsoncms\api\field\Table implements RenderInterface
     /** Name of the row prefix for variable in row view */
     const ROW_VIEW_VARIABLE = 'row';
 
-    /** @var string Index view path */
+    /** @var string|callable Block view file or callback */
     protected $indexView = 'index';
 
-    /** @var string Row view path */
+    /** @var string|callable Row view file or callback */
     protected $rowView = 'row';
 
     /** @var ViewInterface */
@@ -52,6 +52,27 @@ class FieldsTable extends \samsoncms\api\field\Table implements RenderInterface
         $this->renderer = $renderer;
 
         parent::__construct($query, $navigationID, $entityID, $locale);
+    }
+
+    /**
+     * Set index view path.
+     * @param string|callable $indexView Index view path or callback
+     * @return $this Chaining
+     */
+    public function indexView($indexView)
+    {
+        $this->indexView = $indexView;
+        return $this;
+    }
+    /**
+     * Set row view path.
+     * @param string|callable $rowView Row view path or callback
+     * @return $this Chaining
+     */
+    public function rowView($rowView)
+    {
+        $this->rowView = $rowView;
+        return $this;
     }
 
     /**
@@ -85,10 +106,20 @@ class FieldsTable extends \samsoncms\api\field\Table implements RenderInterface
     {
         $html = '';
         foreach ($this->collection as $row) {
-            $html .= $this->renderRow($row);
+            // Call external handler
+            if (is_callable($this->rowView)) {
+                $html .= call_user_func($this->rowView, $this->renderer, $this->query, $row);
+            } else { // Call default renderer
+                $html .= $this->renderRow($row);
+            }
         }
 
-        $html = $this->renderIndex($html);
+        // Call external handler
+        if (is_callable($this->indexView)) {
+            $html = call_user_func($this->indexView, $html, $this->renderer, $this->query, $this->collection);
+        } else { // Call default renderer
+            $html = $this->renderIndex($html);
+        }
 
         return $html;
     }
