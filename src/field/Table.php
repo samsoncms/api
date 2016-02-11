@@ -68,7 +68,7 @@ class Table
     /**
      * Get field table as multidimensional array.
      *
-     * @return array Field table represented as array
+     * @return Row[] Field table represented as array
      */
     public function toArray()
     {
@@ -177,7 +177,7 @@ class Table
      * FieldsTable constructor.
      *
      * @param QueryInterface $query        Database query interface
-     * @param mixed          $navigationID Navigation identifier for table structure
+     * @param integer[]          $navigationID Navigation identifier for table structure
      * @param integer        $materialID   Table parent material identifier
      * @param string|null    $locale       Locale identifier
      */

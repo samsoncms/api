@@ -8,7 +8,6 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
-use samsonframework\core\RequestInterface;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
@@ -61,7 +60,7 @@ class CMS extends CompressableService
      * Module initialization.
      *
      * @param array $params Initialization parameters
-     * @return bool Initialization result
+     * @return boolean|null Initialization result
      */
     public function init(array $params = array())
     {
