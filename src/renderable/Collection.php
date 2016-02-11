@@ -5,6 +5,7 @@
  */
 namespace samsoncms\api\renderable;
 
+use samson\activerecord\dbQuery;
 use samsoncms\api\Entity;
 use samsonframework\core\ViewInterface;
 use samsonframework\orm\QueryInterface;
@@ -50,11 +51,11 @@ class Collection extends \samsoncms\api\query\Entity
      * @param QueryInterface $query Instance for querying database
      * @param string|null    $locale Localization language
      */
-    public function __construct(ViewInterface $renderer, QueryInterface $query, $locale = null)
+    public function __construct(ViewInterface $renderer, QueryInterface $query = null, $locale = null)
     {
         $this->renderer = $renderer;
 
-        parent::__construct($query, $locale);
+        parent::__construct(null === $query ? new dbQuery() : $query, $locale);
     }
 
     /**

@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api\query;
 
+use samson\activerecord\dbQuery;
 use samsoncms\api\CMS;
 use samsoncms\api\exception\EntityFieldNotFound;
 use samsoncms\api\Field;
@@ -413,11 +414,11 @@ class Entity extends Generic
      * @param QueryInterface $query Database query instance
      * @param string $locale Query localization
      */
-    public function __construct(QueryInterface $query, $locale = NULL)
+    public function __construct(QueryInterface $query = null, $locale = null)
     {
         $this->locale = $locale;
 
-        parent::__construct($query);
+        parent::__construct(null === $query ? new dbQuery() : $query);
 
         // Work only with active entities
         $this->active(true);
