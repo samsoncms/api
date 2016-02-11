@@ -71,7 +71,7 @@ class FieldsTable extends \samsoncms\api\field\Table implements RenderInterface
     /**
      * Render table row.
      *
-     * @param array $items Collection of rendered rows.
+     * @param string $items Collection of rendered rows.
      *
      * @return string Rendered HTML
      */

@@ -9,7 +9,6 @@
 namespace samsoncms\api;
 
 use samson\activerecord\dbMySQLConnector;
-use samson\cms\CMSMaterial;
 use samsoncms\api\query\Generic;
 use samsonframework\orm\DatabaseInterface;
 
