@@ -210,6 +210,7 @@ class Generator
      * @param string $navigationName Original entity name
      * @param string $entityName PHP entity name
      * @param array $navigationFields Collection of entity additional fields
+     * @param int $navigationId Entity database identifier
      * @return string Generated entity query PHP class code
      */
     protected function createEntityClass($navigationName, $entityName, $navigationFields, $navigationId)
