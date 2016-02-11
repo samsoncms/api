@@ -280,7 +280,7 @@ class Collection extends Paged
             $idOrUrl->add('FieldID', $field)->add('Name', $field);
 
             // Perform query
-            return $this->query->entity('\samson\activerecord\field')->where($idOrUrl)->first($field);
+            return $this->query->entity('\samson\activerecord\field')->whereCondition($idOrUrl)->first($field);
         }
 
         // Field not found
