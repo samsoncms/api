@@ -26,13 +26,13 @@ class Collection extends \samsoncms\api\query\Entity
     /** Name of the item prefix for variable in item view */
     const ITEM_VIEW_VARIABLE = 'item';
 
-    /** @var string Block view file */
-    protected $indexView = 'www/index';
+    /** @var string|callable Block view file or callback */
+    protected $indexView;
 
-    /** @var string Item view file */
-    protected $itemView = 'www/item';
+    /** @var string|callable Item view file or callback */
+    protected $itemView ;
 
-    /** @var string Empty view file */
+    /** @var string|callable Empty view file or callback */
     protected $emptyView = 'www/empty';
 
     /** @var ViewInterface View render object */
@@ -60,7 +60,7 @@ class Collection extends \samsoncms\api\query\Entity
 
     /**
      * Set index view path.
-     * @param string $indexView Index view path
+     * @param string|callable $indexView Index view path or callback
      * @return $this Chaining
      */
     public function indexView($indexView)
@@ -71,7 +71,7 @@ class Collection extends \samsoncms\api\query\Entity
 
     /**
      * Set item view path.
-     * @param string $itemView Item view path
+     * @param string|callable $itemView Item view path or callback
      * @return $this Chaining
      */
     public function itemView($itemView)
@@ -83,7 +83,7 @@ class Collection extends \samsoncms\api\query\Entity
 
     /**
      * Set empty view path.
-     * @param string $emptyView Empty view path
+     * @param string|callable $emptyView Empty view path or callback
      * @return $this Chaining
      */
     public function emptyView($emptyView)
@@ -147,7 +147,7 @@ class Collection extends \samsoncms\api\query\Entity
     }
 
     /** @return string Rendered HTML for fields table */
-    public function render()
+    public function output()
     {
         // Perform SamsonCMS query
         $collection = $this->find($this->pageNumber, $this->pageSize);
@@ -156,13 +156,26 @@ class Collection extends \samsoncms\api\query\Entity
         if (count($collection)) {
             // Render each entity view in collection
             foreach ($collection as $row) {
-                $html .= $this->renderItem($row);
+                // Call external handler
+                if (is_callable($this->itemView)) {
+                    $html .= call_user_func($this->itemView, $this->renderer, $this->query, $row);
+                } else { // Call default renderer
+                    $html .= $this->renderItem($row);
+                }
             }
 
             // Render collection main view with items
-            $html = $this->renderIndex($html);
+            if (is_callable($this->indexView)) {
+                $html .= call_user_func($this->indexView, $this->renderer, $this->query);
+            } else { // Call default renderer
+                $html = $this->renderIndex($html);
+            }
         } else { // Render empty entity view
-            $html .= $this->renderEmpty();
+            if (is_callable($this->emptyView)) {
+                $html .= call_user_func($this->emptyView, $this->renderer, $this->query);
+            } else {
+                $html .= $this->renderEmpty();
+            }
         }
 
         return $html;
