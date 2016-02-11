@@ -81,7 +81,7 @@ class Collection extends Paged
      * @param callback $handler
      * @param array    $params
      *
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function handler($handler, array $params = array())
     {
@@ -97,7 +97,7 @@ class Collection extends Paged
      * @param callback $handler
      * @param array    $params
      *
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function baseEntityHandler($handler, array $params = array())
     {
@@ -113,7 +113,7 @@ class Collection extends Paged
      * @param callback $handler
      * @param array    $params
      *
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function entityHandler($handler, array $params = array())
     {
@@ -158,7 +158,7 @@ class Collection extends Paged
      *
      * @param string|integer|array $navigation Navigation URL or identifier for filtering
      *
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function navigation($navigation)
     {
@@ -187,7 +187,7 @@ class Collection extends Paged
      * @param mixed                $value    Additional field value for filtering
      * @param string               $relation Additional field relation for filtering
      *
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function field($field, $value, $relation = Relation::EQUAL)
     {
@@ -217,7 +217,7 @@ class Collection extends Paged
      *
      * @param string $search Search string
      *
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function search($search)
     {
@@ -237,7 +237,7 @@ class Collection extends Paged
      * @param integer              $minValue Min value for range filter
      * @param integer              $maxValue Max value for range filter
      *
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function ranged($field, $minValue, $maxValue)
     {
@@ -523,7 +523,7 @@ class Collection extends Paged
     /**
      * Perform collection database retrieval using set filters
      *
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function fill()
     {

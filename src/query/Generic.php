@@ -73,7 +73,7 @@ class Generic
      *
      * @param string $fieldName Entity field name
      * @param string $fieldValue Value
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
@@ -86,7 +86,7 @@ class Generic
      * Add primary field query condition.
      *
      * @param string $value Field value
-     * @return self Chaining
+     * @return $this Chaining
      * @see Material::where()
      */
     public function primary($value)
@@ -98,7 +98,7 @@ class Generic
      * Add identifier field query condition.
      *
      * @param string $value Field value
-     * @return self Chaining
+     * @return $this Chaining
      * @see Material::where()
      */
     public function identifier($value)
@@ -110,7 +110,7 @@ class Generic
      * Add active flag condition.
      *
      * @param bool $value Field value
-     * @return self Chaining
+     * @return $this Chaining
      * @see Material::where()
      */
     public function active($value)
@@ -122,7 +122,7 @@ class Generic
      * Add entity published field query condition.
      *
      * @param string $value Field value
-     * @return self Chaining
+     * @return $this Chaining
      * @see Material::where()
      */
     public function published($value)
@@ -135,7 +135,7 @@ class Generic
      *
      * @param string $value Field value
      * @param string $relation @see ArgumentInterface types
-     * @return self Chaining
+     * @return $this Chaining
      * @see Material::where()
      */
     public function created($value, $relation = ArgumentInterface::EQUAL)
@@ -148,7 +148,7 @@ class Generic
      *
      * @param string $value Field value
      * @param string $relation @see ArgumentInterface types
-     * @return self Chaining
+     * @return $this Chaining
      * @see Material::where()
      */
     public function modified($value, $relation = ArgumentInterface::EQUAL)

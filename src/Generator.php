@@ -173,7 +173,7 @@ class Generator
         $code = "\n\t" . '/**';
         $code .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldId . ') field query condition.';
         $code .= "\n\t" . ' * @param '.Field::phpType($fieldType).' $value Field value';
-        $code .= "\n\t" . ' * @return self Chaining';
+        $code .= "\n\t" . ' * @return $this Chaining';
         $code .= "\n\t" . ' * @see Generic::where()';
         $code .= "\n\t" . ' */';
         $code .= "\n\t" . 'public function ' . $fieldName . '($value)';
@@ -196,7 +196,7 @@ class Generator
         $code = "\n\t" . '/**';
         $code .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldId . ') field query condition.';
         $code .= "\n\t" . ' * @param '.Field::phpType($fieldType).' $value Field value';
-        $code .= "\n\t" . ' * @return self Chaining';
+        $code .= "\n\t" . ' * @return $this Chaining';
         $code .= "\n\t" . ' * @see Generic::where()';
         $code .= "\n\t" . ' */';
         $code .= "\n\t" . 'public function ' . $fieldName . '($value)';

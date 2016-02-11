@@ -37,6 +37,12 @@ class Collection extends \samsoncms\api\query\Entity
     /** @var ViewInterface View render object */
     protected $renderer;
 
+    /** @var int Count of entities on one page */
+    protected $pageSize;
+
+    /** @var int Current page number */
+    protected $pageNumber;
+
     /**
      * Collection constructor.
      *
@@ -54,7 +60,7 @@ class Collection extends \samsoncms\api\query\Entity
     /**
      * Set index view path.
      * @param string $indexView Index view path
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function indexView($indexView)
     {
@@ -65,7 +71,7 @@ class Collection extends \samsoncms\api\query\Entity
     /**
      * Set item view path.
      * @param string $itemView Item view path
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function itemView($itemView)
     {
@@ -77,7 +83,7 @@ class Collection extends \samsoncms\api\query\Entity
     /**
      * Set empty view path.
      * @param string $emptyView Empty view path
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function emptyView($emptyView)
     {
@@ -124,11 +130,26 @@ class Collection extends \samsoncms\api\query\Entity
             ->output();
     }
 
+    /**
+     * Set pagination for SamsonCMS query.
+     *
+     * @param int $pageNumber Result page number
+     * @param int|null $pageSize Results page size
+     * @return $this Chaining
+     */
+    public function pager($pageNumber, $pageSize = null)
+    {
+        $this->pageNumber = $pageNumber;
+        $this->pageSize = null !== $pageSize ? $pageSize : $this->pageSize;
+
+        return $this;
+    }
+
     /** @return string Rendered HTML for fields table */
-    public function render($page, $count)
+    public function render()
     {
         // Perform SamsonCMS query
-        $collection = $this->find($page, $count);
+        $collection = $this->find($this->pageNumber, $this->pageSize);
 
         $html = '';
         if (count($collection)) {

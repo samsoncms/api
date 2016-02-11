@@ -52,7 +52,7 @@ class Entity extends Generic
      * would be return in entity instances.
      *
      * @param mixed $fieldNames Entity field name or collection of names
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function select($fieldNames)
     {
@@ -74,7 +74,7 @@ class Entity extends Generic
      *
      * @param string $fieldName Additional field name
      * @param string $order Sorting order
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
@@ -88,7 +88,7 @@ class Entity extends Generic
      *
      * @param integer $offset Starting index
      * @param integer|null $count Entities count
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function limit($offset, $count = null)
     {
@@ -102,7 +102,7 @@ class Entity extends Generic
      *
      * @param string $fieldName Entity field name
      * @param string $fieldValue Value
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
@@ -198,15 +198,20 @@ class Entity extends Generic
     protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
     {
         // Get additional field metadata
-        $fieldID = static::$fieldNames[$fieldName];
-        $valueColumn = static::$fieldValueColumns[$fieldID];
+        $fieldID = &static::$fieldNames[$fieldName];
+        $valueColumn = &static::$fieldValueColumns[$fieldID];
 
-        return $this->query
-            ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
-            ->where(Field::F_PRIMARY, $fieldID)
-            ->where(Material::F_PRIMARY, $entityIDs)
-            ->orderBy($valueColumn, $order)
-            ->fields(Material::F_PRIMARY);
+        // If this is additional field
+        if (null !== $fieldID && null !== $valueColumn) {
+            return $this->query
+                ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
+                ->where(Field::F_PRIMARY, $fieldID)
+                ->where(Material::F_PRIMARY, $entityIDs)
+                ->orderBy($valueColumn, $order)
+                ->fields(Material::F_PRIMARY);
+        } else { // Nothing is changed
+            return $entityIDs;
+        }
     }
 
     /**
