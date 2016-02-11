@@ -9,6 +9,8 @@
 namespace samsoncms\api;
 
 use samson\activerecord\dbMySQLConnector;
+use samsoncms\api\generator\exception\ParentEntityNotFound;
+use samsoncms\api\generator\Metadata;
 use samsoncms\api\query\Generic;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\DatabaseInterface;
@@ -24,6 +26,9 @@ class Generator
 
     /** @var \samsonphp\generator\Generator */
     protected $generator;
+
+    /** @var Metadata[] Collection of entities metadata */
+    protected $metadata;
 
     /**
      * Transliterate string to english.
@@ -135,7 +140,7 @@ class Generator
      */
     protected function fullEntityName($navigationName, $namespace = __NAMESPACE__)
     {
-        return str_replace('\\', '\\\\' , '\\'.$namespace.'\\'.$this->entityName($navigationName));
+        return '\\'.$namespace.'\\'.$this->entityName($navigationName);
     }
 
     /**
@@ -210,69 +215,40 @@ class Generator
     /**
      * Create entity PHP class code.
      *
-     * @param string $navigationName Original entity name
-     * @param string $entityName PHP entity name
-     * @param array $navigationFields Collection of entity additional fields
-     * @param int $navigationId Entity database identifier
+     * @param Metadata $metadata Entity metadata
      * @return string Generated entity query PHP class code
      */
-    protected function createEntityClass($navigationName, $entityName, $navigationFields, $navigationId)
+    protected function createEntityClass(Metadata $metadata)
     {
         $this->generator
-            ->multiComment(array('"'.$navigationName.'" entity class'))
-            ->defClass($entityName, 'Entity')
-            ->commentVar('string', 'Entity full class name')
-            ->defClassConst('ENTITY', $this->fullEntityName($entityName))
+            ->multiComment(array('"'.$metadata->entityRealName.'" entity class'))
+            ->defClass($metadata->entity, null !== $metadata->parent ? $metadata->parent->className : 'Entity')
+            ->commentVar('string', '@deprecated Entity full class name, use ::class')
+            ->defClassConst('ENTITY', $metadata->className)
             ->commentVar('string', 'Entity manager full class name')
-            ->defClassConst('MANAGER', $this->fullEntityName($entityName.'Query'))
+            ->defClassConst('MANAGER', $metadata->className.'Query')
             ->commentVar('string', 'Entity database identifier')
-            ->defClassConst('IDENTIFIER', $navigationId)
+            ->defClassConst('IDENTIFIER', $metadata->entityID)
             ->commentVar('string', 'Not transliterated entity name')
-            ->defClassVar('$viewName', 'protected static');
+            ->defClassVar('$viewName', 'protected static', $metadata->entityRealName);
 
-        // Get old AR collections of metadata
-        $select = \samson\activerecord\material::$_sql_select;
-        $attributes = \samson\activerecord\material::$_attributes;
-        $map = \samson\activerecord\material::$_map;
-        $from = \samson\activerecord\material::$_sql_from;
-        $group = \samson\activerecord\material::$_own_group;
-        $relationAlias = \samson\activerecord\material::$_relation_alias;
-        $relationType = \samson\activerecord\material::$_relation_type;
-        $relations = \samson\activerecord\material::$_relations;
-
-
-        // Add SamsonCMS material needed data
-        $select['this'] = ' STRAIGHT_JOIN ' . $select['this'];
-        $from['this'] .= "\n" . 'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf on ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
-        $group[] = dbMySQLConnector::$prefix . 'material.MaterialID';
-
-        foreach ($navigationFields as $fieldID => $fieldRow) {
-            $fieldName = $this->fieldName($fieldRow['Name']);
-
-            $attributes[$fieldName] = $fieldName;
-            $map[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
-
-            $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
-
-            // Save additional field
-            $select['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
-
+        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
             $this->generator
-                ->commentVar('string', $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name')
+                ->commentVar('string', $metadata->fieldDescriptions[$fieldID].' variable name')
                 ->defClassConst('F_' . $fieldName, $fieldName)
-                ->commentVar(Field::phpType($fieldRow['Type']), $fieldRow['Description'] . ' Field #' . $fieldID)
+                ->commentVar($metadata->allFieldTypes[$fieldID], $metadata->fieldDescriptions[$fieldID])
                 ->defClassVar('$' . $fieldName, 'public');
         }
 
         return $this->generator
-            ->defClassVar('$_sql_select', 'public static ', $select)
-            ->defClassVar('$_attributes', 'public static ', $attributes)
-            ->defClassVar('$_map', 'public static ', $map)
-            ->defClassVar('$_sql_from', 'public static ', $from)
-            ->defClassVar('$_own_group', 'public static ', $group)
-            ->defClassVar('$_relation_alias', 'public static ', $relationAlias)
-            ->defClassVar('$_relation_type', 'public static ', $relationType)
-            ->defClassVar('$_relations', 'public static ', $relations)
+            ->defClassVar('$_sql_select', 'public static ', $metadata->arSelect)
+            ->defClassVar('$_attributes', 'public static ', $metadata->arAttributes)
+            ->defClassVar('$_map', 'public static ', $metadata->arMap)
+            ->defClassVar('$_sql_from', 'public static ', $metadata->arFrom)
+            ->defClassVar('$_own_group', 'public static ', $metadata->arGroup)
+            ->defClassVar('$_relation_alias', 'public static ', $metadata->arRelationAlias)
+            ->defClassVar('$_relation_type', 'public static ', $metadata->arRelationType)
+            ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
             ->endclass()
             ->flush();
     }
@@ -405,13 +381,14 @@ class Generator
      * @param string $navigationName Original entity name
      * @param string $entityName PHP entity name
      * @param array $navigationFields Collection of entity additional fields
+     * @param string $parentClass Parent entity class name
      * @return string Generated entity query PHP class code
      */
-    protected function createCollectionClass($navigationID, $navigationName, $entityName, $navigationFields)
+    protected function createCollectionClass($navigationID, $navigationName, $entityName, $navigationFields, $parentClass = '\samsoncms\api\renderable\Collection')
     {
         $this->generator
             ->multiComment(array('Class for getting "'.$navigationName.'" instances from database',))
-            ->defClass($entityName, '\samsoncms\api\renderable\Collection')
+            ->defClass($entityName, $parentClass)
         ;
 
         // Iterate additional fields
@@ -451,7 +428,7 @@ class Generator
         $class .= "\n\t".' */';
         $class .= "\n\t".'public function __construct(ViewInterface $renderer, QueryInterface $query = null, $locale = null)';
         $class .= "\n\t".'{';
-        $class .= "\n\t\t".'parent::__construct($query === null ? new dbQuery() : $query, $renderer, $locale);';
+        $class .= "\n\t\t".'parent::__construct($renderer, $query === null ? new dbQuery() : $query, $locale);';
         $class .= "\n\t".'}'."\n";
 
         return $this->generator
@@ -484,13 +461,14 @@ class Generator
      * @param string $navigationName Original entity name
      * @param string $entityName PHP entity name
      * @param array $navigationFields Collection of entity additional fields
+     * @param string $parentClass Parent entity class name
      * @return string Generated entity query PHP class code
      */
-    protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields)
+    protected function createQueryClass($navigationID, $navigationName, $entityName, $navigationFields, $parentClass = '\samsoncms\api\query\Entity')
     {
         $this->generator
             ->multiComment(array('Class for getting "'.$navigationName.'" instances from database'))
-            ->defClass($entityName, '\samsoncms\api\query\Entity')
+            ->defClass($entityName, $parentClass)
         ;
 
         // Iterate additional fields
@@ -566,13 +544,35 @@ class Generator
         )));
     }
 
+    /**
+     * Find entity parent.
+     *
+     * @param $entityID
+     *
+     * @return null|int Parent entity identifier
+     */
+    public function entityParent($entityID)
+    {
+        $parentData = $this->database->fetch('
+SELECT *
+FROM structure_relation as sm
+JOIN structure as s ON s.StructureID = sm.parent_id
+WHERE sm.child_id = "' . $entityID . '"
+AND s.StructureID != "' . $entityID . '"
+');
+
+        // Get parent entity identifier
+        return count($parentData) ? $parentData[0]['StructureID'] : null;
+    }
+
     /** @return array Get collection of navigation objects */
     protected function entityNavigations($type = 0)
     {
         return $this->database->fetch('
         SELECT * FROM `structure`
-        WHERE `Active` = "1" AND `Type` = "'.$type.'"'
-        );
+        WHERE `Active` = "1" AND `Type` = "'.$type.'"
+        ORDER BY `ParentID` ASC
+        ');
     }
 
     /** @return array Collection of navigation additional fields */
@@ -602,34 +602,108 @@ class Generator
         $classes .= "\n" . 'use '.$namespace.'\renderable\FieldsTable;';
         $classes .= "\n" . 'use '.$namespace.'\field\Row;';
         $classes .= "\n" . 'use \samsonframework\core\ViewInterface;';
-        $classes .= "\n" . 'use \samson\activerecord\dbQuery;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\QueryInterface;';
+        $classes .= "\n" . 'use \samson\activerecord\dbQuery;';
+        $classes .= "\n";
+
+        // Iterate all structures, parents first
+        foreach ($this->entityNavigations() as $structureRow) {
+            // Fill in entity metadata
+            $metadata = new Metadata();
+            // Get CapsCase and transliterated entity name
+            $metadata->entity = $this->entityName($structureRow['Name']);
+            // Try to find entity parent identifier for building future relations
+            $metadata->parentID = $this->entityParent($structureRow['StructureID']);
+
+            // Set pointer to parent entity
+            if (null !== $metadata->parentID) {
+                if (array_key_exists($metadata->parentID, $this->metadata)) {
+                    $metadata->parent = $this->metadata[$metadata->parentID];
+                } else {
+                    throw new ParentEntityNotFound($metadata->parentID);
+                }
+            }
+
+            // Store entity original data
+            $metadata->entityRealName = $structureRow['Name'];
+            $metadata->entityID = $structureRow['StructureID'];
+            $metadata->className = $this->fullEntityName($metadata->entity, __NAMESPACE__);
+
+            // Get old AR collections of metadata
+            $metadata->arSelect = \samson\activerecord\material::$_sql_select;
+            $metadata->arAttributes = \samson\activerecord\material::$_attributes;
+            $metadata->arMap = \samson\activerecord\material::$_map;
+            $metadata->arFrom = \samson\activerecord\material::$_sql_from;
+            $metadata->arGroup = \samson\activerecord\material::$_own_group;
+            $metadata->arRelationAlias = \samson\activerecord\material::$_relation_alias;
+            $metadata->arRelationType = \samson\activerecord\material::$_relation_type;
+            $metadata->arRelations = \samson\activerecord\material::$_relations;
+
+            // Add SamsonCMS material needed data
+            $metadata->arSelect['this'] = ' STRAIGHT_JOIN ' . $metadata->arSelect['this'];
+            $metadata->arFrom['this'] .= "\n" .
+                'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf
+                ON ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
+            $metadata->arGroup[] = dbMySQLConnector::$prefix . 'material.MaterialID';
+
+            // Iterate entity fields
+            foreach ($this->navigationFields($structureRow['StructureID']) as $fieldID => $fieldRow) {
+                // Get camelCase and transliterated field name
+                $fieldName = $this->fieldName($fieldRow['Name']);
+
+                // Store field metadata
+                $metadata->realNames[$fieldRow['Name']] = $fieldName;
+                $metadata->allFieldIDs[$fieldID] = $fieldName;
+                $metadata->allFieldNames[$fieldName] = $fieldID;
+                $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
+                $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow['Type']);
+                $metadata->fieldDescriptions[$fieldID] = $fieldRow['Description'] . ', '.$fieldRow['Name'].'#' . $fieldID;
+
+                // Fill localization fields collections
+                if ($fieldRow[Field::F_LOCALIZED] === 1) {
+                    $metadata->localizedFieldIDs[$fieldID] = $fieldName;
+                } else {
+                    $metadata->notLocalizedFieldIDs[$fieldID] = $fieldName;
+                }
+
+                // Set old AR collections of metadata
+                $metadata->arAttributes[$fieldName] = $fieldName;
+                $metadata->arMap[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
+
+                // Add additional field column to entity query
+                $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
+                $metadata->arSelect['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
+            }
+
+            // Store metadata by entity identifier
+            $this->metadata[$structureRow['StructureID']] = $metadata;
+        }
+
+        // Iterate all entities metadata
+        foreach ($this->metadata as $metadata) {
+            $classes .= $this->createEntityClass($metadata);
+        }
 
         // Iterate all structures
         foreach ($this->entityNavigations() as $structureRow) {
             $navigationFields = $this->navigationFields($structureRow['StructureID']);
             $entityName = $this->entityName($structureRow['Name']);
 
-            $classes .= $this->createEntityClass(
-                $structureRow['Name'],
-                $entityName,
-                $navigationFields,
-                $structureRow['StructureID']
-            );
-
             $classes .= $this->createQueryClass(
                 $structureRow['StructureID'],
                 $structureRow['Name'],
                 $entityName.'Query',
-                $navigationFields
+                $navigationFields,
+                isset($parentEntity) ? $parentEntity.'Query' : '\samsoncms\api\query\Entity'
             );
 
             $classes .= $this->createCollectionClass(
                 $structureRow['StructureID'],
                 $structureRow['Name'],
                 $entityName.'Collection',
-                $navigationFields
+                $navigationFields,
+                isset($parentEntity) ? $parentEntity.'Collection' : '\samsoncms\api\renderable\Collection'
             );
         }
 

@@ -46,11 +46,11 @@ class Collection extends \samsoncms\api\query\Entity
     /**
      * Collection constructor.
      *
-     * @param QueryInterface $query Instance for querying database
      * @param ViewInterface  $renderer Instance for rendering views
+     * @param QueryInterface $query Instance for querying database
      * @param string|null    $locale Localization language
      */
-    public function __construct(QueryInterface $query, ViewInterface $renderer, $locale = null)
+    public function __construct(ViewInterface $renderer, QueryInterface $query, $locale = null)
     {
         $this->renderer = $renderer;
 
