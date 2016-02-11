@@ -220,6 +220,12 @@ class Generator
      */
     protected function createEntityClass(Metadata $metadata)
     {
+        /**
+         * TODO: Parent problem
+         * Should be changed to merging fields instead of extending with OOP for structure_relation support
+         * or creating traits and using them on shared parent entities.
+         */
+
         $this->generator
             ->multiComment(array('"'.$metadata->entityRealName.'" entity class'))
             ->defClass($metadata->entity, null !== $metadata->parent ? $metadata->parent->className : 'Entity')
@@ -249,7 +255,7 @@ class Generator
             ->defClassVar('$_relation_alias', 'public static ', $metadata->arRelationAlias)
             ->defClassVar('$_relation_type', 'public static ', $metadata->arRelationType)
             ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
-            ->endclass()
+            ->endClass()
             ->flush();
     }
 
