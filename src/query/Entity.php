@@ -300,13 +300,21 @@ class Entity extends Generic
     /**
      * Perform SamsonCMS query and get collection of entities.
      *
+     * @param int $page Page number
+     * @param int $size Page size
+     *
      * @return \samsoncms\api\Entity[] Collection of entity fields
      */
-    public function find()
+    public function find($page = null, $size = null)
     {
         $return = array();
         if (count($entityIDs = $this->findEntityIDs())) {
             $additionalFields = $this->findAdditionalFields($entityIDs);
+
+            // Slice identifier array to match pagination
+            if (null !== $page && null !== $size) {
+                $entityIDs = array_slice($entityIDs, ($page - 1) * $size, $size);
+            }
 
             // Set entity primary keys
             $this->primary($entityIDs);

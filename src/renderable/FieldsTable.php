@@ -1,9 +1,7 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: nazarenko
- * Date: 10.02.2016
- * Time: 18:51
+ * Created by Vitaly Iegorov <egorov@samsonos.com>.
+ * on 10.02.16 at 18:15
  */
 namespace samsoncms\api\renderable;
 
@@ -13,7 +11,7 @@ use samsonframework\core\ViewInterface;
 use samsonframework\orm\QueryInterface;
 
 /**
- * Rendereable fields table.
+ * Renderable fields table.
  * Class should be used to simplify additional field tables rendering.
  * If your additional fields table has special logic just extend this class
  * and change any ot its method.
