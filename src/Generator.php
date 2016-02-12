@@ -12,7 +12,6 @@ use samson\activerecord\dbMySQLConnector;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
 use samsoncms\api\generator\Metadata;
 use samsoncms\api\query\Generic;
-use samsoncms\seo\schema\material\Meta;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\DatabaseInterface;
 
