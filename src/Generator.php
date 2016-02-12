@@ -261,25 +261,21 @@ class Generator
      */
     protected function createTableRowClass(Metadata $metadata)
     {
-        $navigationName = $metadata->entityRealName;
-        $entityName = $this->entityName($metadata->entityRealName) . 'TableRow';
-        $navigationFields = $this->navigationFields($metadata->entityID);
-
         $this->generator
-            ->multiComment(array('Class for getting "' . $navigationName . '" fields table rows'))
-            ->defClass($entityName, 'Row');
+            ->multiComment(array('Class for getting "' . $metadata->entityRealName . '" fields table rows'))
+            ->defClass($this->entityName($metadata->entityRealName) . 'TableRow', 'Row');
 
         $fieldIDs = array();
-        foreach ($navigationFields as $fieldID => $fieldRow) {
+        foreach ($this->navigationFields($metadata->entityID) as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
             // Fill field ids array
             $fieldIDs[$fieldName] = $fieldID;
 
             $this->generator
-                ->commentVar(Field::phpType($fieldRow['Type']), $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name')
+                ->commentVar($metadata->allFieldTypes[$fieldID], $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name')
                 ->defClassConst('F_' . strtoupper($fieldName), $fieldName)
-                ->commentVar(Field::phpType($fieldRow['Type']), $fieldRow['Description'] . ' Field #' . $fieldID . ' row value')
+                ->commentVar($metadata->allFieldTypes[$fieldID], $fieldRow['Description'] . ' Field #' . $fieldID . ' row value')
                 ->defVar('public $' . $fieldName)
                 ->text("\n");
         }
@@ -301,19 +297,13 @@ class Generator
      */
     protected function createTableClass(Metadata $metadata)
     {
-        $navigationID = $metadata->entityID;
-        $navigationName = $metadata->entityRealName;
-        $entityName = $this->entityName($metadata->entityRealName).'Table';
-        $navigationFields = $this->navigationFields($metadata->entityID);
-        $rowClassName = $this->entityName($metadata->entityRealName).'TableRow';
-
         $this->generator
-            ->multiComment(array('Class for getting "'.$navigationName.'" fields table'))
-            ->defClass($entityName, 'FieldsTable');
+            ->multiComment(array('Class for getting "'.$metadata->entityRealName.'" fields table'))
+            ->defClass($this->entityName($metadata->entityRealName) . 'Table', 'FieldsTable');
 
         // Iterate additional fields
         $fields = array();
-        foreach ($navigationFields as $fieldID => $fieldRow) {
+        foreach ($this->navigationFields($metadata->entityID) as $fieldID => $fieldRow) {
             $fieldName = $this->fieldName($fieldRow['Name']);
 
             $this->generator
@@ -322,7 +312,7 @@ class Generator
                     $fieldRow[Field::F_PRIMARY],
                     $fieldRow[Field::F_TYPE]
                 ))
-                ->commentVar(Field::phpType($fieldRow['Type']), $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name')
+                ->commentVar($metadata->allFieldTypes[$fieldID], $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name')
                 ->defClassConst('F_' . $fieldName, $fieldName);
 
             // Collection original to new one field names
@@ -338,9 +328,9 @@ class Generator
             ->commentVar('array', 'Collection of real additional field names')
             ->defClassVar('$fieldsRealNames', 'public static', $fields)
             ->commentVar('array', 'Collection of navigation identifiers')
-            ->defClassVar('$navigationIDs', 'protected static', array($navigationID))
+            ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
             ->commentVar('string', 'Row class name')
-            ->defClassVar('$identifier', 'protected', $this->fullEntityName($rowClassName))
+            ->defClassVar('$identifier', 'protected', $this->fullEntityName($this->entityName($metadata->entityRealName) . 'TableRow'))
             ->endClass()
             ->flush();
     }
