@@ -234,58 +234,79 @@ class Generator
     }
 
     /**
-     * Create fields table row PHP class code.
-     *
-     * @param string $navigationName Original entity name
-     * @param string $entityName PHP entity name
-     * @param array $navigationFields Collection of entity additional fields
-     * @return string Generated entity query PHP class code
+     * Generate constructor for table class.
      */
-    protected function createTableRowClass($navigationName, $entityName, $navigationFields)
+    protected function generateConstructorTableClass()
     {
-        $class = "\n";
-        $class .= "\n" . '/**';
-        $class .= "\n" . ' * Class for getting "'.$navigationName.'" fields table rows';
-        $class .= "\n" . ' */';
-        $class .= "\n" . 'class ' . $entityName . ' extends Row';
-        $class .= "\n" . '{';
-
-        // Iterate additional fields
-        $constants = '';
-        $variables = '';
-        foreach ($navigationFields as $fieldID => $fieldRow) {
-            $fieldName = $this->fieldName($fieldRow['Name']);
-
-            $constants .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' variable name */';
-            // Store original field name
-            $constants .= "\n\t" . 'const F_' . strtoupper($fieldName) . ' = "'.$fieldName.'";';
-
-            $variables .= "\n\t" . '/** ' . Field::phpType($fieldRow['Type']) . ' '.$fieldRow['Description'].' Field #' . $fieldID . ' row value */';
-            $variables .= "\n\t" . 'public $' . $fieldName . ';';
-        }
-
-        $class .= $constants;
-        $class .= "\n\t";
-        $class .= $variables;
-        $class .= "\n" . '}';
+        $class = "\n\t".'/**';
+        $class .= "\n\t".' * @param QueryInterface $query Database query instance';
+        $class .= "\n\t".' * @param ViewInterface $renderer Rendering instance';
+        $class .= "\n\t".' * @param integer $entityID Entity identifier to whom this table belongs';
+        $class .= "\n\t".' * @param string $locale Localization identifier';
+        $class .= "\n\t".' */';
+        $class .= "\n\t".'public function __construct(QueryInterface $query, ViewInterface $renderer, $entityID, $locale = null)';
+        $class .= "\n\t".'{';
+        $class .= "\n\t\t".'parent::__construct($query, $renderer, static::$navigationIDs, $entityID, $locale);';
+        $class .= "\n\t".'}'."\n";
 
         return $class;
     }
 
     /**
+     * Create fields table row PHP class code.
+     *
+     * @param Metadata $metadata metadata of entity
+     * @return string Generated entity query PHP class code
+     * @throws exception\AdditionalFieldTypeNotFound
+     */
+    protected function createTableRowClass(Metadata $metadata)
+    {
+        $navigationName = $metadata->entityRealName;
+        $entityName = $this->entityName($metadata->entityRealName) . 'TableRow';
+        $navigationFields = $this->navigationFields($metadata->entityID);
+
+        $this->generator
+            ->multiComment(array('Class for getting "' . $navigationName . '" fields table rows'))
+            ->defClass($entityName, 'Row');
+
+        $fieldIDs = array();
+        foreach ($navigationFields as $fieldID => $fieldRow) {
+            $fieldName = $this->fieldName($fieldRow['Name']);
+
+            // Fill field ids array
+            $fieldIDs[$fieldName] = $fieldID;
+
+            $this->generator
+                ->commentVar(Field::phpType($fieldRow['Type']), $fieldRow['Description'] . ' Field #' . $fieldID . ' variable name')
+                ->defClassConst('F_' . strtoupper($fieldName), $fieldName)
+                ->commentVar(Field::phpType($fieldRow['Type']), $fieldRow['Description'] . ' Field #' . $fieldID . ' row value')
+                ->defVar('public $' . $fieldName)
+                ->text("\n");
+        }
+
+        return $this->generator
+            ->commentVar('array', 'Collection of additional fields identifiers')
+            ->defClassVar('$fieldIDs', 'public static', $fieldIDs)
+            ->endClass()
+            ->flush();
+    }
+
+    /**
      * Create fields table PHP class code.
      *
-     * @param integer $navigationID     Entity navigation identifier
-     * @param string  $navigationName   Original entity name
-     * @param string  $entityName       PHP entity name
-     * @param array   $navigationFields Collection of entity additional fields
-     * @param string  $rowClassName Row class name
+     * @param Metadata $metadata metadata of entity
      *
      * @return string Generated entity query PHP class code
      * @throws exception\AdditionalFieldTypeNotFound
      */
-    protected function createTableClass($navigationID, $navigationName, $entityName, $navigationFields, $rowClassName)
+    protected function createTableClass(Metadata $metadata)
     {
+        $navigationID = $metadata->entityID;
+        $navigationName = $metadata->entityRealName;
+        $entityName = $this->entityName($metadata->entityRealName).'Table';
+        $navigationFields = $this->navigationFields($metadata->entityID);
+        $rowClassName = $this->entityName($metadata->entityRealName).'TableRow';
+
         $this->generator
             ->multiComment(array('Class for getting "'.$navigationName.'" fields table'))
             ->defClass($entityName, 'FieldsTable');
@@ -309,18 +330,9 @@ class Generator
         }
 
         // TODO: Add generator method generation logic
-        $class = "\n\t".'/**';
-        $class .= "\n\t".' * @param QueryInterface $query Database query instance';
-        $class .= "\n\t".' * @param ViewInterface $renderer Rendering instance';
-        $class .= "\n\t".' * @param integer $entityID Entity identifier to whom this table belongs';
-        $class .= "\n\t".' * @param string $locale Localization identifier';
-        $class .= "\n\t".' */';
-        $class .= "\n\t".'public function __construct(QueryInterface $query, ViewInterface $renderer, $entityID, $locale = null)';
-        $class .= "\n\t".'{';
-        $class .= "\n\t\t".'parent::__construct($query, $renderer, static::$navigationIDs, $entityID, $locale);';
-        $class .= "\n\t".'}'."\n";
+        $constructor = $this->generateConstructorTableClass();
 
-        $this->generator->text($class);
+        $this->generator->text($constructor);
 
         return $this->generator
             ->commentVar('array', 'Collection of real additional field names')
@@ -505,118 +517,112 @@ AND s.StructureID != "' . $entityID . '"
         $classes .= "\n" . 'use \samson\activerecord\dbQuery;';
         $classes .= "\n";
 
-        // Iterate all structures, parents first
-        foreach ($this->entityNavigations() as $structureRow) {
-            // Fill in entity metadata
-            $metadata = new Metadata();
-            // Get CapsCase and transliterated entity name
-            $metadata->entity = $this->entityName($structureRow['Name']);
-            // Try to find entity parent identifier for building future relations
-            $metadata->parentID = $this->entityParent($structureRow['StructureID']);
+        // Iterate all metadata types
+        foreach (Metadata::$types as $type) {
 
-            // TODO: Add multiple parent and fetching their data in a loop
+            // Iterate all structures, parents first
+            foreach ($this->entityNavigations($type) as $structureRow) {
 
-            // Set pointer to parent entity
-            if (null !== $metadata->parentID) {
-                if (array_key_exists($metadata->parentID, $this->metadata)) {
-                    $metadata->parent = $this->metadata[$metadata->parentID];
-                    // Add all parent metadata to current object
-                    $metadata->realNames = $metadata->parent->realNames;
-                    $metadata->allFieldIDs = $metadata->parent->allFieldIDs;
-                    $metadata->allFieldNames = $metadata->parent->allFieldNames;
-                    $metadata->allFieldValueColumns = $metadata->parent->allFieldValueColumns;
-                    $metadata->allFieldTypes = $metadata->parent->allFieldTypes;
-                    $metadata->fieldDescriptions = $metadata->parent->fieldDescriptions;
-                    $metadata->localizedFieldIDs = $metadata->parent->localizedFieldIDs;
-                    $metadata->notLocalizedFieldIDs = $metadata->parent->notLocalizedFieldIDs;
-                } else {
-                    throw new ParentEntityNotFound($metadata->parentID);
+                // Fill in entity metadata
+                $metadata = new Metadata($type);
+
+                // Get CapsCase and transliterated entity name
+                $metadata->entity = $this->entityName($structureRow['Name']);
+                // Try to find entity parent identifier for building future relations
+                $metadata->parentID = $this->entityParent($structureRow['StructureID']);
+
+                // TODO: Add multiple parent and fetching their data in a loop
+
+                // Set pointer to parent entity
+                if (null !== $metadata->parentID) {
+                    if (array_key_exists($metadata->parentID, $this->metadata)) {
+                        $metadata->parent = $this->metadata[$metadata->parentID];
+                        // Add all parent metadata to current object
+                        $metadata->realNames = $metadata->parent->realNames;
+                        $metadata->allFieldIDs = $metadata->parent->allFieldIDs;
+                        $metadata->allFieldNames = $metadata->parent->allFieldNames;
+                        $metadata->allFieldValueColumns = $metadata->parent->allFieldValueColumns;
+                        $metadata->allFieldTypes = $metadata->parent->allFieldTypes;
+                        $metadata->fieldDescriptions = $metadata->parent->fieldDescriptions;
+                        $metadata->localizedFieldIDs = $metadata->parent->localizedFieldIDs;
+                        $metadata->notLocalizedFieldIDs = $metadata->parent->notLocalizedFieldIDs;
+                    } else {
+                        throw new ParentEntityNotFound($metadata->parentID);
+                    }
                 }
-            }
 
-            // Store entity original data
-            $metadata->entityRealName = $structureRow['Name'];
-            $metadata->entityID = $structureRow['StructureID'];
-            $metadata->className = $this->fullEntityName($metadata->entity, __NAMESPACE__);
+                // Store entity original data
+                $metadata->entityRealName = $structureRow['Name'];
+                $metadata->entityID = $structureRow['StructureID'];
+                $metadata->className = $this->fullEntityName($metadata->entity, __NAMESPACE__);
 
-            // Get old AR collections of metadata
-            $metadata->arSelect = \samson\activerecord\material::$_sql_select;
-            $metadata->arAttributes = \samson\activerecord\material::$_attributes;
-            $metadata->arMap = \samson\activerecord\material::$_map;
-            $metadata->arFrom = \samson\activerecord\material::$_sql_from;
-            $metadata->arGroup = \samson\activerecord\material::$_own_group;
-            $metadata->arRelationAlias = \samson\activerecord\material::$_relation_alias;
-            $metadata->arRelationType = \samson\activerecord\material::$_relation_type;
-            $metadata->arRelations = \samson\activerecord\material::$_relations;
+                // Get old AR collections of metadata
+                $metadata->arSelect = \samson\activerecord\material::$_sql_select;
+                $metadata->arAttributes = \samson\activerecord\material::$_attributes;
+                $metadata->arMap = \samson\activerecord\material::$_map;
+                $metadata->arFrom = \samson\activerecord\material::$_sql_from;
+                $metadata->arGroup = \samson\activerecord\material::$_own_group;
+                $metadata->arRelationAlias = \samson\activerecord\material::$_relation_alias;
+                $metadata->arRelationType = \samson\activerecord\material::$_relation_type;
+                $metadata->arRelations = \samson\activerecord\material::$_relations;
 
-            // Add SamsonCMS material needed data
-            $metadata->arSelect['this'] = ' STRAIGHT_JOIN ' . $metadata->arSelect['this'];
-            $metadata->arFrom['this'] .= "\n" .
-                'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf
+                // Add SamsonCMS material needed data
+                $metadata->arSelect['this'] = ' STRAIGHT_JOIN ' . $metadata->arSelect['this'];
+                $metadata->arFrom['this'] .= "\n" .
+                    'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf
                 ON ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
-            $metadata->arGroup[] = dbMySQLConnector::$prefix . 'material.MaterialID';
+                $metadata->arGroup[] = dbMySQLConnector::$prefix . 'material.MaterialID';
 
-            // Iterate entity fields
-            foreach ($this->navigationFields($structureRow['StructureID']) as $fieldID => $fieldRow) {
-                // Get camelCase and transliterated field name
-                $fieldName = $this->fieldName($fieldRow['Name']);
+                // Iterate entity fields
+                foreach ($this->navigationFields($structureRow['StructureID']) as $fieldID => $fieldRow) {
+                    // Get camelCase and transliterated field name
+                    $fieldName = $this->fieldName($fieldRow['Name']);
 
-                // Store field metadata
-                $metadata->realNames[$fieldRow['Name']] = $fieldName;
-                $metadata->allFieldIDs[$fieldID] = $fieldName;
-                $metadata->allFieldNames[$fieldName] = $fieldID;
-                $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
-                $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow['Type']);
-                $metadata->fieldDescriptions[$fieldID] = $fieldRow['Description'] . ', '.$fieldRow['Name'].'#' . $fieldID;
+                    // Store field metadata
+                    $metadata->realNames[$fieldRow['Name']] = $fieldName;
+                    $metadata->allFieldIDs[$fieldID] = $fieldName;
+                    $metadata->allFieldNames[$fieldName] = $fieldID;
+                    $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
+                    $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow['Type']);
+                    $metadata->fieldDescriptions[$fieldID] = $fieldRow['Description'] . ', ' . $fieldRow['Name'] . '#' . $fieldID;
 
-                // Fill localization fields collections
-                if ($fieldRow[Field::F_LOCALIZED] === 1) {
-                    $metadata->localizedFieldIDs[$fieldID] = $fieldName;
-                } else {
-                    $metadata->notLocalizedFieldIDs[$fieldID] = $fieldName;
+                    // Fill localization fields collections
+                    if ($fieldRow[Field::F_LOCALIZED] === 1) {
+                        $metadata->localizedFieldIDs[$fieldID] = $fieldName;
+                    } else {
+                        $metadata->notLocalizedFieldIDs[$fieldID] = $fieldName;
+                    }
+
+                    // Set old AR collections of metadata
+                    $metadata->arAttributes[$fieldName] = $fieldName;
+                    $metadata->arMap[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
+
+                    // Add additional field column to entity query
+                    $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
+                    $metadata->arSelect['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
                 }
 
-                // Set old AR collections of metadata
-                $metadata->arAttributes[$fieldName] = $fieldName;
-                $metadata->arMap[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
-
-                // Add additional field column to entity query
-                $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
-                $metadata->arSelect['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
+                // Store metadata by entity identifier
+                $this->metadata[$structureRow['StructureID']] = $metadata;
             }
-
-            // Store metadata by entity identifier
-            $this->metadata[$structureRow['StructureID']] = $metadata;
         }
 
         // Iterate all entities metadata
         foreach ($this->metadata as $metadata) {
-            $classes .= $this->createEntityClass($metadata);
-            $classes .= $this->createQueryClass($metadata);
-            $classes .= $this->createQueryClass($metadata, 'Collection', '\samsoncms\api\renderable\Collection');
-        }
 
-        // Iterate table structures
-        foreach ($this->entityNavigations(2) as $structureRow) {
-            $navigationFields = $this->navigationFields($structureRow['StructureID']);
-            $entityName = $this->entityName($structureRow['Name']);
+            // Generate classes of default type
+            if ($metadata->type === Metadata::TYPE_DEFAULT) {
 
-            $rowClassName = $entityName.'TableRow';
+                $classes .= $this->createEntityClass($metadata);
+                $classes .= $this->createQueryClass($metadata);
+                $classes .= $this->createQueryClass($metadata, 'Collection', '\samsoncms\api\renderable\Collection');
 
-            $classes .= $this->createTableRowClass(
-                $structureRow['Name'],
-                $rowClassName,
-                $navigationFields
-            );
+                // Generate classes of table type
+            } else if ($metadata->type === Metadata::TYPE_TABLE) {
 
-            $classes .= $this->createTableClass(
-                $structureRow['StructureID'],
-                $structureRow['Name'],
-                $entityName.'Table',
-                $navigationFields,
-                $rowClassName
-            );
-
+                $classes .= $this->createTableRowClass($metadata);
+                $classes .= $this->createTableClass($metadata);
+            }
         }
 
         // Make correct code formatting

@@ -7,6 +7,33 @@ namespace samsoncms\api\generator;
  */
 class Metadata
 {
+    /** Default type of metadata */
+    const TYPE_DEFAULT = 0;
+
+    /** Nested materials type of metadata */
+    const TYPE_NESTED_MATERIAL = 1;
+
+    /** Table type of metadata */
+    const TYPE_TABLE = 2;
+
+    /** @var array List of types */
+    public static $types = array(
+        self::TYPE_DEFAULT,
+        self::TYPE_NESTED_MATERIAL,
+        self::TYPE_TABLE,
+    );
+
+    /**
+     * Metadata constructor.
+     * @param int $type
+     */
+    public function __construct($type = self::TYPE_DEFAULT)
+    {
+        $this->type = $type;
+    }
+
+    /** @var string Type of entity */
+    public $type;
     /** @var string Transliterated and CapsCase entity name */
     public $entity;
     /** @var string Real database entity identifier */

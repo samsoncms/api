@@ -6,6 +6,7 @@
 namespace samsoncms\api;
 
 use samson\activerecord\dbQuery;
+use samsoncms\api\field\Row;
 use \samsonframework\orm\QueryInterface;
 
 /**
@@ -100,6 +101,45 @@ class Material extends \samson\activerecord\Material
             $materialFieldRecord->$valueFieldName = $value;
             $materialFieldRecord->save();
         }
+    }
+
+    /**
+     * Add new row to table of entity
+     * @param $row
+     */
+    public function addTableRow(Row $row)
+    {
+        // Get user
+        /** @var \samson\social\Core $socialModule Social module object */
+        $socialModule = m('social');
+        /** @var \samson\activerecord\user $user User object */
+        $user = $socialModule->user();
+
+        $tableMaterial = new Material();
+        $tableMaterial->parent_id = $this->id;
+        $tableMaterial->type = 3;
+        $tableMaterial->Name = $this->Url . '-' . md5(date('Y-m-d-h-i-s'));
+        $tableMaterial->Url = $this->Url . '-' . md5(date('Y-m-d-h-i-s'));
+        $tableMaterial->Published = 1;
+        $tableMaterial->Active = 1;
+        $tableMaterial->priority = 0;
+        $tableMaterial->UserID = $user->id;
+        $tableMaterial->Created = date('Y-m-d H:m:s');
+        $tableMaterial->Modyfied = date('Y-m-d H:m:s');
+        $tableMaterial->save();
+
+        // Iterate and set all fields of row
+        foreach ($row as $id => $value) {
+
+            // Get field id
+            $fieldId = $row::$fieldIDs[$id];
+
+            // Add additional field to created material
+            $tableMaterial->setFieldByID($fieldId, $value);
+        }
+
+        // Save material
+        $tableMaterial->save();
     }
 
     /**
