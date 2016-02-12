@@ -85,6 +85,8 @@ class Field extends \samson\activerecord\field
     public static function valueColumn($type)
     {
         switch ($type) {
+            case self::TYPE_DATETIME:
+            case self::TYPE_DATE:
             case self::TYPE_NUMERIC:
                 return MaterialField::F_NUMERIC;
             case self::TYPE_ENTITYID:
