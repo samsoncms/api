@@ -14,11 +14,20 @@ namespace samsoncms\api\field;
  */
 class Row
 {
+    /** @var array Collection of additional fields identifiers */
+    public static $fieldIDs = array();
+
     /** @var array Field table row fields collection */
     protected $collection;
 
     /** @var int Material primary identifier */
     protected $primary;
+
+    /** @var mixed Last entity creation timestamp */
+    protected $created;
+
+    /** @var mixed Last entity modification timestamp */
+    protected $modified;
 
     /**
      * Row constructor.

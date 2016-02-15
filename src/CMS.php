@@ -8,6 +8,7 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
+use samsoncms\application\GeneratorApplication;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
@@ -132,13 +133,13 @@ class CMS extends CompressableService
         db()->execute("UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';");
 
         // Perform this migration and execute only once
-        if ($this->migrator() != 40) {
+        if ($this->migrator() != 41) {
             // Perform SQL table creation
             $path = __DIR__ . '/../sql/';
             foreach (array_slice(scandir($path), 2) as $file) {
                 $this->database->execute($this->readSQL($path . $file, $this->tablePrefix));
             }
-            $this->migrator(40);
+            $this->migrator(41);
         }
 
         // Initiate migration mechanism
@@ -180,12 +181,12 @@ class CMS extends CompressableService
         m('activerecord')->relations();
 
         // Generate entities classes file
-        $generator = new Generator($this->database);
+        $generatorApi = new GeneratorApi($this->database);
 
         // Create cache file
-        $file = md5($generator->entityHash()).'.php';
+        $file = md5($generatorApi->entityHash()).'.php';
         if ($this->cache_refresh($file)) {
-            file_put_contents($file, '<?php '.$generator->createEntityClasses());
+            file_put_contents($file, '<?php ' . $generatorApi->createEntityClasses());
         }
 
         // Include entities file
