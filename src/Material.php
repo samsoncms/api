@@ -68,6 +68,12 @@ class Material extends \samson\activerecord\Material
     /** @var integer Priority inside material relation */
     public $priority;
 
+    /** @var mixed Last material creation timestamp */
+    public $Created;
+
+    /** @var mixed Last material modification timestamp */
+    public $Modyfied;
+
     /**
      * Set additional material field value by field identifier
      * @param string $fieldID Field identifier

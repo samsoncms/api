@@ -166,9 +166,14 @@ class Table
                 }
             }
 
+            /** @var Material[] $materials */
+            $materials = $this->query->entity(Material::class)->where(Material::F_PRIMARY, array_keys($collection))->exec();
+
+
+
             // Go through collection again and created specific rows
             foreach ($collection as $materialID => $fields) {
-                $this->collection[$materialID] = new $this->rowInstance($materialID, $fields);
+                $this->collection[$materialID] = new $this->rowInstance($materialID, $fields, $materials[$materialID]->Created, $materials[$materialID]->Modyfied);
             }
         }
     }

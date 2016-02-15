@@ -44,8 +44,14 @@ class Metadata
     public $parentID;
     /** @var $this Metadata parent entity name */
     public $parent;
-    /** @var string Generated entity fully qualified class name */
-    public $className;
+    /** @var string Generate application from current entity */
+    public $generateApplication;
+    /** @var string Show application from current entity */
+    public $showApplication;
+    /** @var string Icon for application from current entity */
+    public $iconApplication;
+    /** @var string Icon for application from current entity */
+    public $renderMainApplication;
 
     // To be commented
     public $realNames = array();
@@ -55,7 +61,11 @@ class Metadata
     public $localizedFieldIDs = array();
     public $notLocalizedFieldIDs = array();
     public $allFieldTypes = array();
-    public $fieldDescriptions= array();
+    public $allFieldCmsTypes = array();
+    public $fieldDescriptions = array();
+    public $fieldRawDescriptions = array();
+    public $childNavigationIDs = array();
+    public $showFieldsInList = array();
 
     // Old AR fields
     public $arSelect = array();
