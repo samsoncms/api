@@ -22,7 +22,7 @@ abstract class Generator
     protected $generator;
 
     /** @var Metadata[] Collection of entities metadata */
-    protected $metadata;
+    protected $metadata = array();
 
     /**
      * Generator constructor.
