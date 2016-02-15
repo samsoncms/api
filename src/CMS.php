@@ -207,7 +207,7 @@ class CMS extends CompressableService
             // Save current version to special db table
             $this->database->execute(
                 "ALTER TABLE  `" . dbMySQLConnector::$prefix . "cms_version`
-                CHANGE  `version`  `version` VARCHAR( 16 ) CHARACTER SET utf8
+                CHANGE  `version`  `version` VARCHAR( 15 ) CHARACTER SET utf8
                 COLLATE utf8_general_ci NOT NULL DEFAULT  '" . $toVersion . "';"
             );
             die('Database successfully migrated to [' . $toVersion . ']');
