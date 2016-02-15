@@ -133,13 +133,13 @@ class CMS extends CompressableService
         db()->execute("UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';");
 
         // Perform this migration and execute only once
-        if ($this->migrator() != 41) {
+        if ($this->migrator() != 40) {
             // Perform SQL table creation
             $path = __DIR__ . '/../sql/';
             foreach (array_slice(scandir($path), 2) as $file) {
                 $this->database->execute($this->readSQL($path . $file, $this->tablePrefix));
             }
-            $this->migrator(41);
+            $this->migrator(40);
         }
 
         // Initiate migration mechanism
