@@ -439,6 +439,8 @@ class Entity extends Generic
                     ->fields(static::$fieldValueColumns[$fieldID]);
             } elseif (array_key_exists($fieldName, static::$parentFields)) {
                 // TODO: Generalize real and virtual entity fields and manipulations with them
+                // Set filtered entity identifiers
+                $this->where(Material::F_PRIMARY, $entityIDs);
                 // If this is parent field
                 return parent::fields($fieldName);
             } else {
