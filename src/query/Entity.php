@@ -386,6 +386,10 @@ class Entity extends Generic
                     ->where(Field::F_PRIMARY, $fieldID)
                     ->where(\samsoncms\api\MaterialField::F_DELETION, true)
                     ->fields(static::$fieldValueColumns[$fieldID]);
+            } elseif (array_key_exists($fieldName, static::$parentFields)) {
+                // TODO: Generalize real and virtual entity fields and manipulations with them
+                // If this is parent field
+                return parent::fields($fieldName);
             } else {
                 throw new EntityFieldNotFound($fieldName);
             }
