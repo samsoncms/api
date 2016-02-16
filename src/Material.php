@@ -6,7 +6,7 @@
 namespace samsoncms\api;
 
 use samson\activerecord\dbQuery;
-use samsonframework\orm\Query;
+use samsoncms\api\field\Row;
 use \samsonframework\orm\QueryInterface;
 
 /**
@@ -15,7 +15,7 @@ use \samsonframework\orm\QueryInterface;
  * @package samson\cms
  * @author Vitaly Egorov <egorov@samsonos.com>
  */
-class Material extends \samson\activerecord\material
+class Material extends \samson\activerecord\Material
 {
     /** Store entity name */
     const ENTITY = __CLASS__;
@@ -68,6 +68,12 @@ class Material extends \samson\activerecord\material
     /** @var integer Priority inside material relation */
     public $priority;
 
+    /** @var mixed Last material creation timestamp */
+    public $Created;
+
+    /** @var mixed Last material modification timestamp */
+    public $Modyfied;
+
     /**
      * Set additional material field value by field identifier
      * @param string $fieldID Field identifier
@@ -76,15 +82,12 @@ class Material extends \samson\activerecord\material
      */
     public function setFieldByID($fieldID, $value, $locale = null)
     {
-        /** @var QueryInterface $query This should be removed to use $this->database*/
-        $query = new dbQuery();
-
         /** @var Field $fieldRecord Try to find this additional field */
         $fieldRecord = null;
-        if (Field::byID($query, $fieldID, $fieldRecord)) {
+        if (Field::byID($this->query, $fieldID, $fieldRecord)) {
             /** @var MaterialField $materialFieldRecord Try to find additional field value */
             $materialFieldRecord = null;
-            if (!MaterialField::byFieldIDAndMaterialID($query, $this->id, $fieldRecord->id, $materialFieldRecord, $locale)) {
+            if (!MaterialField::byFieldIDAndMaterialID($this->query, $this->id, $fieldRecord->id, $materialFieldRecord, $locale)) {
                 // Create new additional field value record if it does not exists
                 $materialFieldRecord = new MaterialField();
                 $materialFieldRecord->FieldID = $fieldRecord->id;
@@ -107,6 +110,45 @@ class Material extends \samson\activerecord\material
     }
 
     /**
+     * Add new row to table of entity
+     * @param $row
+     */
+    public function addTableRow(Row $row)
+    {
+        // Get user
+        /** @var \samson\social\Core $socialModule Social module object */
+        $socialModule = m('social');
+        /** @var \samson\activerecord\user $user User object */
+        $user = $socialModule->user();
+
+        $tableMaterial = new Material();
+        $tableMaterial->parent_id = $this->id;
+        $tableMaterial->type = 3;
+        $tableMaterial->Name = $this->Url . '-' . md5(date('Y-m-d-h-i-s'));
+        $tableMaterial->Url = $this->Url . '-' . md5(date('Y-m-d-h-i-s'));
+        $tableMaterial->Published = 1;
+        $tableMaterial->Active = 1;
+        $tableMaterial->priority = 0;
+        $tableMaterial->UserID = $user->id;
+        $tableMaterial->Created = date('Y-m-d H:m:s');
+        $tableMaterial->Modyfied = date('Y-m-d H:m:s');
+        $tableMaterial->save();
+
+        // Iterate and set all fields of row
+        foreach ($row as $id => $value) {
+
+            // Get field id
+            $fieldId = $row::$fieldIDs[$id];
+
+            // Add additional field to created material
+            $tableMaterial->setFieldByID($fieldId, $value);
+        }
+
+        // Save material
+        $tableMaterial->save();
+    }
+
+    /**
      * Get select additional field text value.
      *
      * @param string $fieldID Field identifier
@@ -117,11 +159,10 @@ class Material extends \samson\activerecord\material
         // TODO: this is absurd as we do not have any additional values here
         /** @var Field $field */
         $field = null;
-        if (Field::byID(new Query(Field::ENTITY, $this->database), $fieldID, $fieldID)) {
-            // If this entity has this field set
-            if (isset($this[$field->Name]{0})) {
-                return $field->options($this[$field->Name]);
-            }
+
+        // If this entity has this field set
+        if (Field::byID($this->query, $fieldID, $field) && isset($this[$field->Name]{0})) {
+            return $field->options($this[$field->Name]);
         }
 
         // Value not set
@@ -141,27 +182,24 @@ class Material extends \samson\activerecord\material
         /** @var \samsonframework\orm\RecordInterface[] $images Get material images for this gallery */
         $images = array();
 
-        // Create query
-        $query = new dbQuery();
-
-        $query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY);
+        $this->query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY);
 
         /* @var Field Get field object if we need to search it by other fields */
         $field = null;
-        if ($selector != 'FieldID' && Field::oneByColumn($query, $selector, $fieldSelector)) {
+        if ($selector != 'FieldID' && Field::oneByColumn($this->query, $selector, $fieldSelector)) {
             $fieldSelector = $field->id;
         }
 
         // Add field filter if present
         if (isset($fieldSelector)) {
-            $query->where("FieldID", $fieldSelector);
+            $this->query->where("FieldID", $fieldSelector);
         }
 
         /** @var \samson\activerecord\materialfield $dbMaterialField Find material field gallery record */
         $dbMaterialField = null;
-        if ($query->where('MaterialID', $this->id)->first($dbMaterialField)) {
+        if ($this->query->where('MaterialID', $this->id)->first($dbMaterialField)) {
             // Get material images for this materialfield
-            $images = $query->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
+            $images = $this->query->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
                 ->where('materialFieldId', $dbMaterialField->id)
                 ->exec();
         }
@@ -172,21 +210,18 @@ class Material extends \samson\activerecord\material
     /**
      * Copy this material related entities.
      *
-     * @param QueryInterface $query Database query instance
      * @param string $entity Entity identifier
      * @param string $newIdentifier Copied material idetifier
      * @param array $excludedIDs Collection of related entity identifier to exclude from copying
      */
-    protected function copyRelatedEntity(QueryInterface $query, $entity, $newIdentifier, $excludedIDs = array())
+    protected function copyRelatedEntity($entity, $newIdentifier, $excludedIDs = array())
     {
-        // Copy additional fields
-        foreach ($query->entity($entity)
-                     ->where('MaterialID', $this->MaterialID)
-                     ->exec() as $copiedEntity) {
+        /** @var self $copiedEntity Copy additional fields */
+        foreach ($this->query->entity($entity)->where(self::F_PRIMARY, $this->MaterialID)->exec() as $copiedEntity) {
             // Check if field is NOT excluded from copying
             if (!in_array($copiedEntity->id, $excludedIDs)) {
                 /** @var MaterialField $copy Copy instance */
-                $copy = $copiedEntity->copy();
+                $copy = &$copiedEntity->copy();
                 $copy->MaterialID = $newIdentifier;
                 $copy->save();
             }
@@ -205,12 +240,9 @@ class Material extends \samson\activerecord\material
         /** @var Material $clone Create new instance by copying */
         $clone = parent::copy($clone);
 
-        // Create query
-        $query = new dbQuery();
-
-        $this->copyRelatedEntity($query, CMS::MATERIAL_NAVIGATION_RELATION_ENTITY, $clone->id);
-        $this->copyRelatedEntity($query, CMS::MATERIAL_FIELD_RELATION_ENTITY, $clone->id, $excludedFields);
-        $this->copyRelatedEntity($query, CMS::MATERIAL_IMAGES_RELATION_ENTITY, $clone->id);
+        $this->copyRelatedEntity(CMS::MATERIAL_NAVIGATION_RELATION_ENTITY, $clone->id);
+        $this->copyRelatedEntity(CMS::MATERIAL_FIELD_RELATION_ENTITY, $clone->id, $excludedFields);
+        $this->copyRelatedEntity(CMS::MATERIAL_IMAGES_RELATION_ENTITY, $clone->id);
 
         return $clone;
     }

@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api\query;
 
+use samson\activerecord\dbQuery;
 use samsoncms\api\CMS;
 use samsoncms\api\exception\EntityFieldNotFound;
 use samsoncms\api\Field;
@@ -43,39 +44,8 @@ class Entity extends Generic
     /** @var string Query locale */
     protected $locale = '';
 
-    /** @var array Collection of ordering parameters */
-    protected $orderBy = array();
-
-    /** @var array Collection of limit parameters */
-    protected $limit = array();
-
-    protected function localizedFieldsCondition($fieldIDs, $locale)
-    {
-        // Prepare localized additional field query condition
-        $condition = new Condition(Condition::DISJUNCTION);
-        foreach ($fieldIDs as $fieldID => $fieldName) {
-            $condition->addCondition(
-                (new Condition())
-                    ->add(Field::F_PRIMARY, $fieldID)
-                    ->add(\samsoncms\api\MaterialField::F_LOCALE, $this->locale)
-            );
-        }
-
-        return $condition;
-    }
-
-    public function save(\samsoncms\api\Entity &$instance, $locale = null)
-    {
-        $this->query->entity(\samsoncms\api\MaterialField::ENTITY)
-            ->where(\samsoncms\api\Field::F_PRIMARY, array_keys(static::$fieldIDs))
-            ->where(\samsoncms\api\Material::F_PRIMARY, $instance->id)
-            ->exec();
-
-        foreach (static::$fieldIDs as $fieldID => $fieldName) {
-
-        }
-    }
-
+    /** @var array Collection of additional fields for ordering */
+    protected $entityOrderBy = array();
 
     /**
      * Select specified entity fields.
@@ -83,7 +53,7 @@ class Entity extends Generic
      * would be return in entity instances.
      *
      * @param mixed $fieldNames Entity field name or collection of names
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function select($fieldNames)
     {
@@ -91,7 +61,7 @@ class Entity extends Generic
         foreach ((!is_array($fieldNames) ? array($fieldNames) : $fieldNames) as $fieldName) {
             // Try to find entity additional field
             $pointer = &static::$fieldNames[$fieldName];
-            if (isset($pointer)) {
+            if (null !== $pointer) {
                 // Store selected additional field buy FieldID and Field name
                 $this->selectedFields[$pointer] = $fieldName;
             }
@@ -105,11 +75,15 @@ class Entity extends Generic
      *
      * @param string $fieldName Additional field name
      * @param string $order Sorting order
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
-        $this->orderBy = array($fieldName, $order);
+        if (array_key_exists($fieldName, static::$fieldNames)) {
+            $this->entityOrderBy = array($fieldName, $order);
+        } else {
+            parent::orderBy($fieldName, $order);
+        }
 
         return $this;
     }
@@ -119,7 +93,7 @@ class Entity extends Generic
      *
      * @param integer $offset Starting index
      * @param integer|null $count Entities count
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function limit($offset, $count = null)
     {
@@ -133,7 +107,7 @@ class Entity extends Generic
      *
      * @param string $fieldName Entity field name
      * @param string $fieldValue Value
-     * @return self Chaining
+     * @return $this Chaining
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
@@ -167,12 +141,12 @@ class Entity extends Generic
         );
 
         // Perform sorting if necessary
-        if (sizeof($this->orderBy) == 2) {
-            $entityIDs = $this->applySorting($entityIDs, $this->orderBy[0], $this->orderBy[1]);
+        if (count($this->entityOrderBy) === 2) {
+            $entityIDs = $this->applySorting($entityIDs, $this->entityOrderBy[0], $this->entityOrderBy[1]);
         }
 
         // Perform limits if necessary
-        if (sizeof($this->limit)) {
+        if (count($this->limit)) {
             $entityIDs = array_slice($entityIDs, $this->limit[0], $this->limit[1]);
         }
 
@@ -210,7 +184,7 @@ class Entity extends Generic
             $entityIDs = (new MaterialField($entityIDs))->idsByRelationID($fieldID, $fieldValue);
 
             // Stop execution if we have no entities found at this step
-            if (!sizeof($entityIDs)) {
+            if (!count($entityIDs)) {
                 break;
             }
         }
@@ -229,15 +203,20 @@ class Entity extends Generic
     protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
     {
         // Get additional field metadata
-        $fieldID = static::$fieldNames[$fieldName];
-        $valueColumn = static::$fieldValueColumns[$fieldID];
+        $fieldID = &static::$fieldNames[$fieldName];
+        $valueColumn = &static::$fieldValueColumns[$fieldID];
 
-        return $this->query
-            ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
-            ->where(Field::F_PRIMARY, $fieldID)
-            ->where(Material::F_PRIMARY, $entityIDs)
-            ->orderBy($valueColumn, $order)
-            ->fields(Material::F_PRIMARY);
+        // If this is additional field
+        if (null !== $fieldID && null !== $valueColumn) {
+            return $this->query
+                ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
+                ->where(Field::F_PRIMARY, $fieldID)
+                ->where(Material::F_PRIMARY, $entityIDs)
+                ->orderBy($valueColumn, $order)
+                ->fields(Material::F_PRIMARY);
+        } else { // Nothing is changed
+            return $entityIDs;
+        }
     }
 
     /**
@@ -255,7 +234,7 @@ class Entity extends Generic
         $notLocalized = static::$notLocalizedFieldIDs;
 
         // If we filter additional fields that we need to receive
-        if (sizeof($this->selectedFields)) {
+        if (count($this->selectedFields)) {
             foreach ($this->selectedFields as $fieldID => $fieldName) {
                 // Filter localized and not fields by selected fields
                 if (!isset(static::$localizedFieldIDs[$fieldID])) {
@@ -293,12 +272,17 @@ class Entity extends Generic
             // Get needed metadata
             $fieldID = $additionalField[Field::F_PRIMARY];
             $materialID = $additionalField[Material::F_PRIMARY];
-            $valueField = static::$fieldValueColumns[$fieldID];
-            $fieldName = static::$fieldIDs[$fieldID];
-            $fieldValue = $additionalField[$valueField];
+            $valueField = &static::$fieldValueColumns[$fieldID];
+            $fieldName = &static::$fieldIDs[$fieldID];
 
-            // Gather additional fields values by entity identifiers and field name
-            $return[$materialID][$fieldName] = $fieldValue;
+            // Check if we have this additional field in this entity query
+            if (null === $valueField || null === $fieldName) {
+                throw new EntityFieldNotFound($fieldID);
+            } else { // Add field value to result
+                $fieldValue = $additionalField[$valueField];
+                // Gather additional fields values by entity identifiers and field name
+                $return[$materialID][$fieldName] = $fieldValue;
+            }
         }
 
         return $return;
@@ -314,7 +298,7 @@ class Entity extends Generic
     protected function fillEntityFields($entity, array $additionalFields)
     {
         // If we have list of additional fields that we need
-        $fieldIDs = sizeof($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
+        $fieldIDs = count($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
 
         // Iterate all entity additional fields
         foreach ($fieldIDs as $variable) {
@@ -331,13 +315,21 @@ class Entity extends Generic
     /**
      * Perform SamsonCMS query and get collection of entities.
      *
+     * @param int $page Page number
+     * @param int $size Page size
+     *
      * @return \samsoncms\api\Entity[] Collection of entity fields
      */
-    public function find()
+    public function find($page = null, $size = null)
     {
         $return = array();
-        if (sizeof($entityIDs = $this->findEntityIDs())) {
+        if (count($entityIDs = $this->findEntityIDs())) {
             $additionalFields = $this->findAdditionalFields($entityIDs);
+
+            // Slice identifier array to match pagination
+            if (null !== $page && null !== $size) {
+                $entityIDs = array_slice($entityIDs, ($page - 1) * $size, $size);
+            }
 
             // Set entity primary keys
             $this->primary($entityIDs);
@@ -365,7 +357,7 @@ class Entity extends Generic
     public function first()
     {
         $return = array();
-        if (sizeof($entityIDs = $this->findEntityIDs())) {
+        if (count($entityIDs = $this->findEntityIDs())) {
             $this->primary($entityIDs);
             $additionalFields = $this->findAdditionalFields($entityIDs);
             $return = $this->fillEntityFields(parent::first(), $additionalFields);
@@ -384,7 +376,7 @@ class Entity extends Generic
     public function fields($fieldName)
     {
         $return = array();
-        if (sizeof($entityIDs = $this->findEntityIDs())) {
+        if (count($entityIDs = $this->findEntityIDs())) {
             // Check if our entity has this field
             $fieldID = &static::$fieldNames[$fieldName];
             if (isset($fieldID)) {
@@ -412,7 +404,7 @@ class Entity extends Generic
     public function count()
     {
         $return = 0;
-        if (sizeof($entityIDs = $this->findEntityIDs())) {
+        if (count($entityIDs = $this->findEntityIDs())) {
             $this->primary($entityIDs);
             $return = parent::count();
         }
@@ -426,11 +418,11 @@ class Entity extends Generic
      * @param QueryInterface $query Database query instance
      * @param string $locale Query localization
      */
-    public function __construct(QueryInterface $query, $locale = NULL)
+    public function __construct(QueryInterface $query = null, $locale = null)
     {
         $this->locale = $locale;
 
-        parent::__construct($query);
+        parent::__construct(null === $query ? new dbQuery() : $query);
 
         // Work only with active entities
         $this->active(true);
