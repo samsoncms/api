@@ -66,6 +66,7 @@ class Metadata
     public $fieldRawDescriptions = array();
     public $childNavigationIDs = array();
     public $showFieldsInList = array();
+    public $customTypeFields = array();
 
     // Old AR fields
     public $arSelect = array();
