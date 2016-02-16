@@ -20,6 +20,7 @@ class Generic
 {
     /** @var array Collection of all supported entity fields */
     protected static $parentFields = array(
+        Material::F_PRIMARY=> Material::F_PRIMARY,
         Material::F_PRIORITY => Material::F_PRIORITY,
         Material::F_IDENTIFIER => Material::F_IDENTIFIER,
         Material::F_DELETION => Material::F_DELETION,
