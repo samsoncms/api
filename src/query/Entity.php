@@ -8,12 +8,15 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
+use samson\activerecord\materialfield;
+use samsonframework\orm\Argument;
+use samsonframework\orm\ArgumentInterface;
 use samsoncms\api\CMS;
 use samsoncms\api\exception\EntityFieldNotFound;
 use samsoncms\api\Field;
 use samsoncms\api\Material;
-use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
+use samsonframework\orm\ConditionInterface;
 use samsonframework\orm\QueryInterface;
 
 /**
@@ -37,8 +40,7 @@ class Entity extends Generic
     /** @var  @var array Collection of additional fields value column names */
     protected static $fieldValueColumns = array();
 
-
-    /** @var array Collection of entity field filter */
+    /** @var Condition Collection of entity field filter */
     protected $fieldFilter = array();
 
     /** @var string Query locale */
@@ -46,6 +48,9 @@ class Entity extends Generic
 
     /** @var array Collection of additional fields for ordering */
     protected $entityOrderBy = array();
+
+    /** @var array Collection of search fields for query */
+    protected $searchFilter = array();
 
     /**
      * Select specified entity fields.
@@ -89,6 +94,19 @@ class Entity extends Generic
     }
 
     /**
+     * Search entity fields by text.
+     *
+     * @param string $text Searching text
+     * @return $this
+     */
+    public function search($text)
+    {
+        $this->searchFilter[] = $text;
+
+        return $this;
+    }
+
+    /**
      * Set resulting query limits.
      *
      * @param integer $offset Starting index
@@ -107,6 +125,7 @@ class Entity extends Generic
      *
      * @param string $fieldName Entity field name
      * @param string $fieldValue Value
+     * @param string $fieldRelation Entity field to value relation
      * @return $this Chaining
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
@@ -115,7 +134,7 @@ class Entity extends Generic
         $pointer = &static::$fieldNames[$fieldName];
         if (isset($pointer)) {
             // Store additional field filter value
-            $this->fieldFilter[$pointer] = $fieldValue;
+            $this->fieldFilter[$pointer] = (new Condition())->add(static::$fieldValueColumns[$pointer], $fieldValue, $fieldRelation);
         } else {
             parent::where($fieldName, $fieldValue, $fieldRelation);
         }
@@ -167,7 +186,7 @@ class Entity extends Generic
     /**
      * Get collection of entity identifiers filtered by additional field and its value.
      *
-     * @param array $additionalFields Collection of additional field identifiers => values
+     * @param Condition[] $additionalFields Collection of additional field identifiers => values
      * @param array $entityIDs Additional collection of entity identifiers for filtering
      * @return array Collection of material identifiers by navigation identifiers
      */
@@ -178,10 +197,10 @@ class Entity extends Generic
          * make one single query with all fields conditions. Performance tests are needed.
          */
 
-        // Iterate all additional fields needed for filter entity
-        foreach ($additionalFields as $fieldID => $fieldValue) {
+        /** @var Condition $fieldCondition Iterate all additional fields needed for filter condition */
+        foreach ($additionalFields as $fieldID => $fieldCondition) {
             // Get collection of entity identifiers passing already found identifiers
-            $entityIDs = (new MaterialField($entityIDs))->idsByRelationID($fieldID, $fieldValue);
+            $entityIDs = (new MaterialField($entityIDs))->idsByRelationID($fieldID, $fieldCondition, array());
 
             // Stop execution if we have no entities found at this step
             if (!count($entityIDs)) {
@@ -190,6 +209,29 @@ class Entity extends Generic
         }
 
         return $entityIDs;
+    }
+
+    /**
+     * @param array $entityIDs
+     * @return array
+     */
+    protected function applySearch(array $entityIDs)
+    {
+        $condition = new Condition(ConditionInterface::DISJUNCTION);
+
+        foreach ($this->searchFilter as $searchText) {
+            foreach (static::$fieldValueColumns as $fieldId => $fieldColumn) {
+                $condition->addCondition((new Condition())
+                    ->addArgument(new Argument($fieldColumn, '%' . $searchText . '%', ArgumentInterface::LIKE))
+                    ->addArgument(new Argument(\samsoncms\api\MaterialField::F_FIELDID, $fieldId)));
+            }
+        }
+
+        return $this->query
+            ->entity(\samsoncms\api\MaterialField::class)
+            ->whereCondition($condition)
+            ->where(Material::F_PRIMARY, $entityIDs)
+            ->fields(Material::F_PRIMARY);
     }
 
     /**
@@ -325,6 +367,15 @@ class Entity extends Generic
         $return = array();
         if (count($entityIDs = $this->findEntityIDs())) {
             $additionalFields = $this->findAdditionalFields($entityIDs);
+
+            if (count($this->searchFilter)) {
+                $entityIDs = $this->applySearch($entityIDs);
+
+                // Return result if not ids
+                if (count($entityIDs) === 0) {
+                    return $return;
+                }
+            }
 
             // Slice identifier array to match pagination
             if (null !== $page && null !== $size) {

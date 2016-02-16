@@ -154,6 +154,9 @@ abstract class Generator
                         $metadata->showFieldsInList[] = $fieldID;
                     }
 
+                    // Save custom type
+                    $metadata->customTypeFields[$fieldID] = $fieldRow['customTypeName'];
+
                     // Set old AR collections of metadata
                     $metadata->arAttributes[$fieldName] = $fieldName;
                     $metadata->arMap[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
