@@ -80,6 +80,7 @@ class Material extends \samson\activerecord\Material
 
             // At this point we already have database record instance
             $valueFieldName = $fieldRecord->valueFieldName();
+            trace($valueFieldName, 1);
             $materialFieldRecord->$valueFieldName = $value;
             $materialFieldRecord->save();
         }
