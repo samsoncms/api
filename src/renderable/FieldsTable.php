@@ -108,7 +108,7 @@ class FieldsTable extends \samsoncms\api\field\Table implements RenderInterface
         foreach ($this->collection as $row) {
             // Call external handler
             if (is_callable($this->rowView)) {
-                $html .= call_user_func($this->rowView, $this->renderer, $this->query, $row);
+                $html .= call_user_func($this->rowView, $row, $this->renderer, $this->query, $this->collection);
             } else { // Call default renderer
                 $html .= $this->renderRow($row);
             }

@@ -53,6 +53,9 @@ class Metadata
     /** @var string Icon for application from current entity */
     public $renderMainApplication;
 
+    /** @var array Collection of entity field default values */
+    public $defaultValues = array();
+
     // To be commented
     public $realNames = array();
     public $allFieldIDs = array();

@@ -328,14 +328,14 @@ class Collection extends Paged
      *
      * @return bool True if ALL field filtering succeeded or there was no filtering at all otherwise false
      */
-    protected function applyFieldFilter(& $filteredIds = array())
+    protected function applyFieldFilter(&$filteredIds = array())
     {
         // Iterate all applied field filters
         foreach ($this->field as $field) {
             // Create material-field query
             $this->query->entity('\samson\activerecord\materialfield')
                 ->where('FieldID', $field[0]->id)
-                ->where($field[1])
+                ->whereCondition($field[1])
                 ->groupBy('MaterialID');
 
             if (null !== $filteredIds) {

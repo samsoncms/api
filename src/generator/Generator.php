@@ -90,6 +90,7 @@ abstract class Generator
                     if (array_key_exists($metadata->parentID, $this->metadata)) {
                         $metadata->parent = $this->metadata[$metadata->parentID];
                         // Add all parent metadata to current object
+                        $metadata->defaultValues = $metadata->parent->defaultValues;
                         $metadata->realNames = $metadata->parent->realNames;
                         $metadata->allFieldIDs = $metadata->parent->allFieldIDs;
                         $metadata->allFieldNames = $metadata->parent->allFieldNames;
@@ -128,6 +129,8 @@ abstract class Generator
                 foreach ($this->navigationFields($structureRow['StructureID']) as $fieldID => $fieldRow) {
                     // Get camelCase and transliterated field name
                     $fieldName = $this->fieldName($fieldRow['Name']);
+
+                    // TODO: Set default for additional field storing type accordingly.
 
                     // Store field metadata
                     $metadata->realNames[$fieldRow['Name']] = $fieldName;

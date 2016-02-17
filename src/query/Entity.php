@@ -8,7 +8,6 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
-use samson\activerecord\materialfield;
 use samsonframework\orm\Argument;
 use samsonframework\orm\ArgumentInterface;
 use samsoncms\api\CMS;
@@ -437,6 +436,10 @@ class Entity extends Generic
                     ->where(Field::F_PRIMARY, $fieldID)
                     ->where(\samsoncms\api\MaterialField::F_DELETION, true)
                     ->fields(static::$fieldValueColumns[$fieldID]);
+            } elseif (array_key_exists($fieldName, static::$parentFields)) {
+                // TODO: Generalize real and virtual entity fields and manipulations with them
+                // If this is parent field
+                return parent::fields($fieldName);
             } else {
                 throw new EntityFieldNotFound($fieldName);
             }
@@ -456,6 +459,16 @@ class Entity extends Generic
     {
         $return = 0;
         if (count($entityIDs = $this->findEntityIDs())) {
+
+            if (count($this->searchFilter)) {
+                $entityIDs = $this->applySearch($entityIDs);
+
+                // Return result if not ids
+                if (count($entityIDs) === 0) {
+                    return 0;
+                }
+            }
+
             $this->primary($entityIDs);
             $return = parent::count();
         }

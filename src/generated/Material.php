@@ -17,7 +17,29 @@ use samsonframework\orm\Record;
 if (!class_exists('\samson\activerecord\material', false)) {
     class Material extends Record
     {
+        /** @var integer Primary field */
+        public $MaterialID;
 
+        /** @var string Unique identifier */
+        public $Url;
+
+        /** @var bool Internal existence flag */
+        public $Active;
+
+        /** @var bool Published flag */
+        public $Published;
+
+        /** @var integer Parent material identifier */
+        public $parent_id;
+
+        /** @var integer Priority inside material relation */
+        public $priority;
+
+        /** @var mixed Last material creation timestamp */
+        public $Created;
+
+        /** @var mixed Last material modification timestamp */
+        public $Modyfied;
     }
 }
 //[PHPCOMPRESSOR(remove,end)]
