@@ -50,30 +50,6 @@ class Material extends \samson\activerecord\Material
         return func_num_args() > 2 ? $return !== null : $return;
     }
 
-    /** @var integer Primary field */
-    public $MaterialID;
-
-    /** @var string Unique identifier */
-    public $Url;
-
-    /** @var bool Internal existence flag */
-    public $Active;
-
-    /** @var bool Published flag */
-    public $Published;
-
-    /** @var integer Parent material identifier */
-    public $parent_id;
-
-    /** @var integer Priority inside material relation */
-    public $priority;
-
-    /** @var mixed Last material creation timestamp */
-    public $Created;
-
-    /** @var mixed Last material modification timestamp */
-    public $Modyfied;
-
     /**
      * Set additional material field value by field identifier
      * @param string $fieldID Field identifier
