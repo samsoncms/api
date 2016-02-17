@@ -158,7 +158,7 @@ class Collection extends \samsoncms\api\query\Entity
             foreach ($collection as $row) {
                 // Call external handler
                 if (is_callable($this->itemView)) {
-                    $html .= call_user_func($this->itemView, $this->renderer, $row, $this->query);
+                    $html .= call_user_func($this->itemView, $row, $this->renderer, $this->query, $collection);
                 } else { // Call default renderer
                     $html .= $this->renderItem($row);
                 }
@@ -166,13 +166,13 @@ class Collection extends \samsoncms\api\query\Entity
 
             // Render collection main view with items
             if (is_callable($this->indexView)) {
-                $html = call_user_func($this->indexView, $this->renderer, $html, $this->query);
+                $html = call_user_func($this->indexView, $html, $this->renderer, $this->query, $collection);
             } else { // Call default renderer
                 $html = $this->renderIndex($html);
             }
         } else { // Render empty entity view
             if (is_callable($this->emptyView)) {
-                $html .= call_user_func($this->emptyView, $this->renderer, $this->query);
+                $html .= call_user_func($this->emptyView, $html, $this->renderer, $this->query, $collection);
             } else {
                 $html .= $this->renderEmpty();
             }

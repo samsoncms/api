@@ -8,7 +8,6 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
-use samson\activerecord\materialfield;
 use samsonframework\orm\Argument;
 use samsonframework\orm\ArgumentInterface;
 use samsoncms\api\CMS;
@@ -462,6 +461,16 @@ class Entity extends Generic
     {
         $return = 0;
         if (count($entityIDs = $this->findEntityIDs())) {
+
+            if (count($this->searchFilter)) {
+                $entityIDs = $this->applySearch($entityIDs);
+
+                // Return result if not ids
+                if (count($entityIDs) === 0) {
+                    return 0;
+                }
+            }
+
             $this->primary($entityIDs);
             $return = parent::count();
         }
