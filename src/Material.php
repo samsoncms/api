@@ -110,11 +110,14 @@ class Material extends \samson\activerecord\Material
         $tableMaterial->Modyfied = date('Y-m-d H:m:s');
         $tableMaterial->save();
 
+        // TODO: Ugly way to retrieve static var
+        $class = new \ReflectionClass(get_class($row));
+        $fieldIDs = $class->getStaticPropertyValue('fieldIDs');
+
         // Iterate and set all fields of row
         foreach ($row as $id => $value) {
-
             // Get field id
-            $fieldId = $row::$fieldIDs[$id];
+            $fieldId = $fieldIDs[$id];
 
             // Add additional field to created material
             $tableMaterial->setFieldByID($fieldId, $value);
