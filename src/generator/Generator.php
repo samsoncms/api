@@ -284,7 +284,7 @@ abstract class Generator
      */
     protected function fullEntityName($navigationName, $namespace = __NAMESPACE__)
     {
-        return '\\'.$namespace.'\\'.$this->entityName($navigationName);
+        return '\\'.$namespace.'\\generated\\'.$this->entityName($navigationName);
     }
 
     /**
