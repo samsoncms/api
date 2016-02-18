@@ -26,9 +26,7 @@ class Navigation extends structure
     const F_PRIORITY = 'priority';
     const F_CREATED = 'Created';
     const F_MODIFIED = 'Modyfied';
-
-    /** @var string Navigation string identifier */
-    public $url;
+    const F_DEF_MATERIAL = 'MaterialID';
 
     /** @var self[] Collection of child items */
     public $children = array();
