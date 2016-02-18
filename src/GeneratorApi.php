@@ -367,10 +367,11 @@ class GeneratorApi extends Generator
     public function createEntityClasses($namespace = __NAMESPACE__)
     {
 
-        $classes = "\n" . 'namespace ' . $namespace . ';';
+        $classes = "\n" . 'namespace ' . $namespace . '\\generated;';
         $classes .= "\n";
         $classes .= "\n" . 'use '.$namespace.'\renderable\FieldsTable;';
         $classes .= "\n" . 'use '.$namespace.'\field\Row;';
+        $classes .= "\n" . 'use \samsoncms\api\Entity;';
         $classes .= "\n" . 'use \samsonframework\core\ViewInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\ArgumentInterface;';
         $classes .= "\n" . 'use \samsonframework\orm\QueryInterface;';
