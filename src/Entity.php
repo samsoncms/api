@@ -7,9 +7,6 @@
  */
 namespace samsoncms\api;
 
-use samsoncms\api\query\FieldNavigation;
-use samsonframework\orm\QueryInterface;
-
 /**
  * SamsonCMS Entity that has relation to specific navigation
  * and though has additional fields.
@@ -33,6 +30,9 @@ class Entity extends Material
      */
     public function save()
     {
+        // Format url
+        $this->Url = str_replace(' ', '-', utf8_translit($this->Url));
+
         parent::save();
 
         $relationEntity = CMS::MATERIAL_FIELD_RELATION_ENTITY;
