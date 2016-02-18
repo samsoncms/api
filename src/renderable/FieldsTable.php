@@ -84,7 +84,7 @@ class FieldsTable extends \samsoncms\api\field\Table implements RenderInterface
      */
     public function renderRow(Row $row)
     {
-        return $this->renderer->view($this->rowView)->set(self::ROW_VIEW_VARIABLE, $row)->output();
+        return $this->renderer->view($this->rowView)->set($row, self::ROW_VIEW_VARIABLE)->output();
     }
 
     /**
@@ -97,7 +97,7 @@ class FieldsTable extends \samsoncms\api\field\Table implements RenderInterface
     public function renderIndex($items)
     {
         return $this->renderer->view($this->indexView)
-            ->set(self::ROWS_VIEW_VARIABLE, $items)
+            ->set($items, self::ROWS_VIEW_VARIABLE)
             ->output();
     }
 
