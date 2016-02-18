@@ -103,7 +103,7 @@ class Collection extends \samsoncms\api\query\Entity
     {
         return $this->renderer
             ->view($this->itemView)
-            ->set(self::ITEM_VIEW_VARIABLE, $item)
+            ->set($item, self::ITEM_VIEW_VARIABLE)
             ->output();
     }
 
@@ -127,7 +127,7 @@ class Collection extends \samsoncms\api\query\Entity
     public function renderIndex($items)
     {
         return $this->renderer->view($this->indexView)
-            ->set(self::ITEMS_VIEW_VARIABLE, $items)
+            ->set($items, self::ITEMS_VIEW_VARIABLE)
             ->output();
     }
 
