@@ -22,27 +22,6 @@ class MaterialField extends \samson\activerecord\materialfield
     const F_MATERIALID = 'MaterialID';
     const F_FIELDID = 'FieldID';
 
-    /** @var integer Primary key */
-    public $FieldID;
-
-    /** @var bool Internal existence flag */
-    public $Active;
-
-    /** @var integer Material identifier */
-    public $MaterialID;
-
-    /** @var string Additional field value */
-    public $Value;
-
-    /** @var string Additional field value */
-    public $numeric_value;
-
-    /** @var string Additional field value */
-    public $key_value;
-
-    /** @var string Additional field locale */
-    public $locale;
-
     /**
      * Find additional field value records by its material identifiers.
      *

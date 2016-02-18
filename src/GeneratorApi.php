@@ -242,6 +242,8 @@ class GeneratorApi extends Generator
         $this->generator->text($constructor);
 
         return $this->generator
+            ->commentVar('string', 'Entity database identifier')
+            ->defClassConst('IDENTIFIER', $metadata->entityID)
             ->commentVar('array', 'Collection of real additional field names')
             ->defClassVar('$fieldsRealNames', 'public static', $fields)
             ->commentVar('array', 'Collection of navigation identifiers')
@@ -288,6 +290,8 @@ class GeneratorApi extends Generator
         }
 
         return $this->generator
+            ->commentVar('array', 'Collection of navigation identifiers')
+            ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
             ->defClassVar('$_sql_select', 'public static ', $metadata->arSelect)
             ->defClassVar('$_attributes', 'public static ', $metadata->arAttributes)
             ->defClassVar('$_map', 'public static ', $metadata->arMap)
