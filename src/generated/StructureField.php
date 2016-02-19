@@ -17,7 +17,20 @@ use samsonframework\orm\Record;
 if (!class_exists('\samson\activerecord\structurefield', false)) {
     class StructureField extends Record
     {
+        /** @var integer Primary key */
+        public $StructureFieldID;
 
+        /** @var integer Structure relation identifier */
+        public $StructureID;
+
+        /** @var integer Field relation identifier */
+        public $FieldID;
+
+        /** @var mixed Last material modification timestamp */
+        public $Modified;
+
+        /** @var bool Internal existence flag */
+        public $Active;
     }
 }
 //[PHPCOMPRESSOR(remove,end)]
