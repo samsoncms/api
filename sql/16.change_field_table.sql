@@ -1,1 +1,1 @@
-ALTER TABLE `structure` ADD `applicationOutputStructure` INT(1) NOT NULL DEFAULT '0' AFTER `applicationIcon`;
+ALTER TABLE `structure` ADD `applicationOutputStructure` INT(1) NOT NULL DEFAULT '0' AFTER `applicationRenderMain`;
