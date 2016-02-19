@@ -255,6 +255,13 @@ class Entity extends Generic
                 ->where(Material::F_PRIMARY, $entityIDs)
                 ->orderBy($valueColumn, $order)
                 ->fields(Material::F_PRIMARY);
+        } elseif (array_key_exists($fieldName, static::$parentFields)) {
+            // Order by parent fields
+            return $this->query
+                ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
+                ->where(Material::F_PRIMARY, $entityIDs)
+                ->orderBy($fieldName, $order)
+                ->fields(Material::F_PRIMARY);
         } else { // Nothing is changed
             return $entityIDs;
         }
@@ -375,6 +382,8 @@ class Entity extends Generic
                     return $return;
                 }
             }
+
+
 
             // Slice identifier array to match pagination
             if (null !== $page && null !== $size) {
