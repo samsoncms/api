@@ -6,6 +6,7 @@
 namespace samsoncms\api;
 
 use samson\activerecord\dbQuery;
+use samson\activerecord\structurematerial;
 use samsoncms\api\field\Row;
 use \samsonframework\orm\QueryInterface;
 
@@ -92,10 +93,7 @@ class Material extends \samson\activerecord\Material
     public function addTableRow(Row $row)
     {
         // Get user
-        /** @var \samson\social\Core $socialModule Social module object */
-        $socialModule = m('social');
-        /** @var \samson\activerecord\user $user User object */
-        $user = $socialModule->user();
+        $user = m('socialemail')->user();
 
         $tableMaterial = new Material();
         $tableMaterial->parent_id = $this->id;
@@ -109,6 +107,16 @@ class Material extends \samson\activerecord\Material
         $tableMaterial->Created = date('Y-m-d H:m:s');
         $tableMaterial->Modyfied = date('Y-m-d H:m:s');
         $tableMaterial->save();
+
+        // TODO: Ugly way to retrieve static var
+        $class = new \ReflectionClass(preg_replace('/Row$/', '', get_class($row)));
+        $structureId = $class->getConstant('IDENTIFIER');
+
+        $structureMaterial = new structurematerial();
+        $structureMaterial->Active = 1;
+        $structureMaterial->MaterialID = $tableMaterial->id;
+        $structureMaterial->StructureID = $structureId;
+        $structureMaterial->save();
 
         // TODO: Ugly way to retrieve static var
         $class = new \ReflectionClass(get_class($row));
