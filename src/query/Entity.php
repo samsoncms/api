@@ -163,6 +163,11 @@ class Entity extends Generic
             $entityIDs = $this->applySorting($entityIDs, $this->entityOrderBy[0], $this->entityOrderBy[1]);
         }
 
+        // Perform sorting in parent fields if necessary
+        if (count($this->orderBy) === 2) {
+            $entityIDs = $this->applySorting($entityIDs, $this->orderBy[0], $this->orderBy[1]);
+        }
+
         // Perform limits if necessary
         if (count($this->limit)) {
             $entityIDs = array_slice($entityIDs, $this->limit[0], $this->limit[1]);
@@ -255,15 +260,8 @@ class Entity extends Generic
                 ->where(Material::F_PRIMARY, $entityIDs)
                 ->orderBy($valueColumn, $order)
                 ->fields(Material::F_PRIMARY);
-        } elseif (array_key_exists($fieldName, static::$parentFields)) {
-            // Order by parent fields
-            return $this->query
-                ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
-                ->where(Material::F_PRIMARY, $entityIDs)
-                ->orderBy($fieldName, $order)
-                ->fields(Material::F_PRIMARY);
         } else { // Nothing is changed
-            return $entityIDs;
+            return parent::applySorting($entityIDs, $fieldName, $order);
         }
     }
 
@@ -272,6 +270,7 @@ class Entity extends Generic
      *
      * @param array $entityIDs Collection of entity identifiers
      * @return array Collection of entities additional fields EntityID => [Additional field name => Value]
+     * @throws EntityFieldNotFound
      */
     protected function findAdditionalFields($entityIDs)
     {
@@ -339,11 +338,11 @@ class Entity extends Generic
     /**
      * Fill entity additional fields.
      *
-     * @param Entity $entity Entity instance for filling
+     * @param \samsoncms\api\Entity $entity Entity instance for filling
      * @param array $additionalFields Collection of additional field values
      * @return Entity With filled additional field values
      */
-    protected function fillEntityFields($entity, array $additionalFields)
+    protected function fillEntityFields(\samsoncms\api\Entity $entity, array $additionalFields)
     {
         // If we have list of additional fields that we need
         $fieldIDs = count($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
@@ -351,8 +350,8 @@ class Entity extends Generic
         // Iterate all entity additional fields
         foreach ($fieldIDs as $variable) {
             // Set only existing additional fields
-            $pointer = &$additionalFields[$entity[Material::F_PRIMARY]][$variable];
-            if (isset($pointer)) {
+            $pointer = &$additionalFields[$entity->id][$variable];
+            if (null !== $pointer) {
                 $entity->$variable = $pointer;
             }
         }
@@ -371,27 +370,22 @@ class Entity extends Generic
     public function find($page = null, $size = null)
     {
         $return = array();
-        if (count($entityIDs = $this->findEntityIDs())) {
-            $additionalFields = $this->findAdditionalFields($entityIDs);
+        if (count($this->entityIDs = $this->findEntityIDs())) {
+            $additionalFields = $this->findAdditionalFields($this->entityIDs);
 
             if (count($this->searchFilter)) {
-                $entityIDs = $this->applySearch($entityIDs);
+                $this->entityIDs = $this->applySearch($this->entityIDs);
 
                 // Return result if not ids
-                if (count($entityIDs) === 0) {
+                if (count($this->entityIDs) === 0) {
                     return $return;
                 }
             }
 
-
-
             // Slice identifier array to match pagination
             if (null !== $page && null !== $size) {
-                $entityIDs = array_slice($entityIDs, ($page - 1) * $size, $size);
+                $this->entityIDs = array_slice($this->entityIDs, ($page - 1) * $size, $size);
             }
-
-            // Set entity primary keys
-            $this->primary($entityIDs);
 
             //elapsed('End fields values');
             /** @var \samsoncms\api\Entity $item Find entity instances */
@@ -415,11 +409,14 @@ class Entity extends Generic
      */
     public function first()
     {
-        $return = array();
+        $return = null;
         if (count($entityIDs = $this->findEntityIDs())) {
             $this->primary($entityIDs);
             $additionalFields = $this->findAdditionalFields($entityIDs);
-            $return = $this->fillEntityFields(parent::first(), $additionalFields);
+
+            if (null !== ($foundEntity = parent::first())) {
+                $return = $this->fillEntityFields($foundEntity, $additionalFields);
+            }
         }
 
         return $return;
