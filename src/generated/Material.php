@@ -43,6 +43,9 @@ if (!class_exists('\samson\activerecord\material', false)) {
 
         /** @var mixed Last material modification timestamp */
         public $Modyfied;
+
+        /** @var mixed Identifier of user */
+        public $UserID;
     }
 }
 //[PHPCOMPRESSOR(remove,end)]
