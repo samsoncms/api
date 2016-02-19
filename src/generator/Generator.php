@@ -143,7 +143,7 @@ abstract class Generator
                     $metadata->fieldRawDescriptions[$fieldID] = $fieldRow['Description'];
 
                     // Fill localization fields collections
-                    if ($fieldRow[Field::F_LOCALIZED] === 1) {
+                    if ($fieldRow[Field::F_LOCALIZED] == 1) {
                         $metadata->localizedFieldIDs[$fieldID] = $fieldName;
                     } else {
                         $metadata->notLocalizedFieldIDs[$fieldID] = $fieldName;
