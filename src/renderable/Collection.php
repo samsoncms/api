@@ -180,4 +180,10 @@ class Collection extends \samsoncms\api\query\Entity
 
         return $html;
     }
+
+    /** @return string Rendered fields table */
+    public function __toString()
+    {
+        return $this->output();
+    }
 }
