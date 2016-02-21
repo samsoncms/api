@@ -124,6 +124,12 @@ class FieldsTable extends \samsoncms\api\field\Table implements RenderInterface
         return $html;
     }
 
+    /** @return string Rendered fields table */
+    public function __toString()
+    {
+        return $this->render();
+    }
+
     /**
      * Prepare fields table for rendering in the view.
      *
