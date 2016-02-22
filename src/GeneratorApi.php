@@ -320,7 +320,11 @@ class GeneratorApi extends Generator
     {
         //$navigationID, $navigationName, $entityName, $navigationFields, $parentClass = '\samsoncms\api\query\Entity'
         $this->generator
-            ->multiComment(array('Class for fetching "'.$metadata->entityRealName.'" instances from database'))
+            ->multiComment(array(
+                'Class for fetching "'.$metadata->entityRealName.'" instances from database',
+                '@method ' . $this->fullEntityName($metadata->entity, $namespace) . ' first();',
+                '@method ' . $this->fullEntityName($metadata->entity, $namespace) . '[] find();',
+                ))
             ->defClass($metadata->entity.$suffix, $defaultParent)
         ;
 
