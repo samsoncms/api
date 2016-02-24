@@ -124,6 +124,15 @@ class Material extends \samson\activerecord\Material
 
         // Iterate and set all fields of row
         foreach ($row as $id => $value) {
+
+            /**
+             * Go next if it primary key because its public
+             * TODO Fix it
+             */
+            if ($id === 'primary') {
+                continue;
+            }
+
             // Get field id
             $fieldId = $fieldIDs[$id];
 
