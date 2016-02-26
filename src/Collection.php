@@ -406,7 +406,7 @@ class Collection extends Paged
 
                 // Try to find search value in material table
                 $this->query->entity('\samson\activerecord\material')
-                    ->where($materialCondition)
+                    ->whereCondition($materialCondition)
                     ->where('Active', 1);
 
                 // If we have not empty collection of filtering identifiers
