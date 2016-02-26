@@ -417,7 +417,7 @@ class Collection extends Paged
                 $materialFilter = $this->query->fields('MaterialID');
 
                 // If there are no materials with specified conditions
-                if (empty($materialFilter) && empty($fieldFilter)) {
+                if (empty($materialFilter) && empty($fieldFilter) && count($materialFilter) != 0 && count($fieldFilter != 0)) {
                     // Filter applying failed
                     return false;
                 } else {// Otherwise set filtered material identifiers
