@@ -37,14 +37,28 @@ class Entity extends Material
 
         $relationEntity = CMS::MATERIAL_FIELD_RELATION_ENTITY;
         foreach (static::$fieldIDs as $fieldID => $fieldName) {
-            /** @var \samson\activerecord\materialfield $materialfield */
-            $materialField = new $relationEntity();
-            $materialField->Active = 1;
-            $materialField->MaterialID = $this->id;
-            $materialField->FieldID = $fieldID;
             $type = static::$fieldValueColumns[$fieldID];
-            $materialField->$type = $this->$fieldName;
-            $materialField->save();
+
+            // If material field relation exists use it or create new
+            $materialField = null;
+            if ($this->query
+                ->entity($relationEntity)
+                ->where(Field::F_PRIMARY, $fieldID)
+                ->where(Material::F_PRIMARY, $this->id)
+                ->first($materialField)
+            ) {
+                $materialField->$type = $this->$fieldName;
+                $materialField->save();
+            } else {
+
+                /** @var \samson\activerecord\materialfield $materialfield */
+                $materialField = new $relationEntity();
+                $materialField->Active = 1;
+                $materialField->MaterialID = $this->id;
+                $materialField->FieldID = $fieldID;
+                $materialField->$type = $this->$fieldName;
+                $materialField->save();
+            }
         }
         $this->attachTo(static::$navigationIDs);
     }
