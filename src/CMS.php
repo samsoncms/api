@@ -125,13 +125,6 @@ class CMS extends CompressableService
      */
     public function prepare()
     {
-        // Update table to new structure
-        db()->execute('ALTER TABLE `material` CHANGE `parent_id` `parent_id` INT(11) NULL DEFAULT NULL;');
-        db()->execute('UPDATE `material` SET `parent_id` = NULL WHERE `parent_id` = 0;');
-
-        db()->execute('ALTER TABLE `materialfield` CHANGE COLUMN `locale` `locale` VARCHAR(10) NULL DEFAULT NULL;');
-        db()->execute("UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';");
-
         // Perform this migration and execute only once
         if ($this->migrator() != 40) {
             // Perform SQL table creation
@@ -140,6 +133,13 @@ class CMS extends CompressableService
                 $this->database->execute($this->readSQL($path . $file, $this->tablePrefix));
             }
             $this->migrator(40);
+            
+             // Update table to new structure
+            db()->execute('ALTER TABLE `material` CHANGE `parent_id` `parent_id` INT(11) NULL DEFAULT NULL;');
+            db()->execute('UPDATE `material` SET `parent_id` = NULL WHERE `parent_id` = 0;');
+
+            db()->execute('ALTER TABLE `materialfield` CHANGE COLUMN `locale` `locale` VARCHAR(10) NULL DEFAULT NULL;');
+            db()->execute("UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';");
         }
 
         // Initiate migration mechanism
