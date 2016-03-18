@@ -15,3 +15,4 @@ ALTER TABLE `field` CHANGE `ParentID` `ParentID` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `field` CHANGE `UserID` `UserID` INT(11) NULL DEFAULT NULL;
 ALTER TABLE 'field' DROP 'ParentID';
 update `field` set UserID = null WHERE UserID = 0;
+update `materialfield` set VALUE = REPLACE(value,'/cms/upload/','/upload/') where value like '%cms/upload%'
