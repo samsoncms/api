@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS `@prefixstructure` (
   `type` int(1) NOT NULL DEFAULT '0',
   `Active` int(11) NOT NULL DEFAULT '1',
   `system` int(1) NOT NULL DEFAULT '0',
-  `hidden` int(1) NOT NULL DEFAULT '0',
   FOREIGN KEY (`UserID`) REFERENCES `@prefixuser`(`user_id`) ON DELETE CASCADE,
   KEY `Url` (`Url`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

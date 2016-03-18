@@ -105,7 +105,7 @@ class CMS extends CompressableService
      * Read SQL file with variables placeholders pasting
      * @param string $filePath SQL file for reading
      * @param string $prefix Prefix for addition
-     * @return string SQL command text
+     * @return array Collection of SQL command texts
      */
     public function readSQL($filePath, $prefix = '')
     {
@@ -117,7 +117,11 @@ class CMS extends CompressableService
             $sql = str_replace('@prefix', $prefix, file_get_contents($filePath));
         }
 
-        return $sql;
+        // Split queries
+        $sqlCommands = explode(';', $sql);
+
+        // Always return array
+        return array_filter(is_array($sqlCommands) ? $sqlCommands : array($sqlCommands));
     }
 
     /**
@@ -130,16 +134,12 @@ class CMS extends CompressableService
             // Perform SQL table creation
             $path = __DIR__ . '/../sql/';
             foreach (array_slice(scandir($path), 2) as $file) {
-                $this->database->execute($this->readSQL($path . $file, $this->tablePrefix));
+                trace('Performing database script ['.$file.']');
+                foreach ($this->readSQL($path . $file, $this->tablePrefix) as $sql) {
+                    $this->database->execute($sql);
+                }
             }
             $this->migrator(40);
-            
-             // Update table to new structure
-            db()->execute('ALTER TABLE `material` CHANGE `parent_id` `parent_id` INT(11) NULL DEFAULT NULL;');
-            db()->execute('UPDATE `material` SET `parent_id` = NULL WHERE `parent_id` = 0;');
-
-            db()->execute('ALTER TABLE `materialfield` CHANGE COLUMN `locale` `locale` VARCHAR(10) NULL DEFAULT NULL;');
-            db()->execute("UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';");
         }
 
         // Initiate migration mechanism
