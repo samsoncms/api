@@ -311,7 +311,10 @@ class GeneratorApi extends Generator
                 );
 
                 return $this->generator
-                    ->text($this->generateConstructorGalleryClass($metadata->entity . '::F_' . strtoupper($fieldName) . '_ID'))
+                    ->text($this->generateConstructorGalleryClass(
+                        $metadata->entity . '::F_' . strtoupper($fieldName) . '_ID',
+                        $metadata->entity
+                    ))
                     ->endClass()
                     ->flush();
             }
@@ -323,17 +326,17 @@ class GeneratorApi extends Generator
     /**
      * Generate constructor for gallery class.
      */
-    protected function generateConstructorGalleryClass($fieldID)
+    protected function generateConstructorGalleryClass($fieldID, $entityType)
     {
         $class = "\n\t" . '/**';
         $class .= "\n\t" . ' * @param ViewInterface $renderer Rendering instance';
-        $class .= "\n\t" . ' * @param int $materialID Gallery material identifier';
+        $class .= "\n\t" . ' * @param ' . $entityType . ' $entity Parent entity';
         $class .= "\n\t" . ' * @param QueryInterface $query Database query instance';
         $class .= "\n\t" . ' */';
-        $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, $materialID, QueryInterface $query = null)';
+        $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, ' . $entityType . ' $entity, QueryInterface $query = null)';
         $class .= "\n\t" . '{';
         $class .= "\n\t\t" . '$this->renderer = $renderer;';
-        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $materialID, ' . $fieldID . ');';
+        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $entity->id, ' . $fieldID . ');';
         $class .= "\n\t" . '}' . "\n";
 
         return $class;

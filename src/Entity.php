@@ -15,7 +15,6 @@ namespace samsoncms\api;
  */
 class Entity extends Material
 {
-
     /** @var array Collection of navigation identifiers */
     protected static $navigationIDs = array();
 

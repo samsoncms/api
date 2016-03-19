@@ -8,8 +8,6 @@
 namespace samsoncms\api;
 
 use samson\cms\CMSGallery;
-use samsoncms\api\MaterialField;
-use samsoncms\api\Material;
 use samsonframework\orm\QueryInterface;
 
 /***
@@ -56,6 +54,28 @@ class Gallery
     }
 
     /**
+     * Getting quantity images in additional field gallery
+     *
+     * @return integer $count
+     */
+    public function getCount()
+    {
+        /**@var integer $count quantity images in additional field gallery */
+        $count = 0;
+
+        if ($this->hasImages()) {
+            // Getting quantity images for gallery
+            $count = $this->query
+                ->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
+                ->where(Field::F_DELETION, 1)
+                ->where(MaterialField::F_PRIMARY, $this->materialFieldId)
+                ->count();
+        }
+
+        return $count;
+    }
+
+    /**
      * Check on empty gallery. If materialFieldId = null and quantity images not more 1 then material not has images.
      *
      * @return boolean
@@ -80,38 +100,31 @@ class Gallery
     }
 
     /**
-     * Getting quantity images in additional field gallery
-     *
-     * @return integer $count
-     */
-    public function getCount()
-    {
-        /**@var integer $count quantity images in additional field gallery*/
-        $count = 0;
-
-        if ($this->hasImages()) {
-            // Getting quantity images for gallery
-            $count = $this->query
-                ->entity(CMS::MATERIAL_IMAGES_RELATION_ENTITY)
-                ->where(Field::F_DELETION, 1)
-                ->where(MaterialField::F_PRIMARY, $this->materialFieldId)
-                ->count();
-        }
-
-        return $count;
-    }
-
-    /**
      * Get collection of images for material by gallery additional field selector. If none is passed
      * all images from gallery table would be returned empty array.
      *
      * @param integer $currentPage current page with images. Min value = 1
      * @param integer $countView quantity view by page
-     * @return array
+     *
+*@return array
+     * @deprecated  Use find()
      */
     public function getImages($currentPage = null, $countView = 20)
     {
-        /** @var $images[] Get material images for this gallery */
+        return $this->find($currentPage, $countView);
+    }
+
+    /**
+     * Perform SamsonCMS query and get entity gallery images.
+     *
+     * @param int $page Page number
+     * @param int $size Page size
+     *
+     * @return GalleryField[] Collection of entity gallery images
+     */
+    public function find($page = null, $size = null)
+    {
+        /** @var GalleryField[] $images Get material images for this gallery */
         $images = array();
 
         /** @var QueryInterface $query Database query interface*/
@@ -124,9 +137,10 @@ class Gallery
                 ->where(Field::F_DELETION, 1)
                 ->where(MaterialField::F_PRIMARY, $this->materialFieldId);
 
-            if (isset($currentPage) && $currentPage > 0) {
+            // Add paging
+            if (isset($page) && $page > 0) {
                 //Set limit for query
-                $query->limit(--$currentPage * $countView, $countView);
+                $query->limit(--$page * $size, $size);
             }
 
             // Execute query

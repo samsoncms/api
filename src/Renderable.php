@@ -95,11 +95,11 @@ trait Renderable
     /**
      * Render Entity collection item.
      *
-     * @param Entity $item SamsonCMS entity for rendering
+     * @param mixed $item SamsonCMS entity for rendering
      *
      * @return string Rendered HTML
      */
-    public function renderItem(Entity $item)
+    public function renderItem($item)
     {
         // Set correct renderer old style or new \samsonframework\view
         $renderer = ($this->itemView instanceof View)
