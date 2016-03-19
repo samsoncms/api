@@ -49,7 +49,6 @@ class GeneratorApi extends Generator
     {
         $classes = "\n" . 'namespace ' . $namespace . '\\generated;';
         $classes .= "\n";
-        $classes .= "\n" . 'use ' . $namespace . '\renderable\FieldsTable;';
         $classes .= "\n" . 'use ' . $namespace . '\field\Row;';
         $classes .= "\n" . 'use \samsoncms\api\Entity;';
         $classes .= "\n" . 'use \samsonframework\core\ViewInterface;';
