@@ -197,6 +197,18 @@ class GeneratorApi extends Generator
             ))
             ->defClass($metadata->entity . $suffix, $defaultParent);
 
+
+        // Add traits to generated classes
+        $this->generateTraitsUsage($use);
+    }
+
+    /**
+     * Generate class traits usage.
+     *
+     * @param array $use Collection of trait names
+     */
+    protected function generateTraitsUsage($use = array())
+    {
         // Add traits to generated classes
         foreach ($use as $trait) {
             $this->generator->newLine();
@@ -310,7 +322,6 @@ class GeneratorApi extends Generator
      *
      * @param Metadata $metadata metadata of entity
      * @param string $namespace Namespace of generated class
-     *
      * @return string Generated entity query PHP class code
      * @throws exception\AdditionalFieldTypeNotFound
      */
@@ -319,6 +330,9 @@ class GeneratorApi extends Generator
         $this->generator
             ->multiComment(array('Class for getting "'.$metadata->entityRealName.'" fields table'))
             ->defClass($this->entityName($metadata->entityRealName) . 'Table', 'FieldsTable');
+
+        // Add renderable trait
+        $this->generateTraitsUsage(array(\samsoncms\api\Renderable::class));
 
         // Iterate additional fields
         $fields = array();
