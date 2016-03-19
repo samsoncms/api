@@ -414,12 +414,8 @@ class GeneratorApi extends Generator
             $fields[$fieldRow['Name']] = $fieldName;
         }
 
-        // TODO: Add generator method generation logic
-        $constructor = $this->generateConstructorTableClass();
-
-        $this->generator->text($constructor);
-
         return $this->generator
+            ->text($this->generateConstructorTableClass())
             ->commentVar('string', 'Entity database identifier')
             ->defClassConst('IDENTIFIER', $metadata->entityID)
             ->commentVar('array', 'Collection of real additional field names')
