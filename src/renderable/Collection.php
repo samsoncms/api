@@ -101,10 +101,15 @@ class Collection extends \samsoncms\api\query\Entity
      */
     public function renderItem(Entity $item)
     {
-        return $this->renderer
-            ->view($this->itemView)
+        // Set correct renderer old style or new \samsonframework\view
+        $renderer = ($this->itemView instanceof \samsonframework\view\View)
+            ? $this->itemView
+            : $this->renderer->view($this->itemView);
+
+        return $renderer
             ->set($item, self::ITEM_VIEW_VARIABLE)
             ->output();
+
     }
 
     /**
@@ -114,7 +119,12 @@ class Collection extends \samsoncms\api\query\Entity
      */
     public function renderEmpty()
     {
-        return $this->renderer->view($this->emptyView)->output();
+        // Set correct renderer old style or new \samsonframework\view
+        $renderer = ($this->emptyView instanceof \samsonframework\view\View)
+            ? $this->emptyView
+            : $this->renderer->view($this->emptyView);
+
+        return $renderer->output();
     }
 
     /**
@@ -126,8 +136,12 @@ class Collection extends \samsoncms\api\query\Entity
      */
     public function renderIndex($items)
     {
-        return $this->renderer
-            ->view($this->indexView)
+        // Set correct renderer old style or new \samsonframework\view
+        $renderer = ($this->indexView instanceof \samsonframework\view\View)
+            ? $this->indexView
+            : $this->renderer->view($this->indexView);
+
+        return $renderer
             ->set($items, self::ITEMS_VIEW_VARIABLE)
             ->output();
     }
