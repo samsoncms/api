@@ -112,6 +112,8 @@ class GeneratorApi extends Generator
             $this->generator
                 ->commentVar('string', $metadata->fieldDescriptions[$fieldID] . ' variable name')
                 ->defClassConst('F_' . $fieldName, $fieldName)
+                ->commentVar('string', $metadata->fieldDescriptions[$fieldID] . ' additional field identifier')
+                ->defClassConst('F_' . $fieldName . '_ID', $fieldID)
                 ->commentVar($metadata->allFieldTypes[$fieldID], $metadata->fieldDescriptions[$fieldID])
                 ->defClassVar('$' . $fieldName, 'public');
         }
