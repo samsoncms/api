@@ -62,13 +62,19 @@ class GeneratorApi extends Generator
         foreach ($this->metadata as $metadata) {
             // Generate classes of default type
             if ($metadata->type === Metadata::TYPE_DEFAULT) {
+                // Generate entity class
                 $classes .= $this->createEntityClass($metadata);
+                // Generate query class for queries
                 $classes .= $this->createQueryClass($metadata);
+                // Generate collection class for rendering
                 $classes .= $this->createCollectionClass(
                     $metadata,
                     $this->fullEntityName($metadata->entity . 'Query', $namespace),
                     array(\samsoncms\api\Renderable::class)
                 );
+
+                // Generate Gallery classes for this entity
+                $classes .= $this->createGalleryClass($metadata);
 
                 // Generate classes of table type
             } elseif ($metadata->type === Metadata::TYPE_TABLE) {
@@ -283,6 +289,57 @@ class GeneratorApi extends Generator
     }
 
     /**
+     * Generate classes for entity additional field gallery.
+     *
+     * @param Metadata $metadata Entity metadata
+     *
+     * @return string Generated Gallery additional field class
+     */
+    public function createGalleryClass(Metadata $metadata)
+    {
+        // Iterate entity additional fields
+        foreach ($metadata->allFieldCmsTypes as $fieldID => $fieldType) {
+            // We need only gallery fields
+            if ($fieldType === Field::TYPE_GALLERY) {
+                $fieldName = $metadata->allFieldIDs[$fieldID];
+                // Declare class
+                $this->generateQuerableClassHeader(
+                    $metadata,
+                    ucfirst($fieldName) . 'Gallery',
+                    '\\' . \samsoncms\api\Gallery::class,
+                    array(\samsoncms\api\Renderable::class)
+                );
+
+                return $this->generator
+                    ->text($this->generateConstructorGalleryClass($metadata->entity . '::F_' . strtoupper($fieldName) . '_ID'))
+                    ->endClass()
+                    ->flush();
+            }
+        }
+
+
+    }
+
+    /**
+     * Generate constructor for gallery class.
+     */
+    protected function generateConstructorGalleryClass($fieldID)
+    {
+        $class = "\n\t" . '/**';
+        $class .= "\n\t" . ' * @param ViewInterface $renderer Rendering instance';
+        $class .= "\n\t" . ' * @param int $materialID Gallery material identifier';
+        $class .= "\n\t" . ' * @param QueryInterface $query Database query instance';
+        $class .= "\n\t" . ' */';
+        $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, $materialID, QueryInterface $query = null)';
+        $class .= "\n\t" . '{';
+        $class .= "\n\t\t" . '$this->renderer = $renderer;';
+        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $materialID, ' . $fieldID . ');';
+        $class .= "\n\t" . '}' . "\n";
+
+        return $class;
+    }
+
+    /**
      * Create fields table row PHP class code.
      *
      * @param Metadata $metadata metadata of entity
@@ -411,28 +468,6 @@ class GeneratorApi extends Generator
         $class .= "\n\t" . '}' . "\n";
 
         return $class;
-    }
-
-    /**
-     * Generate classes for entity additional field gallery
-     *
-     * @param Metadata $metadata Entity metadata
-     */
-    public function createGalleryClass(Metadata $metadata)
-    {
-        // Iterate entity additional fields
-        foreach ($metadata->allFieldCmsTypes as $fieldID => $fieldType) {
-            // We need only gallery fields
-            if ($fieldType === Field::TYPE_GALLERY) {
-
-            }
-            // TODO: Add different method generation depending on their field type
-            $this->generator->text($this->generateFieldConditionMethod(
-                $fieldName,
-                $fieldID,
-                $metadata->allFieldTypes[$fieldID]
-            ));
-        }
     }
 
     /**

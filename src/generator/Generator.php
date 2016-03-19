@@ -37,17 +37,6 @@ abstract class Generator
     }
 
     /**
-     * Make correct code formatting
-     * @param $code
-     * @return mixed
-     */
-    protected function formatTab($code)
-    {
-        // Replace indentation
-        return str_replace("\t", '    ', $code);
-    }
-
-    /**
      * Fill metadata
      *
      * @param null $filter Filter navigations
@@ -138,7 +127,7 @@ abstract class Generator
                     $metadata->allFieldNames[$fieldName] = $fieldID;
                     $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
                     $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow['Type']);
-                    $metadata->allFieldCmsTypes[$fieldID] = $fieldRow['Type'];
+                    $metadata->allFieldCmsTypes[$fieldID] = (int)$fieldRow['Type'];
                     $metadata->fieldDescriptions[$fieldID] = $fieldRow['Description'] . ', ' . $fieldRow['Name'] . '#' . $fieldID;
                     $metadata->fieldRawDescriptions[$fieldID] = $fieldRow['Description'];
 
@@ -175,6 +164,39 @@ abstract class Generator
                 $this->metadata[$structureRow['StructureID']] = $metadata;
             }
         }
+    }
+
+    /** @return array Get collection of navigation objects */
+    protected function entityNavigations($type = 0)
+    {
+        return $this->database->fetch('
+        SELECT * FROM `structure`
+        WHERE `Active` = "1" AND `Type` = "' . $type . '"
+        ORDER BY `ParentID` ASC
+        ');
+    }
+
+    /**
+     * Get correct entity name.
+     *
+     * @param string $navigationName Original navigation entity name
+     * @return string Correct PHP-supported entity name
+     */
+    protected function entityName($navigationName)
+    {
+        return ucfirst($this->getValidName($this->transliterated($navigationName)));
+    }
+
+    /**
+     * Remove all wrong characters from entity name
+     *
+     * @param string $navigationName Original navigation entity name
+     *
+     * @return string Correct PHP-supported entity name
+     */
+    protected function getValidName($navigationName)
+    {
+        return preg_replace('/(^\d*)|([^\w\d_])/', '', $navigationName);
     }
 
     /**
@@ -236,96 +258,6 @@ abstract class Generator
     }
 
     /**
-     * Get class constant name by its value.
-     *
-     * @param string $value Constant value
-     * @param string $className Class name
-     * @return string Full constant name
-     */
-    protected function constantNameByValue($value, $className = Field::ENTITY)
-    {
-        // Get array where class constants are values and their values are keys
-        $nameByValue = array_flip((new \ReflectionClass($className))->getConstants());
-
-        // Try to find constant by its value
-        if (null !== $nameByValue[$value]) {
-            // Return constant name
-            return $nameByValue[$value];
-        }
-
-        return '';
-    }
-
-    /**
-     * Get correct entity name.
-     *
-     * @param string $navigationName Original navigation entity name
-     * @return string Correct PHP-supported entity name
-     */
-    protected function entityName($navigationName)
-    {
-        return ucfirst($this->getValidName($this->transliterated($navigationName)));
-    }
-
-    /**
-     * Remove all wrong characters from entity name
-     *
-     * @param string $navigationName Original navigation entity name
-     * @return string Correct PHP-supported entity name
-     */
-    protected function getValidName($navigationName)
-    {
-        return preg_replace('/(^\d*)|([^\w\d_])/', '', $navigationName);
-    }
-
-    /**
-     * Get correct full entity name with name space.
-     *
-     * @param string $navigationName Original navigation entity name
-     * @param string $namespace Namespace
-     * @return string Correct PHP-supported entity name
-     */
-    protected function fullEntityName($navigationName, $namespace = __NAMESPACE__)
-    {
-        return '\\'.$namespace.'\\generated\\'.$this->entityName($navigationName);
-    }
-
-    /**
-     * Get correct field name.
-     *
-     * @param string $fieldName Original field name
-     * @return string Correct PHP-supported field name
-     */
-    protected function fieldName($fieldName)
-    {
-        return $fieldName = lcfirst($this->transliterated($fieldName));
-    }
-
-    /**
-     * Get additional field type in form of Field constant name
-     * by database additional field type identifier.
-     *
-     * @param integer $fieldType Additional field type identifier
-     * @return string Additional field type constant
-     */
-    protected function additionalFieldType($fieldType)
-    {
-        return 'Field::'.$this->constantNameByValue($fieldType);
-    }
-
-
-    /** @return string Entity state hash */
-    public function entityHash()
-    {
-        // Получим информацию о всех таблицах из БД
-        return md5(serialize($this->database->fetch(
-            'SELECT `TABLES`.`TABLE_NAME` as `TABLE_NAME`
-              FROM `information_schema`.`TABLES` as `TABLES`
-              WHERE `TABLES`.`TABLE_SCHEMA`="' . $this->database->database() . '";'
-        )));
-    }
-
-    /**
      * Find entity parent.
      *
      * @param $entityID
@@ -346,26 +278,6 @@ AND s.StructureID != "' . $entityID . '"
         return count($parentData) ? $parentData[0]['StructureID'] : null;
     }
 
-    /** @return array Get collection of navigation objects */
-    protected function entityNavigations($type = 0)
-    {
-        return $this->database->fetch('
-        SELECT * FROM `structure`
-        WHERE `Active` = "1" AND `Type` = "'.$type.'"
-        ORDER BY `ParentID` ASC
-        ');
-    }
-
-    /** @return array Get collection of child navigation objects */
-    protected function entityChildNavigation($parentId)
-    {
-        return $this->database->fetch('
-        SELECT * FROM `structure`
-        WHERE `Active` = "1" AND `ParentID` = ' . $parentId . '
-        ORDER BY `ParentID` ASC
-        ');
-    }
-
     /** @return array Collection of navigation additional fields */
     protected function navigationFields($navigationID)
     {
@@ -378,5 +290,97 @@ AND s.StructureID != "' . $entityID . '"
         }
 
         return $return;
+    }
+
+    /**
+     * Get correct field name.
+     *
+     * @param string $fieldName Original field name
+     *
+     * @return string Correct PHP-supported field name
+     */
+    protected function fieldName($fieldName)
+    {
+        return $fieldName = lcfirst($this->transliterated($fieldName));
+    }
+
+    /** @return array Get collection of child navigation objects */
+    protected function entityChildNavigation($parentId)
+    {
+        return $this->database->fetch('
+        SELECT * FROM `structure`
+        WHERE `Active` = "1" AND `ParentID` = ' . $parentId . '
+        ORDER BY `ParentID` ASC
+        ');
+    }
+
+    /** @return string Entity state hash */
+    public function entityHash()
+    {
+        // Получим информацию о всех таблицах из БД
+        return md5(serialize($this->database->fetch(
+            'SELECT `TABLES`.`TABLE_NAME` as `TABLE_NAME`
+              FROM `information_schema`.`TABLES` as `TABLES`
+              WHERE `TABLES`.`TABLE_SCHEMA`="' . $this->database->database() . '";'
+        )));
+    }
+
+    /**
+     * Make correct code formatting
+     *
+     * @param $code
+     *
+     * @return mixed
+     */
+    protected function formatTab($code)
+    {
+        // Replace indentation
+        return str_replace("\t", '    ', $code);
+    }
+
+    /**
+     * Get correct full entity name with name space.
+     *
+     * @param string $navigationName Original navigation entity name
+     * @param string $namespace Namespace
+     * @return string Correct PHP-supported entity name
+     */
+    protected function fullEntityName($navigationName, $namespace = __NAMESPACE__)
+    {
+        return '\\'.$namespace.'\\generated\\'.$this->entityName($navigationName);
+    }
+
+    /**
+     * Get additional field type in form of Field constant name
+     * by database additional field type identifier.
+     *
+     * @param integer $fieldType Additional field type identifier
+     * @return string Additional field type constant
+     */
+    protected function additionalFieldType($fieldType)
+    {
+        return 'Field::'.$this->constantNameByValue($fieldType);
+    }
+
+    /**
+     * Get class constant name by its value.
+     *
+     * @param string $value     Constant value
+     * @param string $className Class name
+     *
+     * @return string Full constant name
+     */
+    protected function constantNameByValue($value, $className = Field::ENTITY)
+    {
+        // Get array where class constants are values and their values are keys
+        $nameByValue = array_flip((new \ReflectionClass($className))->getConstants());
+
+        // Try to find constant by its value
+        if (null !== $nameByValue[$value]) {
+            // Return constant name
+            return $nameByValue[$value];
+        }
+
+        return '';
     }
 }
