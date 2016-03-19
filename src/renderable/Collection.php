@@ -169,10 +169,20 @@ class Collection extends \samsoncms\api\query\Entity
             // Render collection main view with items
             return $this->innerRender($html, $collection, 'indexView', 'renderIndex');
         } else { // Render empty entity view
-            return $this->innerRender($html, $collection, 'emptyView', 'renderEmpty');
+            return $this->innerRender('', $collection, 'emptyView', 'renderEmpty');
         }
     }
 
+    /**
+     * Generic view renderer.
+     *
+     * @param mixed    $item
+     * @param Entity[] $collection
+     * @param string   $variableName
+     * @param string   $methodName
+     *
+     * @return mixed Rendered view
+     */
     protected function innerRender($item, $collection, $variableName, $methodName)
     {
         return is_callable($this->$variableName)
