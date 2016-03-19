@@ -126,7 +126,8 @@ class Collection extends \samsoncms\api\query\Entity
      */
     public function renderIndex($items)
     {
-        return $this->renderer->view($this->indexView)
+        return $this->renderer
+            ->view($this->indexView)
             ->set($items, self::ITEMS_VIEW_VARIABLE)
             ->output();
     }
@@ -146,44 +147,36 @@ class Collection extends \samsoncms\api\query\Entity
         return $this;
     }
 
+    /** @return string Rendered fields table */
+    public function __toString()
+    {
+        return $this->output();
+    }
+
     /** @return string Rendered HTML for fields table */
     public function output()
     {
         // Perform SamsonCMS query
         $collection = $this->find($this->pageNumber, $this->pageSize);
 
-        $html = '';
         if (count($collection)) {
             // Render each entity view in collection
+            $html = '';
             foreach ($collection as $row) {
-                // Call external handler
-                if (is_callable($this->itemView)) {
-                    $html .= call_user_func($this->itemView, $row, $this->renderer, $this->query, $collection);
-                } else { // Call default renderer
-                    $html .= $this->renderItem($row);
-                }
+                $html .= $this->innerRender($row, $collection, 'itemView', 'renderItem');
             }
 
             // Render collection main view with items
-            if (is_callable($this->indexView)) {
-                $html = call_user_func($this->indexView, $html, $this->renderer, $this->query, $collection);
-            } else { // Call default renderer
-                $html = $this->renderIndex($html);
-            }
+            return $this->innerRender($html, $collection, 'indexView', 'renderIndex');
         } else { // Render empty entity view
-            if (is_callable($this->emptyView)) {
-                $html .= call_user_func($this->emptyView, $html, $this->renderer, $this->query, $collection);
-            } else {
-                $html .= $this->renderEmpty();
-            }
+            return $this->innerRender($html, $collection, 'emptyView', 'renderEmpty');
         }
-
-        return $html;
     }
 
-    /** @return string Rendered fields table */
-    public function __toString()
+    protected function innerRender($item, $collection, $variableName, $methodName)
     {
-        return $this->output();
+        return is_callable($this->$variableName)
+            ? call_user_func($this->$variableName, $item, $this->renderer, $this->query, $collection)
+            : $this->$methodName($item);
     }
 }
