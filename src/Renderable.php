@@ -5,6 +5,7 @@
  */
 namespace samsoncms\api;
 
+use samsoncms\api\exception\RenderableViewNotSet;
 use samsonframework\core\ViewInterface;
 use samsonframework\view\View;
 
@@ -25,7 +26,7 @@ trait Renderable
     protected $itemView;
 
     /** @var string|callable Empty view file or callback */
-    protected $emptyView = 'www/empty';
+    protected $emptyView;
 
     /** @var ViewInterface View render object */
     protected $renderer;
@@ -155,6 +156,19 @@ trait Renderable
     /** @return string Rendered HTML for fields table */
     public function output()
     {
+        // Validate renderable views
+        if ($this->indexView === null) {
+            throw new RenderableViewNotSet('indexView');
+        }
+
+        if ($this->itemView === null) {
+            throw new RenderableViewNotSet('itemView');
+        }
+
+        if ($this->emptyView === null) {
+            throw new RenderableViewNotSet('emptyView');
+        }
+
         // Perform SamsonCMS query
         $collection = $this->find($this->pageNumber, $this->pageSize);
 
