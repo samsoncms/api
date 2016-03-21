@@ -129,6 +129,13 @@ class CMS extends CompressableService
      */
     public function prepare()
     {
+        // Create cms_version
+        $this->database->execute('
+CREATE TABLE `cms_version` IF NOT EXISTS (
+  `version` varchar(15) NOT NULL DEFAULT \'40\'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
+        );
+
         // Perform this migration and execute only once
         if ($this->migrator() != 40) {
             // Perform SQL table creation
