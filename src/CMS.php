@@ -118,7 +118,7 @@ class CMS extends CompressableService
         }
 
         // Split queries
-        $sqlCommands = explode(';', $sql);
+        $sqlCommands = explode(';', str_replace("\n", '', $sql));
 
         // Always return array
         return array_filter(is_array($sqlCommands) ? $sqlCommands : array($sqlCommands));
