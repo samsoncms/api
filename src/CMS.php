@@ -170,8 +170,8 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         new TableRelation('structure', 'user', 'UserID', 0, 'user_id');
         new TableRelation('structure', 'materialfield', 'material.MaterialID', TableRelation::T_ONE_TO_MANY, 'MaterialID', '_mf');
         new TableRelation('structure', 'structurematerial', 'StructureID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('related_materials', 'material', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
-        new TableRelation('related_materials', 'materialfield', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
+        //new TableRelation('related_materials', 'material', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
+        //new TableRelation('related_materials', 'materialfield', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
         new TableRelation('field', 'structurefield', 'FieldID');
         new TableRelation('field', 'structure', 'structurefield.StructureID');
         new TableRelation('structurefield', 'field', 'FieldID');

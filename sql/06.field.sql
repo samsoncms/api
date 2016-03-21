@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS `@prefixfield` (
   `UserID` int(11) DEFAULT NULL,
   `priority` int(11) NOT NULL DEFAULT '0',
   `Name` varchar(255) NOT NULL,
+  `ParentID` int(11) NOT NULL,
   `Type` int(11) NOT NULL,
   `local` int(10) NOT NULL,
   `filtered` int(10) NOT NULL,

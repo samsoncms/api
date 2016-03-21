@@ -6,7 +6,7 @@ ALTER TABLE `materialfield` CHANGE COLUMN `key_value` `key_value` NUMERIC NULL D
 ALTER TABLE `materialfield` CHANGE COLUMN `numeric_value` `numeric_value` NUMERIC NULL DEFAULT NULL;
 UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';
 Update `material` set parent_id = NULL WHERE parent_id = 0;
-ALTER TABLE 'material' DROP 'structure_id';
+ALTER TABLE `material` DROP `structure_id`;
 ALTER TABLE `material` CHANGE `Created` `Created` DATETIME NOT NULL;
 ALTER TABLE `structure` CHANGE `MaterialID` `MaterialID` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `structure` CHANGE `ParentID` `ParentID` INT(11) NULL DEFAULT NULL;
@@ -16,5 +16,5 @@ update `structure` set UserID = null WHERE UserID = 0;
 update `gallery` set Path = '/upload/' WHERE Path = '/cms/upload/';
 ALTER TABLE `field` CHANGE `ParentID` `ParentID` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `field` CHANGE `UserID` `UserID` INT(11) NULL DEFAULT NULL;
-ALTER TABLE 'field' DROP 'ParentID';
+ALTER TABLE `field` DROP `ParentID`;
 update `field` set UserID = null WHERE UserID = 0;
