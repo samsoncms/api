@@ -131,8 +131,8 @@ class CMS extends CompressableService
     {
         // Create cms_version
         $this->database->execute('
-CREATE TABLE `cms_version` IF NOT EXISTS (
-  `version` varchar(15) NOT NULL DEFAULT \'40\'
+CREATE TABLE IF NOT EXISTS `cms_version`  (
+  `version` varchar(15) NOT NULL DEFAULT \'30\'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
         );
 
