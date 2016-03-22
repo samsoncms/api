@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 22.03.16 at 15:46
@@ -34,8 +35,8 @@ class Query extends OOP
         $this->generator
             ->multiComment(array(
                 'Class for querying and fetching "' . $metadata->entityRealName . '" instances from database',
-                '@method ' . $metadata->entityClassName . ' first();',
-                '@method ' . $metadata->entityClassName . '[] find();',
+                '@method ' . $metadata->entity . ' first();',
+                '@method ' . $metadata->entity . '[] find();',
             ))
             ->defClass($metadata->entity . 'Query', '\\'. \samsoncms\api\query\Entity::class);
     }
@@ -98,3 +99,4 @@ class Query extends OOP
         $this->generator->text(implode("\n", $methods));
     }
 }
+//[PHPCOMPRESSOR(remove,end)]

@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 22.03.16 at 17:50
@@ -132,3 +133,4 @@ abstract class OOP
 
     }
 }
+//[PHPCOMPRESSOR(remove,end)]

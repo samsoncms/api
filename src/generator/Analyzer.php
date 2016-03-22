@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by PhpStorm.
  * User: molodyko
@@ -388,3 +389,4 @@ AND s.StructureID != "' . $entityID . '"
         return '';
     }
 }
+//[PHPCOMPRESSOR(remove,end)]

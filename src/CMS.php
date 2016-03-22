@@ -8,6 +8,7 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
+use samsoncms\api\generator\Collection;
 use samsoncms\api\generator\Entity;
 use samsoncms\api\generator\Metadata;
 use samsoncms\api\generator\Query;
@@ -205,6 +206,10 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             $queryGenerator = new Query(new Generator(__NAMESPACE__.'\\generated'), $metadata);
             // Create entity query class file
             file_put_contents($this->cache_path.$metadata->entity.'Query.php', '<?php' . $queryGenerator->generate());
+            // Create entity query collection class generator
+            $collectionGenerator = new Collection(new Generator(__NAMESPACE__.'\\generated'), $metadata);
+            // Create entity query class file
+            file_put_contents($this->cache_path.$metadata->entity.'Collection.php', '<?php' . $collectionGenerator->generate());
         }
 
 //        // Generate entities classes file

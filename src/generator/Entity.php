@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 22.03.16 at 15:46
@@ -106,3 +107,4 @@ class Entity extends OOP
             ->defClassVar('$fieldValueColumns', 'protected static ', $metadata->allFieldValueColumns);
     }
 }
+//[PHPCOMPRESSOR(remove,end)]
