@@ -12,4 +12,14 @@ class Generic
 
     /** @var string Fully qualified entity class name */
     public $entityClassName;
+
+    /** Old ActiveRecord fields */
+    public $arSelect = array();
+    public $arMap = array();
+    public $arAttributes = array();
+    public $arFrom = array();
+    public $arGroup = array();
+    public $arRelationAlias = array();
+    public $arRelationType = array();
+    public $arRelations = array();
 }
