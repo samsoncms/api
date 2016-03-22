@@ -103,9 +103,8 @@ class GeneratorApi extends Generator
                 $classes .= $this->createTableRowEntityClass($metadata);
                 $classes .= $this->createTableRowQueryClass($metadata);
 
-
+//                $classes .= $this->createTableRowClass($metadata);
 //                $classes .= $this->createQueryClass($metadata, '\samsoncms\api\query\EntityTable' , array(), $namespace, $metadata->entity.'Row');
-                $classes .= $this->createTableRowClass($metadata);
                 $classes .= $this->createTableClass($metadata);
             }
         }

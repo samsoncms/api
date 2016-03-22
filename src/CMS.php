@@ -8,9 +8,11 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
+use samsoncms\api\generator\Entity;
 use samsoncms\api\generator\Metadata;
 use samsoncms\api\generator\Query;
 use samsoncms\api\generator\Analyzer;
+
 use samsoncms\application\GeneratorApplication;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
@@ -196,9 +198,13 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         // Analyze database structure and get entities metadata
         foreach ($generator->analyze(Metadata::TYPE_DEFAULT) as $metadata) {
             // Create entity query class generator
+            $entityGenerator = new Entity(new Generator(__NAMESPACE__.'\\generated'), $metadata);
+            // Create entity query class file
+            file_put_contents($this->cache_path.$metadata->entity.'.php', '<?php' . $entityGenerator->generate());
+            // Create entity query class generator
             $queryGenerator = new Query(new Generator(__NAMESPACE__.'\\generated'), $metadata);
             // Create entity query class file
-            file_put_contents($this->cache_path.$metadata->entity.'.php', '<?php' . $queryGenerator->generate());
+            file_put_contents($this->cache_path.$metadata->entity.'Query.php', '<?php' . $queryGenerator->generate());
         }
 
 //        // Generate entities classes file

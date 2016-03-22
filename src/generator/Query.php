@@ -5,8 +5,6 @@
  */
 namespace samsoncms\api\generator;
 
-use samsoncms\api\query\Entity;
-
 /**
  * Entity Query class generator.
  *
@@ -39,7 +37,7 @@ class Query extends OOP
                 '@method ' . $metadata->entityClassName . ' first();',
                 '@method ' . $metadata->entityClassName . '[] find();',
             ))
-            ->defClass($metadata->entity . 'Query', '\\'. Entity::class);
+            ->defClass($metadata->entity . 'Query', '\\'. \samsoncms\api\query\Entity::class);
     }
 
     /**
