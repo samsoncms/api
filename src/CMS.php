@@ -198,18 +198,27 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         $generator = new Analyzer($this->database);
         // Analyze database structure and get entities metadata
         foreach ($generator->analyze(Metadata::TYPE_DEFAULT) as $metadata) {
+            // Create entity generated class names
+            $entityFile = $this->cache_path.$metadata->entity.'.php';
+            $queryFile = $this->cache_path.$metadata->entity.'Query.php';
+            $collectionFile = $this->cache_path.$metadata->entity.'Collection.php';
+
             // Create entity query class generator
             $entityGenerator = new Entity(new Generator(__NAMESPACE__.'\\generated'), $metadata);
-            // Create entity query class file
-            file_put_contents($this->cache_path.$metadata->entity.'.php', '<?php' . $entityGenerator->generate());
             // Create entity query class generator
             $queryGenerator = new Query(new Generator(__NAMESPACE__.'\\generated'), $metadata);
-            // Create entity query class file
-            file_put_contents($this->cache_path.$metadata->entity.'Query.php', '<?php' . $queryGenerator->generate());
             // Create entity query collection class generator
             $collectionGenerator = new Collection(new Generator(__NAMESPACE__.'\\generated'), $metadata);
-            // Create entity query class file
-            file_put_contents($this->cache_path.$metadata->entity.'Collection.php', '<?php' . $collectionGenerator->generate());
+
+            // Create entity query class files
+            file_put_contents($entityFile, '<?php' . $entityGenerator->generate());
+            file_put_contents($queryFile, '<?php' . $queryGenerator->generate());
+            file_put_contents($collectionFile, '<?php' . $collectionGenerator->generate());
+
+            // Require files
+            require($entityFile);
+            require($queryFile);
+            require($collectionFile);
         }
 
 //        // Generate entities classes file
