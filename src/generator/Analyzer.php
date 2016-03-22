@@ -5,7 +5,6 @@
  * Date: 13.02.2016
  * Time: 23:55
  */
-
 namespace samsoncms\api\generator;
 
 use samson\activerecord\dbMySQLConnector;
@@ -13,13 +12,15 @@ use samsoncms\api\Field;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
 use samsonframework\orm\DatabaseInterface;
 
-abstract class Generator
+/**
+ * Database analyzer and metadata creator.
+ *
+ * @package samsoncms\api\generator
+ */
+class Analyzer
 {
     /** @var DatabaseInterface */
     protected $database;
-
-    /** @var \samsonphp\generator\Generator */
-    protected $generator;
 
     /** @var Metadata[] Collection of entities metadata */
     protected $metadata = array();
@@ -32,28 +33,26 @@ abstract class Generator
      */
     public function __construct(DatabaseInterface $database)
     {
-        $this->generator = new \samsonphp\generator\Generator();
         $this->database = $database;
     }
 
     /**
-     * Fill metadata by type.
+     * Analyze database and fill in metadata by type.
      *
      * @param int $type Metadata type
      * @param null|callable $filter Filtering callback
      *
-     * @return array Gathered metadata collection
+     * @return Metadata[] Gathered metadata collection
      *
      * @throws ParentEntityNotFound
      * @throws \samsoncms\api\exception\AdditionalFieldTypeNotFound
      */
-    public function fillMetadata($type, $filter = null)
+    public function analyze($type, $filter = null)
     {
         $metadataCollection = [];
 
         // Iterate all structures, parents first
         foreach ($this->entityNavigations($type) as $structureRow) {
-
             // If filter is the function and filter return false then skip this structure
             if (is_callable($filter) && (false === $filter($structureRow))) {
                 continue;
@@ -352,7 +351,7 @@ AND s.StructureID != "' . $entityID . '"
      */
     protected function fullEntityName($navigationName, $namespace = __NAMESPACE__)
     {
-        return '\\'.$namespace.'\\generated\\'.$this->entityName($navigationName);
+        return '\samsoncms\api\generated\\'.$this->entityName($navigationName);
     }
 
     /**

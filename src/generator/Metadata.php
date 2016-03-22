@@ -36,6 +36,8 @@ class Metadata
     public $type;
     /** @var string Transliterated and CapsCase entity name */
     public $entity;
+    /** @var string Fully qualified entity class name */
+    public $entityClassName;
     /** @var string Real database entity identifier */
     public $entityID;
     /** @var string Real database entity name */

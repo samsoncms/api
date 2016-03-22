@@ -37,6 +37,28 @@ class GeneratorApi extends Generator
     }
 
     /**
+     * Generate entity related structure table instance.
+     *
+     * @param string $tableClassName Table entity class name
+     *
+     * @return string Generated PHP method code
+     */
+    protected function generateEntityTableMethod($tableClassName)
+    {
+        $code = "\n\t" . '/**';
+        $code .= "\n\t" . ' * Create '.$tableClassName.' instance.';
+        $code .= "\n\t" . ' * @param ViewInterface $renderer Renderer';
+        $code .= "\n\t" . ' * @param string $locale Locale';
+        $code .= "\n\t" . ' * @return '.$tableClassName.'Query Instance of entity table';
+        $code .= "\n\t" . ' */';
+        $code .= "\n\t" . 'public function ' . lcfirst($tableClassName) . '(ViewInterface $renderer = null, $locale = null)';
+        $code .= "\n\t" . "{";
+        $code .= "\n\t\t" . 'return new '.$tableClassName.'Query($this->id, $this->query, $renderer, $this->id, $locale);';
+
+        return $code . "\n\t" . "}"."\n";
+    }
+
+    /**
      * Generate entity classes.
      *
      * @param string $namespace Base namespace for generated classes
@@ -77,6 +99,12 @@ class GeneratorApi extends Generator
 
                 // Generate classes of table type
             } elseif ($metadata->type === Metadata::TYPE_TABLE) {
+                $classes .= $this->createTableQueryClass($metadata);
+                $classes .= $this->createTableRowEntityClass($metadata);
+                $classes .= $this->createTableRowQueryClass($metadata);
+
+
+//                $classes .= $this->createQueryClass($metadata, '\samsoncms\api\query\EntityTable' , array(), $namespace, $metadata->entity.'Row');
                 $classes .= $this->createTableRowClass($metadata);
                 $classes .= $this->createTableClass($metadata);
             }
@@ -84,6 +112,34 @@ class GeneratorApi extends Generator
 
         // Make correct code formatting
         return $this->formatTab($classes);
+    }
+
+    /**
+     * Create entity table row entity PHP class code.
+     *
+     * @param Metadata $metadata  Entity metadata
+     * @param string   $namespace Namespace of generated class
+     * @return string Generated entity query PHP class code
+     */
+    protected function createTableRowEntityClass(Metadata $metadata, $namespace = __NAMESPACE__)
+    {
+        $metadata = clone $metadata;
+        $metadata->entity = str_replace('Table', '', $metadata->entity);
+        return $this->createEntityClass($metadata, $namespace);
+    }
+
+    /**
+     * Create entity table row query PHP class code.
+     *
+     * @param Metadata $metadata  Entity metadata
+     * @param string   $namespace Namespace of generated class
+     * @return string Generated entity query PHP class code
+     */
+    protected function createTableRowQueryClass(Metadata $metadata, $namespace = __NAMESPACE__)
+    {
+        $metadata = clone $metadata;
+        $metadata->entity = str_replace('Table', '', $metadata->entity);
+        return $this->createQueryClass($metadata);
     }
 
     /**
@@ -123,6 +179,14 @@ class GeneratorApi extends Generator
                 ->defClassVar('$' . $fieldName, 'public');
         }
 
+        /** Iterate all metadata to find nested structure tables */
+        foreach ($this->metadata as $structureID => $tableMetadata) {
+            // Check if this is nested table structure metadata
+            if ($tableMetadata->parentID === $metadata->entityID && $tableMetadata->type === Metadata::TYPE_TABLE) {
+                $this->generator->text($this->generateEntityTableMethod($tableMetadata->entity, $tableMetadata->entityID));
+            }
+        }
+
         return $this->generator
             ->commentVar('array', 'Collection of navigation identifiers')
             ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
@@ -141,18 +205,93 @@ class GeneratorApi extends Generator
     }
 
     /**
+     * Generate entity table row creation method.
+     *
+     * @param string $tableClassName Table entity class name
+     * @return string Generated PHP method code
+     */
+    protected function generateEntityTableRowMethod($tableClassName)
+    {
+        $code = "\n\t" . '/**';
+        $code .= "\n\t" . ' * Create '.$tableClassName.' instance.';
+        $code .= "\n\t" . ' * @param ViewInterface $renderer Renderer';
+        $code .= "\n\t" . ' * @param string $locale Locale';
+        $code .= "\n\t" . ' * @return '.$tableClassName.'Query Instance of entity table';
+        $code .= "\n\t" . ' */';
+        $code .= "\n\t" . 'public function createRow(ViewInterface $renderer = null, $locale = null)';
+        $code .= "\n\t" . "{";
+        $code .= "\n\t\t" . 'return new '.$tableClassName.'($this->query, $renderer, $this->id, $locale);';
+
+        return $code . "\n\t" . "}"."\n";
+    }
+
+    /**
+     * Create entity table query PHP class code.
+     *
+     * @param Metadata $metadata      Entity metadata
+     * @param array    $use           Collection of traits
+     * @param string   $namespace     Namespace of generated class
+     * @param string   $returnClass   Query methods return class
+     *
+     * @return string Generated entity query PHP class code
+     */
+    protected function createTableQueryClass(Metadata $metadata, $use = array(), $namespace = __NAMESPACE__, $returnClass = null)
+    {
+        $this->generateQuerableClassHeader(
+            $metadata,
+            'Query',
+            '\\'.\samsoncms\api\query\EntityTable::class,
+            $use,
+            $namespace,
+            $metadata->entity.'Row'
+        );
+
+        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
+            // TODO: Add different method generation depending on their field type
+            $this->generator->text($this->generateFieldConditionMethod(
+                $fieldName,
+                $fieldID,
+                $metadata->allFieldTypes[$fieldID]
+            ));
+        }
+
+        return $this->generator
+            ->text($this->generateConstructorTableQueryClass())
+            ->commentVar('array', 'Collection of real additional field names')
+            ->defClassVar('$fieldRealNames', 'public static', $metadata->realNames)
+            ->commentVar('array', 'Collection of additional field names')
+            ->defClassVar('$fieldNames', 'public static', $metadata->allFieldNames)
+            // TODO: two above fields should be protected
+            ->commentVar('array', 'Collection of navigation identifiers')
+            ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
+            ->commentVar('string', 'Entity full class name')
+            ->defClassVar('$identifier', 'protected static', $this->fullEntityName($metadata->entity, $namespace))
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$localizedFieldIDs', 'protected static', $metadata->localizedFieldIDs)
+            ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
+            ->defClassVar('$notLocalizedFieldIDs', 'protected static', $metadata->notLocalizedFieldIDs)
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$fieldIDs', 'protected static', $metadata->allFieldIDs)
+            ->commentVar('array', 'Collection of additional fields value column names')
+            ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns)
+            ->endClass()
+            ->flush();
+    }
+
+    /**
      * Create entity query PHP class code.
      *
      * @param Metadata $metadata      Entity metadata
      * @param string   $defaultParent Parent class name
      * @param array    $use           Collection of traits
      * @param string   $namespace     Namespace of generated class
+     * @param string   $returnClass   Query methods return class
      *
      * @return string Generated entity query PHP class code
      */
-    protected function createQueryClass(Metadata $metadata, $defaultParent = '\samsoncms\api\query\Entity', $use = array(), $namespace = __NAMESPACE__)
+    protected function createQueryClass(Metadata $metadata, $defaultParent = '\samsoncms\api\query\Entity', $use = array(), $namespace = __NAMESPACE__, $returnClass = null)
     {
-        $this->generateQuerableClassHeader($metadata, 'Query', $defaultParent, $use, $namespace);
+        $this->generateQuerableClassHeader($metadata, 'Query', $defaultParent, $use, $namespace, $returnClass);
 
         foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
             // TODO: Add different method generation depending on their field type
@@ -193,14 +332,17 @@ class GeneratorApi extends Generator
      * @param string   $defaultParent Parent class name
      * @param array    $use           Collection of traits
      * @param string   $namespace     Namespace of generated class
+     * @param string   $returnClass   Query methods return class
      */
-    protected function generateQuerableClassHeader(Metadata $metadata, $suffix, $defaultParent, $use, $namespace = __NAMESPACE__)
+    protected function generateQuerableClassHeader(Metadata $metadata, $suffix, $defaultParent, $use, $namespace = __NAMESPACE__, $returnClass = null)
     {
+        $returnClass = null === $returnClass ? $this->fullEntityName($metadata->entity, $namespace) : $returnClass;
+
         $this->generator
             ->multiComment(array(
                 'Class for fetching "' . $metadata->entityRealName . '" instances from database',
-                '@method ' . $this->fullEntityName($metadata->entity, $namespace) . ' first();',
-                '@method ' . $this->fullEntityName($metadata->entity, $namespace) . '[] find();',
+                '@method ' . $returnClass . ' first();',
+                '@method ' . $returnClass . '[] find();',
             ))
             ->defClass($metadata->entity . $suffix, $defaultParent);
 
@@ -354,7 +496,7 @@ class GeneratorApi extends Generator
     {
         $this->generator
             ->multiComment(array('Class for getting "' . $metadata->entityRealName . '" fields table rows'))
-            ->defClass($this->entityName($metadata->entityRealName) . 'TableRow', 'Row');
+            ->defClass($metadata->entity . 'Row', 'Row');
 
         $fieldIDs = array();
         foreach ($this->navigationFields($metadata->entityID) as $fieldID => $fieldRow) {
@@ -390,7 +532,7 @@ class GeneratorApi extends Generator
     {
         $this->generator
             ->multiComment(array('Class for getting "'.$metadata->entityRealName.'" fields table'))
-            ->defClass($this->entityName($metadata->entityRealName) . 'Table', 'FieldsTable');
+            ->defClass($metadata->entity, '\samsoncms\api\field\Table');
 
         // Add renderable trait
         $this->generateTraitsUsage(array(\samsoncms\api\Renderable::class));
@@ -462,7 +604,26 @@ class GeneratorApi extends Generator
         $class .= "\n\t" . ' */';
         $class .= "\n\t" . 'public function __construct(QueryInterface $query, ViewInterface $renderer, $entityID, $locale = null)';
         $class .= "\n\t" . '{';
-        $class .= "\n\t\t" . 'parent::__construct($query, $renderer, static::$navigationIDs, $entityID, $locale);';
+        $class .= "\n\t\t" . '$this->renderer = $renderer;';
+        $class .= "\n\t\t" . 'parent::__construct($query, static::$navigationIDs, $entityID, $locale);';
+        $class .= "\n\t" . '}' . "\n";
+
+        return $class;
+    }
+
+    /**
+     * Generate constructor for table query class.
+     */
+    protected function generateConstructorTableQueryClass()
+    {
+        $class = "\n\t" . '/**';
+        $class .= "\n\t" . ' * @param int $entityID Entity identifier to whom this table belongs';
+        $class .= "\n\t" . ' * @param QueryInterface $query Database query instance';
+        $class .= "\n\t" . ' * @param string $locale Localization identifier';
+        $class .= "\n\t" . ' */';
+        $class .= "\n\t" . 'public function __construct($entityID, QueryInterface $query, $locale = null)';
+        $class .= "\n\t" . '{';
+        $class .= "\n\t\t" . 'parent::__construct(static::$navigationIDs, $entityID, $query, $locale);';
         $class .= "\n\t" . '}' . "\n";
 
         return $class;

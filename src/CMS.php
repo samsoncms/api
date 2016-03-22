@@ -8,12 +8,16 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
+use samsoncms\api\generator\Metadata;
+use samsoncms\api\generator\Query;
+use samsoncms\api\generator\Analyzer;
 use samsoncms\application\GeneratorApplication;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
 use samson\core\CompressableService;
 use samson\activerecord\dbMySQLConnector;
+use samsonphp\generator\Generator;
 
 /**
  * SamsonCMS API
@@ -187,17 +191,28 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         // TODO: Should be removed
         m('activerecord')->relations();
 
-        // Generate entities classes file
-        $generatorApi = new GeneratorApi($this->database);
-
-        // Create cache file
-        $file = md5($generatorApi->entityHash()).'.php';
-        if ($this->cache_refresh($file)) {
-            file_put_contents($file, '<?php ' . $generatorApi->createEntityClasses());
+        // Create database analyzer
+        $generator = new Analyzer($this->database);
+        // Analyze database structure and get entities metadata
+        foreach ($generator->analyze(Metadata::TYPE_DEFAULT) as $metadata) {
+            // Create entity query class generator
+            $queryGenerator = new Query(new Generator(__NAMESPACE__.'\\generated'), $metadata);
+            // Create entity query class file
+            file_put_contents($this->cache_path.$metadata->entity.'.php', '<?php' . $queryGenerator->generate());
         }
 
-        // Include entities file
-        require($file);
+//        // Generate entities classes file
+//        $generatorApi = new GeneratorApi($this->database);
+//        //$queryGenerator = new Query($this->database);
+//
+//        // Create cache file
+//        $file = md5($generatorApi->entityHash()).'.php';
+//        if ($this->cache_refresh($file)) {
+//            file_put_contents($file, '<?php ' . $generatorApi->createEntityClasses());
+//        }
+//
+//        // Include entities file
+//        require($file);
 
         return parent::prepare();
     }

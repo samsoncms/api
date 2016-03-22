@@ -141,10 +141,14 @@ class Entity extends Generic
         return $this;
     }
 
-    /** @return array Collection of entity identifiers */
-    protected function findEntityIDs()
+    /**
+     * Prepare entity identifiers.
+     *
+     * @param array $entityIDs Collection of identifier for filtering
+     * @return array Collection of entity identifiers
+     */
+    protected function findEntityIDs(array $entityIDs = array())
     {
-        $entityIDs = array();
         if ($this->conditions) {
             $entityIDs = $this->query
                 ->entity(Material::ENTITY)
