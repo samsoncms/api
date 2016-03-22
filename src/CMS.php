@@ -219,6 +219,30 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             require($entityFile);
             require($queryFile);
             require($collectionFile);
+
+            // Iterate entity additional fields
+            foreach ($metadata->allFieldCmsTypes as $fieldID => $fieldType) {
+                // We need only gallery fields
+                if ($fieldType === Field::TYPE_GALLERY) {
+
+                    $fieldName = $metadata->allFieldIDs[$fieldID];
+                    // Declare class
+                    $this->generateQuerableClassHeader(
+                        $metadata,
+                        ucfirst($fieldName) . 'Gallery',
+                        '\\' . \samsoncms\api\Gallery::class,
+                        array(\samsoncms\api\Renderable::class)
+                    );
+
+                    return $this->generator
+                        ->text($this->generateConstructorGalleryClass(
+                            $metadata->entity . '::F_' . strtoupper($fieldName) . '_ID',
+                            $metadata->entity
+                        ))
+                        ->endClass()
+                        ->flush();
+                }
+            }
         }
 
 //        // Generate entities classes file
