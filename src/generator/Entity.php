@@ -20,7 +20,7 @@ class Entity extends OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createDefinition(Generic $metadata)
+    protected function createDefinition($metadata)
     {
         /**
          * TODO: Parent problem
@@ -41,7 +41,7 @@ class Entity extends OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createConstants(Generic $metadata)
+    protected function createConstants($metadata)
     {
         $this->generator
             ->commentVar('string', 'Entity full class name, use ::class instead')
@@ -68,7 +68,7 @@ class Entity extends OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createFields(Generic $metadata)
+    protected function createFields($metadata)
     {
         foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
             $this->generator
@@ -82,7 +82,7 @@ class Entity extends OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createStaticFields(Generic $metadata)
+    protected function createStaticFields($metadata)
     {
         return $this->generator
             ->commentVar('array', 'Collection of navigation identifiers')

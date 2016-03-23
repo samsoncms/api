@@ -20,7 +20,7 @@ class Query extends OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createUses(Generic $metadata)
+    protected function createUses($metadata)
     {
         $this->generator
             ->newLine('use samsonframework\orm\ArgumentInterface;')
@@ -32,7 +32,7 @@ class Query extends OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createDefinition(Generic $metadata)
+    protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array(
@@ -48,7 +48,7 @@ class Query extends OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createStaticFields(Generic $metadata)
+    protected function createStaticFields($metadata)
     {
         $this->generator
             ->commentVar('array', 'Collection of real additional field names')
@@ -75,7 +75,7 @@ class Query extends OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createMethods(Generic $metadata)
+    protected function createMethods($metadata)
     {
         $methods = [];
         // TODO: Add different method generation depending on their field type

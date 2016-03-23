@@ -20,7 +20,7 @@ class Collection extends Query
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createUses(Generic $metadata)
+    protected function createUses($metadata)
     {
         $this->generator
             ->newLine('use samsonframework\core\ViewInterface;')
@@ -35,7 +35,7 @@ class Collection extends Query
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createDefinition(Generic $metadata)
+    protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array(
@@ -53,7 +53,7 @@ class Collection extends Query
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createConstructor(Generic $metadata)
+    protected function createConstructor($metadata)
     {
         $class = "\n\t".'/**';
         $class .= "\n\t".' * @param ViewInterface $renderer Rendering instance';

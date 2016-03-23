@@ -50,7 +50,6 @@ class Gallery extends Virtual
             }
         }
 
-
         return $metadataCollection;
     }
 }

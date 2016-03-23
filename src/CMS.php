@@ -11,6 +11,7 @@ require('generated/StructureField.php');
 use samsoncms\api\generator\analyzer\Virtual;
 use samsoncms\api\generator\Collection;
 use samsoncms\api\generator\Entity;
+use samsoncms\api\generator\Gallery;
 use samsoncms\api\generator\Metadata;
 use samsoncms\api\generator\Query;
 use samsoncms\api\generator\Analyzer;
@@ -220,30 +221,23 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             require($entityFile);
             require($queryFile);
             require($collectionFile);
+        }
 
-//            // Iterate entity additional fields
-//            foreach ($metadata->allFieldCmsTypes as $fieldID => $fieldType) {
-//                // We need only gallery fields
-//                if ($fieldType === Field::TYPE_GALLERY) {
-//
-//                    $fieldName = $metadata->allFieldIDs[$fieldID];
-//                    // Declare class
-//                    $this->generateQuerableClassHeader(
-//                        $metadata,
-//                        ucfirst($fieldName) . 'Gallery',
-//                        '\\' . \samsoncms\api\Gallery::class,
-//                        array(\samsoncms\api\Renderable::class)
-//                    );
-//
-//                    return $this->generator
-//                        ->text($this->generateConstructorGalleryClass(
-//                            $metadata->entity . '::F_' . strtoupper($fieldName) . '_ID',
-//                            $metadata->entity
-//                        ))
-//                        ->endClass()
-//                        ->flush();
-//                }
-//            }
+        // Create database analyzer
+        $generator = new \samsoncms\api\generator\analyzer\Gallery($this->database);
+        // Analyze database structure and get entities metadata
+        foreach ($generator->analyze() as $metadata) {
+            // Create entity generated class names
+            $entityFile = $this->cache_path.$metadata->entity.'.php';
+
+            // Create entity query class generator
+            $entityGenerator = new Gallery(new Generator(__NAMESPACE__.'\\generated'), $metadata);
+
+            // Create entity query class files
+            file_put_contents($entityFile, '<?php' . $entityGenerator->generate());
+
+            // Require files
+            require($entityFile);
         }
 
 //        // Generate entities classes file

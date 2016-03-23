@@ -28,7 +28,7 @@ abstract class OOP
      * @param Generator $generator Code generation instance
      * @param Generic  $Generic Entity query metadata
      */
-    public function __construct(Generator $generator, Generic $metadata)
+    public function __construct(Generator $generator, $metadata)
     {
         $this->metadata = $metadata;
         $this->generator = $generator;
@@ -62,7 +62,7 @@ abstract class OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createUses(Generic $metadata)
+    protected function createUses($metadata)
     {
 
     }
@@ -72,14 +72,14 @@ abstract class OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    abstract protected function createDefinition(Generic $metadata);
+    abstract protected function createDefinition($metadata);
 
     /**
      * Class constants generation part.
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createConstants(Generic $metadata)
+    protected function createConstants($metadata)
     {
 
     }
@@ -89,7 +89,7 @@ abstract class OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createStaticFields(Generic $metadata)
+    protected function createStaticFields($metadata)
     {
 
     }
@@ -99,7 +99,7 @@ abstract class OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createStaticMethods(Generic $metadata)
+    protected function createStaticMethods($metadata)
     {
 
     }
@@ -109,7 +109,7 @@ abstract class OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createFields(Generic $metadata)
+    protected function createFields($metadata)
     {
 
     }
@@ -119,7 +119,7 @@ abstract class OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createMethods(Generic $metadata)
+    protected function createMethods($metadata)
     {
 
     }
@@ -129,7 +129,7 @@ abstract class OOP
      *
      * @param Generic $metadata Entity metadata
      */
-    protected function createConstructor(Generic $metadata)
+    protected function createConstructor($metadata)
     {
 
     }

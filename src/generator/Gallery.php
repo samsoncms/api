@@ -6,8 +6,6 @@
  */
 namespace samsoncms\api\generator;
 
-use \samsoncms\api\generator\metadata\Gallery as Metadata;
-
 /**
  * Entity gallery class generator.
  *
@@ -18,9 +16,9 @@ class Gallery extends Query
     /**
      * Class uses generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Gallery $metadata Entity metadata
      */
-    protected function createUses(Metadata $metadata)
+    protected function createUses($metadata)
     {
         $this->generator
             ->newLine('use samsonframework\core\ViewInterface;')
@@ -33,9 +31,9 @@ class Gallery extends Query
     /**
      * Class definition generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Gallery $metadata Entity metadata
      */
-    protected function createDefinition(Metadata $metadata)
+    protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array(
@@ -49,9 +47,9 @@ class Gallery extends Query
     /**
      * Class constructor generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Gallery $metadata Entity metadata
      */
-    protected function createConstructor(Metadata $metadata)
+    protected function createConstructor($metadata)
     {
         $class = "\n\t" . '/**';
         $class .= "\n\t" . ' * @param ViewInterface $renderer Rendering instance';
