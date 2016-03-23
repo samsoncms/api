@@ -17,7 +17,7 @@ class Virtual extends Generic
     /** @var int Parent entity identifier  */
     public $parentID;
 
-    /** @var $this Metadata parent entity name */
+    /** @var self Metadata parent entity name */
     public $parent;
 
     /** @var array Collection of entity field default values */

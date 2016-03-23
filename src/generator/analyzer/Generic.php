@@ -4,7 +4,7 @@
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 23.03.16 at 11:45
  */
-namespace samsoncms\api\analyzer;
+namespace samsoncms\api\generator\analyzer;
 
 use samsonframework\orm\DatabaseInterface;
 
@@ -21,12 +21,18 @@ class Generic
     /**
      * Generator constructor.
      * @param DatabaseInterface $database Database instance
-     * @throws ParentEntityNotFound
-     * @throws \samsoncms\api\exception\AdditionalFieldTypeNotFound
      */
     public function __construct(DatabaseInterface $database)
     {
         $this->database = $database;
+    }
+
+    /**
+     * @return \samsoncms\api\generator\metadata\Generic[]
+     */
+    public function analyze()
+    {
+
     }
 
     /**
