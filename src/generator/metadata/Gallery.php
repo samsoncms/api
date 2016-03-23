@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 namespace samsoncms\api\generator\metadata;
 
 /**
@@ -9,3 +10,4 @@ class Gallery extends Generic
 {
 
 }
+//[PHPCOMPRESSOR(remove,end)]

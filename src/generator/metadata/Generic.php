@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 namespace samsoncms\api\generator\metadata;
 
 /**
@@ -23,3 +24,4 @@ class Generic
     public $arRelationType = array();
     public $arRelations = array();
 }
+//[PHPCOMPRESSOR(remove,end)]

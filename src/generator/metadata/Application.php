@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 namespace samsoncms\api\generator\metadata;
 
 /**
@@ -28,3 +29,4 @@ class Application extends Generic
     /** @var array Collection of application custom additional field renderer */
     public $customTypeFields = array();
 }
+//[PHPCOMPRESSOR(remove,end)]

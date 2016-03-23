@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 namespace samsoncms\api\generator\metadata;
 
 /**
@@ -52,3 +53,4 @@ class Virtual extends Generic
     /** @var array WTF? Collection of entity additional field id to its description */
     public $fieldRawDescriptions = array();
 }
+//[PHPCOMPRESSOR(remove,end)]
