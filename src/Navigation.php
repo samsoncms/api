@@ -21,6 +21,7 @@ class Navigation extends structure
     /** Entity field names constants for using in code */
     const F_PRIMARY = 'StructureID';
     const F_IDENTIFIER = 'Url';
+    const F_NAME = 'Name';
     const F_DELETION = 'Active';
     const F_PARENT = 'ParentID';
     const F_PRIORITY = 'priority';
