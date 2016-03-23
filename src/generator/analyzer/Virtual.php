@@ -7,6 +7,7 @@
 namespace samsoncms\api\generator\analyzer;
 
 use samson\activerecord\dbMySQLConnector;
+use samsoncms\api\Field;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
 
 /**

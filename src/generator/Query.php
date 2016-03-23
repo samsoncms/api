@@ -6,6 +6,8 @@
  */
 namespace samsoncms\api\generator;
 
+use samsoncms\api\generator\metadata\Generic;
+
 /**
  * Entity Query class generator.
  *
@@ -16,9 +18,9 @@ class Query extends OOP
     /**
      * Class uses generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
-    protected function createUses(Metadata $metadata)
+    protected function createUses(Generic $metadata)
     {
         $this->generator
             ->newLine('use samsonframework\orm\ArgumentInterface;')
@@ -28,9 +30,9 @@ class Query extends OOP
     /**
      * Class definition generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
-    protected function createDefinition(Metadata $metadata)
+    protected function createDefinition(Generic $metadata)
     {
         $this->generator
             ->multiComment(array(
@@ -44,9 +46,9 @@ class Query extends OOP
     /**
      * Class static fields generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
-    protected function createStaticFields(Metadata $metadata)
+    protected function createStaticFields(Generic $metadata)
     {
         $this->generator
             ->commentVar('array', 'Collection of real additional field names')
@@ -71,9 +73,9 @@ class Query extends OOP
     /**
      * Class methods generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
-    protected function createMethods(Metadata $metadata)
+    protected function createMethods(Generic $metadata)
     {
         $methods = [];
         // TODO: Add different method generation depending on their field type

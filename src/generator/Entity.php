@@ -6,6 +6,8 @@
  */
 namespace samsoncms\api\generator;
 
+use samsoncms\api\generator\metadata\Generic;
+
 /**
  * Entity class generator.
  *
@@ -16,9 +18,9 @@ class Entity extends OOP
     /**
      * Class definition generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
-    protected function createDefinition(Metadata $metadata)
+    protected function createDefinition(Generic $metadata)
     {
         /**
          * TODO: Parent problem
@@ -37,9 +39,9 @@ class Entity extends OOP
     /**
      * Class constants generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
-    protected function createConstants(Metadata $metadata)
+    protected function createConstants(Generic $metadata)
     {
         $this->generator
             ->commentVar('string', 'Entity full class name, use ::class instead')
@@ -64,9 +66,9 @@ class Entity extends OOP
     /**
      * Class fields generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
-    protected function createFields(Metadata $metadata)
+    protected function createFields(Generic $metadata)
     {
         foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
             $this->generator
@@ -78,9 +80,9 @@ class Entity extends OOP
     /**
      * Class static fields generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
-    protected function createStaticFields(Metadata $metadata)
+    protected function createStaticFields(Generic $metadata)
     {
         return $this->generator
             ->commentVar('array', 'Collection of navigation identifiers')

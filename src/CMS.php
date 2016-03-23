@@ -8,6 +8,7 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
+use samsoncms\api\generator\analyzer\Virtual;
 use samsoncms\api\generator\Collection;
 use samsoncms\api\generator\Entity;
 use samsoncms\api\generator\Metadata;
@@ -195,9 +196,9 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         m('activerecord')->relations();
 
         // Create database analyzer
-        $generator = new Analyzer($this->database);
+        $generator = new Virtual($this->database);
         // Analyze database structure and get entities metadata
-        foreach ($generator->analyze(Metadata::TYPE_DEFAULT) as $metadata) {
+        foreach ($generator->analyze() as $metadata) {
             // Create entity generated class names
             $entityFile = $this->cache_path.$metadata->entity.'.php';
             $queryFile = $this->cache_path.$metadata->entity.'Query.php';
@@ -220,29 +221,29 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             require($queryFile);
             require($collectionFile);
 
-            // Iterate entity additional fields
-            foreach ($metadata->allFieldCmsTypes as $fieldID => $fieldType) {
-                // We need only gallery fields
-                if ($fieldType === Field::TYPE_GALLERY) {
-
-                    $fieldName = $metadata->allFieldIDs[$fieldID];
-                    // Declare class
-                    $this->generateQuerableClassHeader(
-                        $metadata,
-                        ucfirst($fieldName) . 'Gallery',
-                        '\\' . \samsoncms\api\Gallery::class,
-                        array(\samsoncms\api\Renderable::class)
-                    );
-
-                    return $this->generator
-                        ->text($this->generateConstructorGalleryClass(
-                            $metadata->entity . '::F_' . strtoupper($fieldName) . '_ID',
-                            $metadata->entity
-                        ))
-                        ->endClass()
-                        ->flush();
-                }
-            }
+//            // Iterate entity additional fields
+//            foreach ($metadata->allFieldCmsTypes as $fieldID => $fieldType) {
+//                // We need only gallery fields
+//                if ($fieldType === Field::TYPE_GALLERY) {
+//
+//                    $fieldName = $metadata->allFieldIDs[$fieldID];
+//                    // Declare class
+//                    $this->generateQuerableClassHeader(
+//                        $metadata,
+//                        ucfirst($fieldName) . 'Gallery',
+//                        '\\' . \samsoncms\api\Gallery::class,
+//                        array(\samsoncms\api\Renderable::class)
+//                    );
+//
+//                    return $this->generator
+//                        ->text($this->generateConstructorGalleryClass(
+//                            $metadata->entity . '::F_' . strtoupper($fieldName) . '_ID',
+//                            $metadata->entity
+//                        ))
+//                        ->endClass()
+//                        ->flush();
+//                }
+//            }
         }
 
 //        // Generate entities classes file
