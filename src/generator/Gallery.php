@@ -11,7 +11,7 @@ namespace samsoncms\api\generator;
  *
  * @package samsoncms\api\generator
  */
-class Gallery extends Query
+class Gallery extends Generic
 {
     /**
      * Class uses generation part.
@@ -37,9 +37,9 @@ class Gallery extends Query
     {
         $this->generator
             ->multiComment(array(
-                'Class for rendering "' . $metadata->entityRealName . '" gallery',
+                'Class for rendering "' . $metadata->realName . '" gallery',
             ))
-            ->defClass($metadata->entity . 'Gallery', '\\'.\samsoncms\api\Gallery::class)
+            ->defClass($metadata->entity, '\\'.\samsoncms\api\Gallery::class)
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')
         ->newLine();
     }
@@ -53,13 +53,13 @@ class Gallery extends Query
     {
         $class = "\n\t" . '/**';
         $class .= "\n\t" . ' * @param ViewInterface $renderer Rendering instance';
-        $class .= "\n\t" . ' * @param ' . $metadata->parent->entity . ' $entity Parent entity';
+        $class .= "\n\t" . ' * @param ' . $metadata->parentClassName . ' $entity Parent entity';
         $class .= "\n\t" . ' * @param QueryInterface $query Database query instance';
         $class .= "\n\t" . ' */';
-        $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, ' . $entityType . ' $entity, QueryInterface $query = null)';
+        $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, ' . $metadata->parentClassName . ' $entity, QueryInterface $query = null)';
         $class .= "\n\t" . '{';
         $class .= "\n\t\t" . '$this->renderer = $renderer;';
-        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $entity->id, ' . $fieldID . ');';
+        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $entity->id, ' . $metadata->fieldID . ');';
         $class .= "\n\t" . '}' . "\n";
 
         $this->generator->text($class);

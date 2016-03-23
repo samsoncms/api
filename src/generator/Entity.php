@@ -6,19 +6,17 @@
  */
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\Generic;
-
 /**
  * Entity class generator.
  *
  * @package samsoncms\api\generator
  */
-class Entity extends OOP
+class Entity extends Generic
 {
     /**
      * Class definition generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
@@ -39,7 +37,7 @@ class Entity extends OOP
     /**
      * Class constants generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
      */
     protected function createConstants($metadata)
     {
@@ -66,7 +64,7 @@ class Entity extends OOP
     /**
      * Class fields generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
      */
     protected function createFields($metadata)
     {
@@ -80,7 +78,7 @@ class Entity extends OOP
     /**
      * Class static fields generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
      */
     protected function createStaticFields($metadata)
     {

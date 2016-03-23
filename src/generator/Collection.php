@@ -6,19 +6,17 @@
  */
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\Generic;
-
 /**
  * Entity Query class generator.
  *
  * @package samsoncms\api\generator
  */
-class Collection extends Query
+class Collection extends Generic
 {
     /**
      * Class uses generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -33,7 +31,7 @@ class Collection extends Query
     /**
      * Class definition generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
@@ -51,7 +49,7 @@ class Collection extends Query
     /**
      * Class constructor generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {

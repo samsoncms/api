@@ -6,19 +6,19 @@
  */
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\Generic;
+use samsoncms\api\generator\metadata\Virtual;
 
 /**
  * Entity Query class generator.
  *
  * @package samsoncms\api\generator
  */
-class Query extends OOP
+class Query extends Generic
 {
     /**
      * Class uses generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param Virtual $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -30,7 +30,7 @@ class Query extends OOP
     /**
      * Class definition generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param Virtual $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
@@ -46,7 +46,7 @@ class Query extends OOP
     /**
      * Class static fields generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param Virtual $metadata Entity metadata
      */
     protected function createStaticFields($metadata)
     {
@@ -73,7 +73,7 @@ class Query extends OOP
     /**
      * Class methods generation part.
      *
-     * @param Generic $metadata Entity metadata
+     * @param Virtual $metadata Entity metadata
      */
     protected function createMethods($metadata)
     {

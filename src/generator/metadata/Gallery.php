@@ -16,5 +16,8 @@ class Gallery extends Generic
 
     /** @var int Parent entity identifier  */
     public $parentID;
+
+    /** @var int Parent entity classname  */
+    public $parentClassName;
 }
 //[PHPCOMPRESSOR(remove,end)]

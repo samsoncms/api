@@ -15,6 +15,9 @@ use samsonframework\orm\DatabaseInterface;
  */
 class Generic
 {
+    /** @var array Collection of all parsed metadata by identifiers */
+    public static $metadata = [];
+
     /** @var DatabaseInterface */
     protected $database;
 

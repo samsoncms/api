@@ -114,6 +114,8 @@ class Virtual extends Generic
 
             // Store metadata by entity identifier
             $metadataCollection[$structureRow['StructureID']] = $metadata;
+            // Store global collection
+            self::$metadata[$structureRow['StructureID']] = $metadata;
         }
 
 

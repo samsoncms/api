@@ -37,16 +37,24 @@ class Gallery extends Virtual
             foreach ($this->getEntityFields($navigationID) as $fieldID => $fieldRow) {
                 // We need only gallery fields
                 if ((int)$fieldRow[Field::F_TYPE] === Field::TYPE_GALLERY) {
-                    // Get camelCase and transliterated field name
-                    $metadata->entity = $this->fieldName($fieldRow[Field::F_IDENTIFIER]);
+                    $metadata->parentClassName = $this->entityName($structureRow[Navigation::F_NAME]);
+                    // Avoid GalleryGallery
+                    $metadata->entity = ucfirst($this->fieldName($fieldRow[Field::F_IDENTIFIER]));
+                    // Avoid GalleryGallery
+                    $metadata->entity = $metadata->entity !== 'Gallery' ? $metadata->entity . 'Gallery' : $metadata->entity;
+                    // Prepend Entity name
+                    $metadata->entity = $metadata->parentClassName.$metadata->entity;
                     $metadata->entityClassName = $this->fullEntityName($metadata->entity);
                     $metadata->realName = $fieldRow[Field::F_IDENTIFIER];
                     $metadata->fieldID = $fieldID;
                     $metadata->parentID = $navigationID;
-                }
 
-                // Store metadata by entity identifier
-                $metadataCollection[$navigationID] = $metadata;
+                    // Store metadata by entity identifier
+                    $metadataCollection[$navigationID] = $metadata;
+
+                    // Store global collection
+                    self::$metadata[$navigationID] = $metadata;
+                }
             }
         }
 
