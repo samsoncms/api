@@ -6,6 +6,8 @@
  */
 namespace samsoncms\api\generator;
 
+use \samsoncms\api\generator\metadata\Gallery as Metadata;
+
 /**
  * Entity gallery class generator.
  *

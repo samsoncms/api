@@ -19,14 +19,14 @@ abstract class OOP
     /** @var Generator Code generation instance */
     protected $generator;
 
-    /** @var Metadata Entity query metadata */
+    /** @var Generic Entity query Generic */
     protected $metadata;
 
     /**
      * OOP constructor.
      *
      * @param Generator $generator Code generation instance
-     * @param Metadata  $metadata Entity query metadata
+     * @param Generic  $Generic Entity query metadata
      */
     public function __construct(Generator $generator, Generic $metadata)
     {
@@ -37,7 +37,7 @@ abstract class OOP
     /**
      * Generic class generation.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      *
      * @return string Generated PHP class code
      */
@@ -60,7 +60,7 @@ abstract class OOP
     /**
      * Class uses generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
     protected function createUses(Generic $metadata)
     {
@@ -70,14 +70,14 @@ abstract class OOP
     /**
      * Class definition generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
     abstract protected function createDefinition(Generic $metadata);
 
     /**
      * Class constants generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
     protected function createConstants(Generic $metadata)
     {
@@ -87,7 +87,7 @@ abstract class OOP
     /**
      * Class static fields generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
     protected function createStaticFields(Generic $metadata)
     {
@@ -97,7 +97,7 @@ abstract class OOP
     /**
      * Class static methods generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
     protected function createStaticMethods(Generic $metadata)
     {
@@ -107,7 +107,7 @@ abstract class OOP
     /**
      * Class fields generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
     protected function createFields(Generic $metadata)
     {
@@ -117,7 +117,7 @@ abstract class OOP
     /**
      * Class methods generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
     protected function createMethods(Generic $metadata)
     {
@@ -127,7 +127,7 @@ abstract class OOP
     /**
      * Class constructor generation part.
      *
-     * @param Metadata $metadata Entity metadata
+     * @param Generic $metadata Entity metadata
      */
     protected function createConstructor(Generic $metadata)
     {
