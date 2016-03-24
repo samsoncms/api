@@ -31,16 +31,8 @@ class Virtual extends Generic
         foreach ($this->getVirtualEntities() as $structureRow) {
             // Fill in entity metadata
             $metadata = new \samsoncms\api\generator\metadata\Virtual();
-            $metadata->structureRow = $structureRow;
 
-            // Get CapsCase and transliterated entity name
-            $metadata->entity = $this->entityName($structureRow['Name']);
-            $metadata->entityClassName = $this->fullEntityName($metadata->entity);
-            $metadata->entityRealName = $structureRow['Name'];
-            $metadata->entityID = $structureRow['StructureID'];
-
-            // Try to find entity parent identifier for building future relations
-            $metadata->parentID = $this->getParentEntity($structureRow['StructureID']);
+            $this->analyzeEntityRecord($metadata, $structureRow);
 
             // TODO: Add multiple parent and fetching their data in a loop
 
@@ -82,20 +74,10 @@ class Virtual extends Generic
 
             // Iterate entity fields
             foreach ($this->getEntityFields($structureRow['StructureID']) as $fieldID => $fieldRow) {
+                $this->analyzeFieldRecord($metadata, $fieldID, $fieldRow);
+
                 // Get camelCase and transliterated field name
                 $fieldName = $this->fieldName($fieldRow['Name']);
-
-                // TODO: Set default for additional field storing type accordingly.
-
-                // Store field metadata
-                $metadata->realNames[$fieldRow['Name']] = $fieldName;
-                $metadata->allFieldIDs[$fieldID] = $fieldName;
-                $metadata->allFieldNames[$fieldName] = $fieldID;
-                $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
-                $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow['Type']);
-                $metadata->allFieldCmsTypes[$fieldID] = (int)$fieldRow['Type'];
-                $metadata->fieldDescriptions[$fieldID] = $fieldRow['Description'] . ', ' . $fieldRow['Name'] . '#' . $fieldID;
-                $metadata->fieldRawDescriptions[$fieldID] = $fieldRow['Description'];
 
                 // Fill localization fields collections
                 if ($fieldRow[Field::F_LOCALIZED] == 1) {
@@ -121,6 +103,52 @@ class Virtual extends Generic
 
 
         return $metadataCollection;
+    }
+
+
+    /**
+     * Analyze entity.
+     *
+     * @param \samsoncms\api\generator\metadata\Virtual $metadata
+     * @param array $structureRow Entity database row
+     */
+    public function analyzeEntityRecord(&$metadata, array $structureRow)
+    {
+        $metadata->structureRow = $structureRow;
+
+        // Get CapsCase and transliterated entity name
+        $metadata->entity = $this->entityName($structureRow['Name']);
+        $metadata->entityClassName = $this->fullEntityName($metadata->entity);
+        $metadata->entityRealName = $structureRow['Name'];
+        $metadata->entityID = $structureRow['StructureID'];
+
+        // Try to find entity parent identifier for building future relations
+        $metadata->parentID = $this->getParentEntity($structureRow['StructureID']);
+    }
+
+    /**
+     * Virtual entity additional field analyzer.
+     *
+     * @param \samsoncms\api\generator\metadata\Virtual $metadata Metadata instance for filling
+     * @param int      $fieldID Additional field identifier
+     * @param array $fieldRow Additional field database row
+     */
+    public function analyzeFieldRecord(&$metadata, $fieldID, array $fieldRow)
+    {
+        // Get camelCase and transliterated field name
+        $fieldName = $this->fieldName($fieldRow['Name']);
+
+        // TODO: Set default for additional field storing type accordingly.
+
+        // Store field metadata
+        $metadata->realNames[$fieldRow['Name']] = $fieldName;
+        $metadata->allFieldIDs[$fieldID] = $fieldName;
+        $metadata->allFieldNames[$fieldName] = $fieldID;
+        $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
+        $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow['Type']);
+        $metadata->allFieldCmsTypes[$fieldID] = (int)$fieldRow['Type'];
+        $metadata->fieldDescriptions[$fieldID] = $fieldRow['Description'] . ', ' . $fieldRow['Name'] . '#' . $fieldID;
+        $metadata->fieldRawDescriptions[$fieldID] = $fieldRow['Description'];
     }
 
     /**
