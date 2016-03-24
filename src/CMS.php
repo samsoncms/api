@@ -12,11 +12,8 @@ use samsoncms\api\generator\analyzer\Virtual;
 use samsoncms\api\generator\Collection;
 use samsoncms\api\generator\Entity;
 use samsoncms\api\generator\Gallery;
-use samsoncms\api\generator\Metadata;
 use samsoncms\api\generator\Query;
-use samsoncms\api\generator\Analyzer;
 
-use samsoncms\application\GeneratorApplication;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
