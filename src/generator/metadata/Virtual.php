@@ -52,5 +52,8 @@ class Virtual extends Generic
 
     /** @var array WTF? Collection of entity additional field id to its description */
     public $fieldRawDescriptions = array();
+
+    /** @var array Colllection of database strucutre row data */
+    public $structureRow;
 }
 //[PHPCOMPRESSOR(remove,end)]

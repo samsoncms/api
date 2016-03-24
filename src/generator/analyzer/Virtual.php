@@ -31,6 +31,7 @@ class Virtual extends Generic
         foreach ($this->getVirtualEntities() as $structureRow) {
             // Fill in entity metadata
             $metadata = new \samsoncms\api\generator\metadata\Virtual();
+            $metadata->structureRow = $structureRow;
 
             // Get CapsCase and transliterated entity name
             $metadata->entity = $this->entityName($structureRow['Name']);
