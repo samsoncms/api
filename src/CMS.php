@@ -196,6 +196,11 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         // TODO: Should be removed
         m('activerecord')->relations();
 
+        // Create module cache folder if not exists
+        if (!file_exists($this->cache_path)) {
+            @mkdir($this->cache_path, 0777, true);
+        }
+
         // Create database analyzer
         $generator = new Virtual($this->database);
         // Analyze database structure and get entities metadata
