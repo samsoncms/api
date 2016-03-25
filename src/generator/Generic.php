@@ -15,6 +15,9 @@ use samsonphp\generator\Generator;
  */
 abstract class Generic
 {
+    /** @var string Generated class name */
+    public $className;
+
     /** @var Generator Code generation instance */
     protected $generator;
 
@@ -31,12 +34,13 @@ abstract class Generic
     {
         $this->metadata = $metadata;
         $this->generator = $generator;
+        $this->className = $metadata->entity;
     }
 
     /**
      * Generic class generation.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param Generic|metadata\Generic $metadata Entity metadata
      *
      * @return string Generated PHP class code
      */

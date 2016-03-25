@@ -32,6 +32,8 @@ class Entity extends Generic
         $this->generator
             ->multiComment(array('"' . $metadata->entityRealName . '" database entity class'))
             ->defClass($metadata->entity, $parentClass);
+
+        return $metadata->entity;
     }
 
     /**

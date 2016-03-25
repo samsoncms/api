@@ -21,6 +21,9 @@ class Generic
     /** @var DatabaseInterface */
     protected $database;
 
+    /** @var string Metadata class */
+    protected $metadataClass = \samsoncms\api\generator\metadata\Generic::class;
+
     /**
      * Generator constructor.
      * @param DatabaseInterface $database Database instance
