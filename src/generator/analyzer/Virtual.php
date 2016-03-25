@@ -17,6 +17,9 @@ use samsoncms\api\generator\exception\ParentEntityNotFound;
  */
 class Virtual extends Generic
 {
+    /** @var string Metadata class */
+    protected $metadataClass = \samsoncms\api\generator\metadata\Virtual::class;
+
     /**
      * Analyze virtual entities and gather their metadata.
      *
@@ -30,7 +33,7 @@ class Virtual extends Generic
         // Iterate all structures, parents first
         foreach ($this->getVirtualEntities() as $structureRow) {
             // Fill in entity metadata
-            $metadata = new \samsoncms\api\generator\metadata\Virtual();
+            $metadata = new $this->metadataClass;
 
             $this->analyzeEntityRecord($metadata, $structureRow);
 
