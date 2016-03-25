@@ -5,6 +5,7 @@
  * on 22.03.16 at 15:46
  */
 namespace samsoncms\api\generator;
+use samsonphp\generator\Generator;
 
 /**
  * Entity Query class generator.
@@ -13,6 +14,19 @@ namespace samsoncms\api\generator;
  */
 class Collection extends Generic
 {
+    /**
+     * Query constructor.
+     *
+     * @param Generator $generator
+     * @param           $metadata
+     */
+    public function __construct(Generator $generator, $metadata)
+    {
+        parent::__construct($generator, $metadata);
+
+        $this->className .= 'Collection';
+    }
+
     /**
      * Class uses generation part.
      *
@@ -41,7 +55,7 @@ class Collection extends Generic
                 '@method ' . $metadata->entity . ' first();',
                 '@method ' . $metadata->entity . '[] find();',
             ))
-            ->defClass($metadata->entity . 'Collection', $metadata->entity .'Query')
+            ->defClass($this->className, $metadata->entity .'Query')
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')
         ->newLine();
     }

@@ -14,6 +14,7 @@ use samsoncms\api\generator\Entity;
 use samsoncms\api\generator\Gallery;
 use samsoncms\api\generator\Query;
 
+use samsoncms\api\generator\Writer;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
@@ -193,67 +194,28 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         // TODO: Should be removed
         m('activerecord')->relations();
 
-        // Create module cache folder if not exists
-        if (!file_exists($this->cache_path)) {
-            @mkdir($this->cache_path, 0777, true);
-        }
+        $classWriter = new Writer(
+            $this->database,
+            new Generator(),
+            __NAMESPACE__.'\\generated',
+            [
+                \samsoncms\api\generator\analyzer\Virtual::class => [
+                    \samsoncms\api\generator\Entity::class,
+                    \samsoncms\api\generator\Query::class,
+                    \samsoncms\api\generator\Collection::class,
+                ],
+                \samsoncms\api\generator\analyzer\Gallery::class => [
+                    \samsoncms\api\generator\Gallery::class,
+                ],
+                \samsoncms\api\generator\analyzer\Application::class => [
+                    \samsoncms\api\generator\Application::class,
+                    \samsoncms\api\generator\ApplicationCollection::class,
+                ]
+            ],
+            $this->cache_path
+        );
 
-        // Create database analyzer
-        $generator = new Virtual($this->database);
-        // Analyze database structure and get entities metadata
-        foreach ($generator->analyze() as $metadata) {
-            // Create entity generated class names
-            $entityFile = $this->cache_path.$metadata->entity.'.php';
-            $queryFile = $this->cache_path.$metadata->entity.'Query.php';
-            $collectionFile = $this->cache_path.$metadata->entity.'Collection.php';
-
-            // Create entity query class generator
-            $entityGenerator = new Entity(new Generator(__NAMESPACE__.'\\generated'), $metadata);
-            // Create entity query class generator
-            $queryGenerator = new Query(new Generator(__NAMESPACE__.'\\generated'), $metadata);
-            // Create entity query collection class generator
-            $collectionGenerator = new Collection(new Generator(__NAMESPACE__.'\\generated'), $metadata);
-
-            // Create entity query class files
-            file_put_contents($entityFile, '<?php' . $entityGenerator->generate());
-            file_put_contents($queryFile, '<?php' . $queryGenerator->generate());
-            file_put_contents($collectionFile, '<?php' . $collectionGenerator->generate());
-
-            // Require files
-            require($entityFile);
-            require($queryFile);
-            require($collectionFile);
-        }
-
-        // Create database analyzer
-        $generator = new \samsoncms\api\generator\analyzer\Gallery($this->database);
-        // Analyze database structure and get entities metadata
-        foreach ($generator->analyze() as $metadata) {
-            // Create entity generated class names
-            $entityFile = $this->cache_path.$metadata->entity.'.php';
-
-            // Create entity query class generator
-            $entityGenerator = new Gallery(new Generator(__NAMESPACE__.'\\generated'), $metadata);
-
-            // Create entity query class files
-            file_put_contents($entityFile, '<?php' . $entityGenerator->generate());
-
-            // Require files
-            require($entityFile);
-        }
-
-//        // Generate entities classes file
-//        $generatorApi = new GeneratorApi($this->database);
-//        //$queryGenerator = new Query($this->database);
-//
-//        // Create cache file
-//        $file = md5($generatorApi->entityHash()).'.php';
-//        if ($this->cache_refresh($file)) {
-//            file_put_contents($file, '<?php ' . $generatorApi->createEntityClasses());
-//        }
-//
-//        // Include entities file
-//        require($file);
+        $classWriter->write();
 
         return parent::prepare();
     }

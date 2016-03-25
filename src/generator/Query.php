@@ -7,6 +7,7 @@
 namespace samsoncms\api\generator;
 
 use samsoncms\api\generator\metadata\Virtual;
+use samsonphp\generator\Generator;
 
 /**
  * Entity Query class generator.
@@ -15,6 +16,19 @@ use samsoncms\api\generator\metadata\Virtual;
  */
 class Query extends Generic
 {
+    /**
+     * Query constructor.
+     *
+     * @param Generator $generator
+     * @param           $metadata
+     */
+    public function __construct(Generator $generator, $metadata)
+    {
+        parent::__construct($generator, $metadata);
+
+        $this->className .= 'Query';
+    }
+
     /**
      * Class uses generation part.
      *
@@ -40,7 +54,7 @@ class Query extends Generic
                 '@method ' . $metadata->entity . ' first();',
                 '@method ' . $metadata->entity . '[] find();',
             ))
-            ->defClass($metadata->entity . 'Query', '\\'. \samsoncms\api\query\Entity::class);
+            ->defClass($this->className, '\\'. \samsoncms\api\query\Entity::class);
     }
 
     /**
