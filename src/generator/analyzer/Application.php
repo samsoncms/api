@@ -10,6 +10,9 @@ use samsoncms\api\Field;
  */
 class Application extends \samsoncms\api\generator\analyzer\Virtual
 {
+    /** @var string Metadata class */
+    protected $metadataClass = \samsoncms\api\generator\metadata\Application::class;
+
     /**
      * Analyze entity.
      *

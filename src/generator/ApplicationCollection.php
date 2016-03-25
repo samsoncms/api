@@ -6,6 +6,8 @@
  */
 namespace samsoncms\api\generator;
 
+use samsonphp\generator\Generator;
+
 /**
  * SamsonCMS application collection class generator.
  *
@@ -13,6 +15,9 @@ namespace samsoncms\api\generator;
  */
 class ApplicationCollection extends \samsoncms\api\generator\Generic
 {
+    /** Default generic class name */
+    const DEFAULT_GENERIC_TYPE = 'Generic';
+
     /** Default control class name */
     const DEFAULT_GENERIC_CONTROL_TYPE = 'Control';
 
@@ -27,6 +32,19 @@ class ApplicationCollection extends \samsoncms\api\generator\Generic
 
     /** Default namespace of custom types */
     const DEFAULT_CUSTOM_TYPE_NAMESPACE = '\\samsonphp\\cms\\types\\';
+
+    /**
+     * Query constructor.
+     *
+     * @param Generator $generator
+     * @param           $metadata
+     */
+    public function __construct(Generator $generator, $metadata)
+    {
+        parent::__construct($generator, $metadata);
+
+        $this->className .= 'ApplicationCollection';
+    }
 
     /**
      * Class uses generation part.
@@ -44,13 +62,13 @@ class ApplicationCollection extends \samsoncms\api\generator\Generic
     /**
      * Class definition generation part.
      *
-     * @param \samsoncms\application\generator\metadata\Application $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array('Collection for SamsonCMS application "'.$metadata->name.'"'))
-            ->defClass($metadata->entity, '\\'.\samsoncms\app\material\Collection::class);
+            ->defClass($this->className, '\\'.\samsoncms\app\material\Collection::class);
     }
 
     /**
@@ -94,7 +112,7 @@ class ApplicationCollection extends \samsoncms\api\generator\Generic
     /**
      * Class constructor generation part.
      *
-     * @param \samsoncms\application\generator\metadata\Application $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {
@@ -114,6 +132,7 @@ class ApplicationCollection extends \samsoncms\api\generator\Generic
     }
 EOD;
         // Iterate all application fields and create generic constructor for them
+        $genericFields = [];
         foreach ($metadata->showFieldsInList as $fieldID) {
             // Create constructor for custom type or if it not exists then use cms defined type
             $genericFields[] = $this->createCollectionField(

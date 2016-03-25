@@ -6,6 +6,8 @@
  */
 namespace samsoncms\api\generator;
 
+use samsonphp\generator\Generator;
+
 /**
  * SamsonCMS application classes generator.
  *
@@ -13,9 +15,6 @@ namespace samsoncms\api\generator;
  */
 class Application extends \samsoncms\api\generator\Generic
 {
-    /** Default generic class name */
-    const DEFAULT_GENERIC_TYPE = 'Generic';
-
     /** Default control class name */
     const DEFAULT_GENERIC_CONTROL_TYPE = 'Control';
 
@@ -26,22 +25,35 @@ class Application extends \samsoncms\api\generator\Generic
     const MAIN_ITEM_VIEW = 'www/main_application/row';
 
     /**
+     * Query constructor.
+     *
+     * @param Generator $generator
+     * @param           $metadata
+     */
+    public function __construct(Generator $generator, $metadata)
+    {
+        parent::__construct($generator, $metadata);
+
+        $this->className .= 'Application';
+    }
+
+    /**
      * Class definition generation part.
      *
-     * @param \samsoncms\application\generator\metadata\Application $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array('Class application for "'.$metadata->name.'"'))
-            ->defClass($metadata->entity, '\\'.\samsoncms\app\material\Application::class)
+            ->defClass($this->className, '\\'.\samsoncms\app\material\Application::class)
         ;
     }
 
     /**
      * Class fields generation part.
      *
-     * @param \samsoncms\application\generator\metadata\Application $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
      */
     protected function createFields($metadata)
     {

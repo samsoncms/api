@@ -5,6 +5,7 @@
  * on 22.03.16 at 15:46
  */
 namespace samsoncms\api\generator;
+
 use samsonphp\generator\Generator;
 
 /**
