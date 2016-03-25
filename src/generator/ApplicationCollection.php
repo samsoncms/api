@@ -49,7 +49,7 @@ class ApplicationCollection extends \samsoncms\api\generator\Generic
     /**
      * Class uses generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
