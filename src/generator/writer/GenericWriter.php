@@ -14,9 +14,9 @@ use samsonphp\generator\Generator;
  *
  * @package samsoncms\api\generator
  */
-class Writer
+class GenericWriter
 {
-    /** @var \samsoncms\api\generator\analyzer\Generic[string] Collection of entity analyzers */
+    /** @var \samsoncms\api\generator\analyzer\GenericAnalyzer[string] Collection of entity analyzers */
     protected $analyzers = [];
 
     /** @var \samsoncms\api\generator\Generic[string] Collection of entity generators */

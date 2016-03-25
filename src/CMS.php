@@ -12,6 +12,7 @@ use samsoncms\api\generator\analyzer\Virtual;
 use samsoncms\api\generator\Collection;
 use samsoncms\api\generator\Entity;
 use samsoncms\api\generator\Gallery;
+use samsoncms\api\generator\GenericWriter;
 use samsoncms\api\generator\Query;
 
 use samsoncms\api\generator\Writer;
@@ -194,7 +195,7 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         // TODO: Should be removed
         m('activerecord')->relations();
 
-        $classWriter = new Writer(
+        $classWriter = new GenericWriter(
             $this->database,
             new Generator(),
             __NAMESPACE__.'\\generated',

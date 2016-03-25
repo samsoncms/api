@@ -13,7 +13,7 @@ use samsonframework\orm\DatabaseInterface;
  *
  * @package samsoncms\api\analyzer
  */
-class Generic
+class GenericAnalyzer
 {
     /** @var array Collection of all parsed metadata by identifiers */
     public static $metadata = [];
@@ -22,7 +22,7 @@ class Generic
     protected $database;
 
     /** @var string Metadata class */
-    protected $metadataClass = \samsoncms\api\generator\metadata\Generic::class;
+    protected $metadataClass = \samsoncms\api\generator\metadata\GenericMetadata::class;
 
     /**
      * Generator constructor.
@@ -34,7 +34,7 @@ class Generic
     }
 
     /**
-     * @return \samsoncms\api\generator\metadata\Generic[]
+     * @return \samsoncms\api\generator\metadata\GenericMetadata[]
      */
     public function analyze()
     {

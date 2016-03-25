@@ -15,7 +15,7 @@ use samsoncms\api\generator\exception\ParentEntityNotFound;
  *
  * @package samsoncms\api\analyzer
  */
-class Virtual extends Generic
+class Virtual extends GenericAnalyzer
 {
     /** @var string Metadata class */
     protected $metadataClass = \samsoncms\api\generator\metadata\Virtual::class;

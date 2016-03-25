@@ -21,14 +21,14 @@ abstract class Generic
     /** @var Generator Code generation instance */
     protected $generator;
 
-    /** @var \samsoncms\api\generator\metadata\Generic Entity query Generic */
+    /** @var \samsoncms\api\generator\metadata\GenericMetadata Entity query Generic */
     protected $metadata;
 
     /**
      * OOP constructor.
      *
-     * @param Generator $generator Code generation instance
-     * @param \samsoncms\api\generator\metadata\Generic  $Generic Entity query metadata
+     * @param Generator                                         $generator Code generation instance
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $Generic   Entity query metadata
      */
     public function __construct(Generator $generator, $metadata)
     {
@@ -40,7 +40,7 @@ abstract class Generic
     /**
      * Generic class generation.
      *
-     * @param Generic|metadata\Generic $metadata Entity metadata
+     * @param Generic|metadata\GenericMetadata $metadata Entity metadata
      *
      * @return string Generated PHP class code
      */
@@ -63,7 +63,7 @@ abstract class Generic
     /**
      * Class uses generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -73,14 +73,14 @@ abstract class Generic
     /**
      * Class definition generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
      */
     abstract protected function createDefinition($metadata);
 
     /**
      * Class constants generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
      */
     protected function createConstants($metadata)
     {
@@ -90,7 +90,7 @@ abstract class Generic
     /**
      * Class static fields generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
      */
     protected function createStaticFields($metadata)
     {
@@ -100,7 +100,7 @@ abstract class Generic
     /**
      * Class static methods generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
      */
     protected function createStaticMethods($metadata)
     {
@@ -110,7 +110,7 @@ abstract class Generic
     /**
      * Class fields generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
      */
     protected function createFields($metadata)
     {
@@ -120,7 +120,7 @@ abstract class Generic
     /**
      * Class methods generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
      */
     protected function createMethods($metadata)
     {
@@ -130,7 +130,7 @@ abstract class Generic
     /**
      * Class constructor generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Generic $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {
