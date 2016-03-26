@@ -242,4 +242,36 @@ class Material extends \samson\activerecord\Material
 
         return $clone;
     }
+
+    /**
+     * Remove current object.
+     */
+    public function remove()
+    {
+        $this->Active = 0;
+
+        $this->removeRelatedEntity(CMS::MATERIAL_NAVIGATION_RELATION_ENTITY);
+        $this->removeRelatedEntity(CMS::MATERIAL_FIELD_RELATION_ENTITY);
+        $this->removeRelatedEntity(CMS::MATERIAL_IMAGES_RELATION_ENTITY);
+        foreach ($this->query->entity(self::ENTITY)->where(self::F_PARENT, $this->MaterialID)->exec() as $removedChild) {
+            /** @var MaterialField $copy Copy instance */
+            $removedChild->remove();
+        }
+        $this->save();
+    }
+
+    /**
+     * Remove this material related entities.
+     *
+     * @param string $entity Entity identifier
+     */
+    protected function removeRelatedEntity($entity)
+    {
+        /** @var self $copiedEntity Remove additional fields */
+        foreach ($this->query->entity($entity)->where(self::F_PRIMARY, $this->MaterialID)->exec() as $removedEntity) {
+            /** @var MaterialField $copy Copy instance */
+            $removedEntity->Active = 0;
+            $removedEntity->save();
+        }
+    }
 }
