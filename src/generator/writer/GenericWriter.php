@@ -71,7 +71,7 @@ class GenericWriter
     {
         // Create module cache folder if not exists
         if (!file_exists($this->path)) {
-            @mkdir($path, 0777, true);
+            @mkdir($this->path, 0777, true);
         }
 
         foreach ($this->analyzers as $analyzerClass => $analyzer) {
