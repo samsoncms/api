@@ -8,12 +8,7 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
-use samsoncms\api\generator\analyzer\Virtual;
-use samsoncms\api\generator\Collection;
-use samsoncms\api\generator\Entity;
-use samsoncms\api\generator\Gallery;
 use samsoncms\api\generator\GenericWriter;
-use samsoncms\api\generator\Query;
 
 use samsoncms\api\generator\Writer;
 use samsonframework\core\ResourcesInterface;
