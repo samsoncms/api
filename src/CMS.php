@@ -207,10 +207,6 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
                 ],
                 \samsoncms\api\generator\analyzer\Gallery::class => [
                     \samsoncms\api\generator\Gallery::class,
-                ],
-                \samsoncms\api\generator\analyzer\Application::class => [
-                    \samsoncms\api\generator\Application::class,
-                    \samsoncms\api\generator\ApplicationCollection::class,
                 ]
             ],
             $this->cache_path
