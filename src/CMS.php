@@ -9,8 +9,6 @@ require('generated/Structure.php');
 require('generated/StructureField.php');
 
 use samsoncms\api\generator\GenericWriter;
-
-use samsoncms\api\generator\Writer;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
