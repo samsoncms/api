@@ -466,7 +466,7 @@ class Collection extends Paged
         }
     }
 
-    /**
+        /**
      * Perform material own fields sorting
      *
      * @param array $materialIDs Variable to return sorted collection
@@ -481,6 +481,7 @@ class Collection extends Paged
             if (in_array($this->sorter['field'], \samson\activerecord\material::$_attributes)) {
                 // Sort material identifiers by its additional fields
                 $this->query->entity('\samson\activerecord\material')
+                    ->where('MaterialID', $materialIDs)
                     ->orderBy($this->sorter['field'], $this->sorter['destination'])
                     ->fields('MaterialID', $materialIDs);
             }
