@@ -21,13 +21,7 @@ class Row
     protected $collection;
 
     /** @var int Material primary identifier */
-    protected $primary;
-
-    /** @var mixed Last entity creation timestamp */
-    protected $created;
-
-    /** @var mixed Last entity modification timestamp */
-    protected $modified;
+    public $primary;
 
     /**
      * Row constructor.
@@ -42,6 +36,9 @@ class Row
 
         // Set row fields
         foreach ($collection as $key => $value) {
+            if ($key === 'primary') {
+                continue;
+            }
             $this->$key = $value;
         }
     }

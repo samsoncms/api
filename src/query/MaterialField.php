@@ -11,6 +11,9 @@ use samson\activerecord\dbQuery;
 use samsoncms\api\Material;
 use samsoncms\api\Field;
 use samsoncms\api\CMS;
+use samsonframework\orm\Condition;
+use samsonframework\orm\ArgumentInterface;
+use samsonframework\orm\ConditionInterface;
 
 /**
  * Material to additional fields relation query.
@@ -39,7 +42,7 @@ class MaterialField extends Relational
      * Get current entity identifiers collection by relation identifier ans its value.
      *
      * @param string $relationID Relation entity identifier
-     * @param mixed $relationValue Relation entity value
+     * @param mixed|Condition $relationValue Relation entity value or relation condition
      * @param array $filteringIDs Collection of entity identifiers for filtering query
      * @return array Collection of entity identifiers filtered by navigation identifier.
      */
@@ -53,8 +56,13 @@ class MaterialField extends Relational
             // Get material identifiers by field
             $this->query->entity($this->relationIdentifier)
                 ->where(\samsoncms\api\MaterialField::F_DELETION, 1)
-                ->where($this->relationPrimary, $relationID)
-                ->where($fieldRecord->valueFieldName(), $relationValue);
+                ->where($this->relationPrimary, $relationID);
+
+            if ($relationValue instanceof ConditionInterface) {
+                $this->query->whereCondition($relationValue);
+            } else {
+                $this->query->where($fieldRecord->valueFieldName(), $relationValue);
+            }
 
             // Add material identifier filter if passed
             if (sizeof($filteringIDs)) {

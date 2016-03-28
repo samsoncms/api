@@ -1,2 +1,0 @@
-ALTER TABLE `structure`
-ADD FOREIGN KEY (`ParentID`) REFERENCES `structure` (`structureid`) ON DELETE SET NULL ON UPDATE CASCADE;

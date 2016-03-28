@@ -8,12 +8,13 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
-use samsoncms\application\GeneratorApplication;
+use samsoncms\api\generator\GenericWriter;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samson\activerecord\TableRelation;
 use samson\core\CompressableService;
 use samson\activerecord\dbMySQLConnector;
+use samsonphp\generator\Generator;
 
 /**
  * SamsonCMS API
@@ -105,7 +106,7 @@ class CMS extends CompressableService
      * Read SQL file with variables placeholders pasting
      * @param string $filePath SQL file for reading
      * @param string $prefix Prefix for addition
-     * @return string SQL command text
+     * @return array Collection of SQL command texts
      */
     public function readSQL($filePath, $prefix = '')
     {
@@ -117,7 +118,11 @@ class CMS extends CompressableService
             $sql = str_replace('@prefix', $prefix, file_get_contents($filePath));
         }
 
-        return $sql;
+        // Split queries
+        $sqlCommands = explode(';', str_replace("\n", '', $sql));
+
+        // Always return array
+        return array_filter(is_array($sqlCommands) ? $sqlCommands : array($sqlCommands));
     }
 
     /**
@@ -125,19 +130,22 @@ class CMS extends CompressableService
      */
     public function prepare()
     {
-        // Update table to new structure
-        db()->execute('ALTER TABLE `material` CHANGE `parent_id` `parent_id` INT(11) NULL DEFAULT NULL;');
-        db()->execute('UPDATE `material` SET `parent_id` = NULL WHERE `parent_id` = 0;');
-
-        db()->execute('ALTER TABLE `materialfield` CHANGE COLUMN `locale` `locale` VARCHAR(10) NULL DEFAULT NULL;');
-        db()->execute("UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';");
+        // Create cms_version
+        $this->database->execute('
+CREATE TABLE IF NOT EXISTS `cms_version`  (
+  `version` varchar(15) NOT NULL DEFAULT \'30\'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
+        );
 
         // Perform this migration and execute only once
         if ($this->migrator() != 40) {
             // Perform SQL table creation
             $path = __DIR__ . '/../sql/';
             foreach (array_slice(scandir($path), 2) as $file) {
-                $this->database->execute($this->readSQL($path . $file, $this->tablePrefix));
+                trace('Performing database script ['.$file.']');
+                foreach ($this->readSQL($path . $file, $this->tablePrefix) as $sql) {
+                    $this->database->execute($sql);
+                }
             }
             $this->migrator(40);
         }
@@ -163,8 +171,8 @@ class CMS extends CompressableService
         new TableRelation('structure', 'user', 'UserID', 0, 'user_id');
         new TableRelation('structure', 'materialfield', 'material.MaterialID', TableRelation::T_ONE_TO_MANY, 'MaterialID', '_mf');
         new TableRelation('structure', 'structurematerial', 'StructureID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('related_materials', 'material', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
-        new TableRelation('related_materials', 'materialfield', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
+        //new TableRelation('related_materials', 'material', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
+        //new TableRelation('related_materials', 'materialfield', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
         new TableRelation('field', 'structurefield', 'FieldID');
         new TableRelation('field', 'structure', 'structurefield.StructureID');
         new TableRelation('structurefield', 'field', 'FieldID');
@@ -180,17 +188,24 @@ class CMS extends CompressableService
         // TODO: Should be removed
         m('activerecord')->relations();
 
-        // Generate entities classes file
-        $generatorApi = new GeneratorApi($this->database);
+        $classWriter = new GenericWriter(
+            $this->database,
+            new Generator(),
+            __NAMESPACE__.'\\generated',
+            [
+                \samsoncms\api\generator\analyzer\Virtual::class => [
+                    \samsoncms\api\generator\Entity::class,
+                    \samsoncms\api\generator\Query::class,
+                    \samsoncms\api\generator\Collection::class,
+                ],
+                \samsoncms\api\generator\analyzer\Gallery::class => [
+                    \samsoncms\api\generator\Gallery::class,
+                ]
+            ],
+            $this->cache_path
+        );
 
-        // Create cache file
-        $file = md5($generatorApi->entityHash()).'.php';
-        if ($this->cache_refresh($file)) {
-            file_put_contents($file, '<?php ' . $generatorApi->createEntityClasses());
-        }
-
-        // Include entities file
-        require($file);
+        $classWriter->write();
 
         return parent::prepare();
     }

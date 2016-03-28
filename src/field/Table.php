@@ -173,7 +173,7 @@ class Table
 
             // Go through collection again and created specific rows
             foreach ($collection as $materialID => $fields) {
-                $this->collection[$materialID] = new $this->rowInstance($materialID, $fields, $materials[$materialID]->Created, $materials[$materialID]->Modyfied);
+                $this->collection[$materialID] = new $this->rowInstance($materialID, array_merge($fields, array('created' => $materials[$materialID]->Created, 'modified' => $materials[$materialID]->Modyfied)));
             }
         }
     }

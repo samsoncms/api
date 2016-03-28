@@ -17,6 +17,9 @@ use samsonframework\orm\Record;
 if (!class_exists('\samson\activerecord\material', false)) {
     class Material extends Record
     {
+        /** @var string Name of material */
+        public $Name;
+
         /** @var integer Primary field */
         public $MaterialID;
 
@@ -40,6 +43,9 @@ if (!class_exists('\samson\activerecord\material', false)) {
 
         /** @var mixed Last material modification timestamp */
         public $Modyfied;
+
+        /** @var mixed Identifier of user */
+        public $UserID;
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

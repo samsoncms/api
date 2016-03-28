@@ -6,6 +6,7 @@
 namespace samsoncms\api;
 
 use samson\activerecord\dbQuery;
+use samson\activerecord\structurematerial;
 use samsoncms\api\field\Row;
 use \samsonframework\orm\QueryInterface;
 
@@ -50,30 +51,6 @@ class Material extends \samson\activerecord\Material
         return func_num_args() > 2 ? $return !== null : $return;
     }
 
-    /** @var integer Primary field */
-    public $MaterialID;
-
-    /** @var string Unique identifier */
-    public $Url;
-
-    /** @var bool Internal existence flag */
-    public $Active;
-
-    /** @var bool Published flag */
-    public $Published;
-
-    /** @var integer Parent material identifier */
-    public $parent_id;
-
-    /** @var integer Priority inside material relation */
-    public $priority;
-
-    /** @var mixed Last material creation timestamp */
-    public $Created;
-
-    /** @var mixed Last material modification timestamp */
-    public $Modyfied;
-
     /**
      * Set additional material field value by field identifier
      * @param string $fieldID Field identifier
@@ -116,10 +93,7 @@ class Material extends \samson\activerecord\Material
     public function addTableRow(Row $row)
     {
         // Get user
-        /** @var \samson\social\Core $socialModule Social module object */
-        $socialModule = m('social');
-        /** @var \samson\activerecord\user $user User object */
-        $user = $socialModule->user();
+        $user = m('socialemail')->user();
 
         $tableMaterial = new Material();
         $tableMaterial->parent_id = $this->id;
@@ -134,11 +108,33 @@ class Material extends \samson\activerecord\Material
         $tableMaterial->Modyfied = date('Y-m-d H:m:s');
         $tableMaterial->save();
 
+        // TODO: Ugly way to retrieve static var
+        $class = new \ReflectionClass(preg_replace('/Row$/', '', get_class($row)));
+        $structureId = $class->getConstant('IDENTIFIER');
+
+        $structureMaterial = new structurematerial();
+        $structureMaterial->Active = 1;
+        $structureMaterial->MaterialID = $tableMaterial->id;
+        $structureMaterial->StructureID = $structureId;
+        $structureMaterial->save();
+
+        // TODO: Ugly way to retrieve static var
+        $class = new \ReflectionClass(get_class($row));
+        $fieldIDs = $class->getStaticPropertyValue('fieldIDs');
+
         // Iterate and set all fields of row
         foreach ($row as $id => $value) {
 
+            /**
+             * Go next if it primary key because its public
+             * TODO Fix it
+             */
+            if ($id === 'primary') {
+                continue;
+            }
+
             // Get field id
-            $fieldId = $row::$fieldIDs[$id];
+            $fieldId = $fieldIDs[$id];
 
             // Add additional field to created material
             $tableMaterial->setFieldByID($fieldId, $value);
@@ -245,5 +241,37 @@ class Material extends \samson\activerecord\Material
         $this->copyRelatedEntity(CMS::MATERIAL_IMAGES_RELATION_ENTITY, $clone->id);
 
         return $clone;
+    }
+
+    /**
+     * Remove current object.
+     */
+    public function remove()
+    {
+        $this->Active = 0;
+
+        $this->removeRelatedEntity(CMS::MATERIAL_NAVIGATION_RELATION_ENTITY);
+        $this->removeRelatedEntity(CMS::MATERIAL_FIELD_RELATION_ENTITY);
+        $this->removeRelatedEntity(CMS::MATERIAL_IMAGES_RELATION_ENTITY);
+        foreach ($this->query->entity(self::ENTITY)->where(self::F_PARENT, $this->MaterialID)->exec() as $removedChild) {
+            /** @var MaterialField $copy Copy instance */
+            $removedChild->remove();
+        }
+        $this->save();
+    }
+
+    /**
+     * Remove this material related entities.
+     *
+     * @param string $entity Entity identifier
+     */
+    protected function removeRelatedEntity($entity)
+    {
+        /** @var self $copiedEntity Remove additional fields */
+        foreach ($this->query->entity($entity)->where(self::F_PRIMARY, $this->MaterialID)->exec() as $removedEntity) {
+            /** @var MaterialField $copy Copy instance */
+            $removedEntity->Active = 0;
+            $removedEntity->save();
+        }
     }
 }

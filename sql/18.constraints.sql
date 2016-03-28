@@ -1,0 +1,4 @@
+ALTER TABLE `structure`
+ADD FOREIGN KEY (`ParentID`) REFERENCES `structure` (`structureid`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `material`
+ADD FOREIGN KEY (`parent_id`) REFERENCES `material` (`materialid`) ON DELETE SET NULL ON UPDATE CASCADE;

@@ -21,14 +21,13 @@ class Navigation extends structure
     /** Entity field names constants for using in code */
     const F_PRIMARY = 'StructureID';
     const F_IDENTIFIER = 'Url';
+    const F_NAME = 'Name';
     const F_DELETION = 'Active';
     const F_PARENT = 'ParentID';
     const F_PRIORITY = 'priority';
     const F_CREATED = 'Created';
     const F_MODIFIED = 'Modyfied';
-
-    /** @var string Navigation string identifier */
-    public $url;
+    const F_DEF_MATERIAL = 'MaterialID';
 
     /** @var self[] Collection of child items */
     public $children = array();
