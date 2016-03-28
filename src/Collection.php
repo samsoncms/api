@@ -441,7 +441,8 @@ class Collection extends Paged
     {
         return $this->applyNavigationFilter($filteredIds)
         && $this->applyFieldFilter($filteredIds)
-        && $this->applySearchFilter($filteredIds);
+        && $this->applySearchFilter($filteredIds)
+        && $this->applyMaterialSorter($filteredIds);
     }
 
     /**
@@ -463,6 +464,29 @@ class Collection extends Paged
                     ->fields('MaterialID', $materialIDs);
             }
         }
+    }
+
+    /**
+     * Perform material own fields sorting
+     *
+     * @param array $materialIDs Variable to return sorted collection
+     *
+     * @return bool Always true as we are just sorting
+     */
+    protected function applyMaterialSorter(&$materialIDs = array())
+    {
+        // Check if sorter is configured
+        if (count($this->sorter)) {
+            // If we need to sort by entity additional field(column)
+            if (in_array($this->sorter['field'], \samson\activerecord\material::$_attributes)) {
+                // Sort material identifiers by its additional fields
+                $this->query->entity('\samson\activerecord\material')
+                    ->orderBy($this->sorter['field'], $this->sorter['destination'])
+                    ->fields('MaterialID', $materialIDs);
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -535,6 +559,10 @@ class Collection extends Paged
 
         // If no filters is set
         if (!count($this->search) && !count($this->navigation) && !count($this->field)) {
+            // Add sorting if present for material table
+            if (count($this->sorter) && !array_key_exists('enitity', $this->sorter)) {
+                $this->query->orderBy($this->sorter['field'], $this->sorter['destination']);
+            }
             // Get all entity records identifiers
             $this->materialIDs = $this->query->where('Active', 1)->where('system', 0)->fields($class::$_primary);
         }
