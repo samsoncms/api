@@ -391,13 +391,15 @@ class Entity extends Generic
                 $this->entityIDs = array_slice($this->entityIDs, ($page - 1) * $size, $size);
             }
 
-            //elapsed('End fields values');
-            /** @var \samsoncms\api\Entity $item Find entity instances */
-            foreach (parent::find() as $item) {
-                $item = $this->fillEntityFields($item, $additionalFields);
+            // Perform parent find() only if we have entity identifiers
+            if (count($this->entityIDs)) {
+                /** @var \samsoncms\api\Entity $item Find entity instances */
+                foreach (parent::find() as $item) {
+                    $item = $this->fillEntityFields($item, $additionalFields);
 
-                // Store entity by identifier
-                $return[$item[Material::F_PRIMARY]] = $item;
+                    // Store entity by identifier
+                    $return[$item[Material::F_PRIMARY]] = $item;
+                }
             }
         }
 
