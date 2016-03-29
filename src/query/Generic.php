@@ -202,6 +202,24 @@ class Generic
     }
 
     /**
+     * Reorder elements in one array according to keys of another.
+     *
+     * @param array $array Source array
+     * @param array $orderArray Ideal array
+     * @return array Ordered array
+     */
+    protected function sortArrayByArray(array $array, array $orderArray) {
+        $ordered = array();
+        foreach($orderArray as $key) {
+            if(array_key_exists($key,$array)) {
+                $ordered[$key] = $array[$key];
+                unset($array[$key]);
+            }
+        }
+        return $ordered + $array;
+    }
+
+    /**
      * Perform SamsonCMS query and get entities collection.
      *
      * @return \samsoncms\api\Entity[] Collection of found entities
@@ -227,24 +245,6 @@ class Generic
 
         // Reorder if entity identifiers collection was defined
         return $this->sortArrayByArray($return, $this->entityIDs);
-    }
-
-    /**
-     * Reorder elements in one array according to keys of another.
-     *
-     * @param array $array Source array
-     * @param array $orderArray Ideal array
-     * @return array Ordered array
-     */
-    protected function sortArrayByArray(array $array, array $orderArray) {
-        $ordered = array();
-        foreach($orderArray as $key) {
-            if(array_key_exists($key,$array)) {
-                $ordered[$key] = $array[$key];
-                unset($array[$key]);
-            }
-        }
-        return $ordered + $array;
     }
 
     /**
