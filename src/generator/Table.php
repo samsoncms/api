@@ -80,7 +80,7 @@ class Table extends Generic
     {
         $this->generator
             ->commentVar('array', 'Collection of real additional field names')
-            ->defClassVar('$fieldRealNames', 'public static', $metadata->realNames);
+            ->defClassVar('$fieldsRealNames', 'public static', $metadata->realNames);
     }
 
     /**
