@@ -50,9 +50,25 @@ class Table extends Generic
             ->multiComment(array(
                 'Class for rendering "' . $metadata->entityRealName . '" table',
             ))
-            ->defClass($metadata->entity, '\\'.\samsoncms\api\field\Table::class)
+            ->defClass($this->className, '\\'.\samsoncms\api\field\Table::class)
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')
             ->newLine();
+    }
+
+    /**
+     * Class constants generation part.
+     *
+     * @param Virtual $metadata Entity metadata
+     */
+    protected function createConstants($metadata)
+    {
+        $this->generator
+            ->commentVar('string', 'Entity full class name, use ::class instead')
+            ->defClassConst('ENTITY', $metadata->entityClassName)
+            ->commentVar('string', 'Entity database identifier')
+            ->defClassConst('IDENTIFIER', $metadata->entityID)
+            ->commentVar('string', 'Not transliterated entity name')
+            ->defClassConst('NAME', $metadata->entityRealName);
     }
 
     /**
