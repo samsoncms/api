@@ -1,49 +1,27 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: VITALYIEGOROV
- * Date: 08.12.15
- * Time: 23:11
+ * User: nazarenko
+ * Date: 29.03.2016
+ * Time: 10:52
  */
 namespace samsoncms\api\query;
 
-use samsoncms\api\Material;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
+use samsonframework\orm\ConditionInterface;
 use samsonframework\orm\QueryInterface;
 
-/**
- * Material with additional fields query.
- * @package samsoncms\api
- */
-class Generic
+class Record
 {
-    /** @var array Collection of all supported entity fields */
-    protected static $parentFields = array(
-        Material::F_PRIMARY=> Material::F_PRIMARY,
-        Material::F_PRIORITY => Material::F_PRIORITY,
-        Material::F_IDENTIFIER => Material::F_IDENTIFIER,
-        Material::F_DELETION => Material::F_DELETION,
-        Material::F_PUBLISHED => Material::F_PUBLISHED,
-        Material::F_PARENT => Material::F_PARENT,
-        Material::F_CREATED => Material::F_CREATED,
-    );
-
-    /** @var string Entity identifier */
+    /** @var string Table class name */
     protected static $identifier;
 
-    /** @var string Entity navigation identifiers */
-    protected static $navigationIDs = array();
+    /** @var string Table primary field name */
+    protected static $primaryFieldName;
 
-    /**
-     * @var string Collection of entity field names
-     * @deprecated Created for old application who need real additional field names
-     */
-    public static $fieldRealNames = array();
-
-    /** @var string Collection of entity field names */
-    public static $fieldNames = array();
-
+    /** @var array Collection of all entity fields */
+    protected static $parentFields = array();
 
     /** @var QueryInterface Database query instance */
     protected $query;
@@ -51,7 +29,7 @@ class Generic
     /** @var array Collection of entity fields to retrieved from database */
     protected $selectedFields;
 
-    /** @var Condition Query conditions */
+    /** @var ConditionInterface Query conditions */
     protected $conditions;
 
     /** @var array Collection of ordering parameters */
@@ -72,7 +50,7 @@ class Generic
      */
     protected function convertToDateTime($date)
     {
-        return date("Y-m-d H:i:s", strtotime($date));
+        return date('Y-m-d H:i:s', strtotime($date));
     }
 
     /**
@@ -85,13 +63,13 @@ class Generic
      */
     protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
     {
-       if (array_key_exists($fieldName, static::$parentFields)) {
+        if (array_key_exists($fieldName, static::$parentFields)) {
             // Order by parent fields
             return $this->query
-                ->entity(Material::class)
-                ->where(Material::F_PRIMARY, $entityIDs)
+                ->entity(static::$identifier)
+                ->where(static::$primaryFieldName, $entityIDs)
                 ->orderBy($fieldName, $order)
-                ->fields(Material::F_PRIMARY);
+                ->fields(static::$primaryFieldName);
         } else { // Nothing is changed
             return $entityIDs;
         }
@@ -102,6 +80,7 @@ class Generic
      *
      * @param string $fieldName Entity field name
      * @param string $fieldValue Value
+     * @param string $fieldRelation
      * @return $this Chaining
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
@@ -136,69 +115,7 @@ class Generic
      */
     public function primary($value)
     {
-        return $this->where(Material::F_PRIMARY, $value);
-    }
-
-    /**
-     * Add identifier field query condition.
-     *
-     * @param string $value Field value
-     * @return $this Chaining
-     * @see Material::where()
-     */
-    public function identifier($value)
-    {
-        return $this->where(Material::F_IDENTIFIER, $value);
-    }
-
-    /**
-     * Add active flag condition.
-     *
-     * @param bool $value Field value
-     * @return $this Chaining
-     * @see Material::where()
-     */
-    public function active($value)
-    {
-        return $this->where(Material::F_DELETION, $value);
-    }
-
-    /**
-     * Add entity published field query condition.
-     *
-     * @param string $value Field value
-     * @return $this Chaining
-     * @see Material::where()
-     */
-    public function published($value)
-    {
-        return $this->where(Material::F_PUBLISHED, $value);
-    }
-
-    /**
-     * Add entity creation field query condition.
-     *
-     * @param string $value Field value
-     * @param string $relation @see ArgumentInterface types
-     * @return $this Chaining
-     * @see Material::where()
-     */
-    public function created($value, $relation = ArgumentInterface::EQUAL)
-    {
-        return $this->where(Material::F_CREATED, $this->convertToDateTime($value), $relation);
-    }
-
-    /**
-     * Add entity modification field query condition.
-     *
-     * @param string $value Field value
-     * @param string $relation @see ArgumentInterface types
-     * @return $this Chaining
-     * @see Material::where()
-     */
-    public function modified($value, $relation = ArgumentInterface::EQUAL)
-    {
-        return $this->where(Material::F_MODIFIED, $this->convertToDateTime($value), $relation);
+        return $this->where(static::$primaryFieldName, $value);
     }
 
     /**
@@ -216,7 +133,7 @@ class Generic
                 unset($array[$key]);
             }
         }
-        return $ordered + $array;
+        return array_merge($ordered, $array);
     }
 
     /**

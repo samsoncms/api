@@ -15,7 +15,7 @@ namespace samsoncms\api\field;
 class Row
 {
     /** @var array Collection of additional fields identifiers */
-    public static $fieldIDs = array();
+    protected static $fieldIDs = array();
 
     /** @var array Field table row fields collection */
     protected $collection;

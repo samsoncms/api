@@ -132,7 +132,7 @@ class Table
     /**
      * Fill table with data from database.
      */
-    protected function load()
+    protected function find()
     {
         // Get table Fields instances
         $this->fields = (new FieldNavigation())->byRelationID($this->navigationID);
@@ -176,13 +176,15 @@ class Table
                 $this->collection[$materialID] = new $this->rowInstance($materialID, array_merge($fields, array('created' => $materials[$materialID]->Created, 'modified' => $materials[$materialID]->Modyfied)));
             }
         }
+
+        return $this->collection;
     }
 
     /**
      * FieldsTable constructor.
      *
      * @param QueryInterface $query        Database query interface
-     * @param integer[]          $navigationID Navigation identifier for table structure
+     * @param int[]        $navigationID Navigation identifier for table structure
      * @param integer        $materialID   Table parent material identifier
      * @param string|null    $locale       Locale identifier
      */
@@ -193,6 +195,6 @@ class Table
         $this->materialID = $materialID;
         $this->locale = $locale;
 
-        $this->load();
+        $this->find();
     }
 }
