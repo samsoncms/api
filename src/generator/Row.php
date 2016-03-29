@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by PhpStorm.
  * User: nazarenko
@@ -47,3 +48,4 @@ class Row extends Entity
             ->newLine();
     }
 }
+//[PHPCOMPRESSOR(remove,end)]
