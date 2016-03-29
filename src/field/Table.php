@@ -182,7 +182,7 @@ class Table
      * FieldsTable constructor.
      *
      * @param QueryInterface $query        Database query interface
-     * @param integer[]          $navigationID Navigation identifier for table structure
+     * @param int[]        $navigationID Navigation identifier for table structure
      * @param integer        $materialID   Table parent material identifier
      * @param string|null    $locale       Locale identifier
      */

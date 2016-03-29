@@ -8,6 +8,7 @@
 namespace samsoncms\api\query;
 
 use samsonframework\orm\ArgumentInterface;
+use samsonframework\orm\Condition;
 use samsonframework\orm\ConditionInterface;
 use samsonframework\orm\QueryInterface;
 
@@ -20,7 +21,7 @@ class Record
     protected static $primaryFieldName;
 
     /** @var array Collection of all entity fields */
-    protected static $fields = array();
+    protected static $parentFields = array();
 
     /** @var QueryInterface Database query instance */
     protected $query;
@@ -62,7 +63,7 @@ class Record
      */
     protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
     {
-        if (array_key_exists($fieldName, static::$fields)) {
+        if (array_key_exists($fieldName, static::$parentFields)) {
             // Order by parent fields
             return $this->query
                 ->entity(static::$identifier)
@@ -98,7 +99,7 @@ class Record
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
-        if (array_key_exists($fieldName, static::$fields)) {
+        if (array_key_exists($fieldName, static::$parentFields)) {
             $this->orderBy = array($fieldName, $order);
         }
 
@@ -161,5 +162,62 @@ class Record
 
         // Reorder if entity identifiers collection was defined
         return $this->sortArrayByArray($return, $this->entityIDs);
+    }
+
+    /**
+     * Perform SamsonCMS query and get collection of entities fields.
+     *
+     * @param string $fieldName Entity field name
+     * @return array Collection of entity fields
+     */
+    public function fields($fieldName)
+    {
+        // Proxy to regular database query
+        return $this->query
+            ->entity(static::$identifier)
+            ->whereCondition($this->conditions)
+            ->fields($fieldName);
+    }
+
+    /**
+     * Perform SamsonCMS query and get first matching entity.
+     *
+     * @return \samsoncms\api\Entity First matching entity
+     */
+    public function first()
+    {
+        // Proxy to regular database query
+        $return = $this->query
+            ->entity(static::$identifier)
+            ->limit(1)
+            ->whereCondition($this->conditions)
+            ->exec();
+
+        return array_shift($return);
+    }
+
+    /**
+     * Perform SamsonCMS query and get amount resulting entities.
+     *
+     * @return int Amount of resulting entities
+     */
+    public function count()
+    {
+        // Proxy to regular database query
+        return $this->query
+            ->entity(static::$identifier)
+            ->whereCondition($this->conditions)
+            ->count();
+    }
+
+    /**
+     * Generic constructor.
+     *
+     * @param QueryInterface $query Database query instance
+     */
+    public function __construct(QueryInterface $query)
+    {
+        $this->query = $query;
+        $this->conditions = new Condition();
     }
 }
