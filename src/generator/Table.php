@@ -22,7 +22,7 @@ class Table extends Generic
     {
         parent::__construct($generator, $metadata);
 
-        $this->className .= 'Table';
+        $this->className = rtrim($this->className, 'Table').'Table';
     }
 
     /**
