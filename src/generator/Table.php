@@ -10,6 +10,11 @@ namespace samsoncms\api\generator;
 use samsoncms\api\generator\metadata\Virtual;
 use samsonphp\generator\Generator;
 
+/**
+ * Table class generator.
+ *
+ * @package samsoncms\api\generator
+ */
 class Table extends Generic
 {
     /**

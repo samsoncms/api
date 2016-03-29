@@ -177,7 +177,7 @@ class Table
             }
         }
 
-        return $collection;
+        return $this->collection;
     }
 
     /**
