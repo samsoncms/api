@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by PhpStorm.
  * User: nazarenko
@@ -110,3 +111,4 @@ class Table extends Generic
         $this->generator->text($class);
     }
 }
+//[PHPCOMPRESSOR(remove,end)]
