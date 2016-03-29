@@ -1,4 +1,5 @@
 <?php
+//[PHPCOMPRESSOR(remove,start)]
 /**
  * Created by PhpStorm.
  * User: nazarenko
@@ -26,3 +27,4 @@ class Table extends Virtual
         return parent::getVirtualEntities(2);
     }
 }
+//[PHPCOMPRESSOR(remove,end)]
