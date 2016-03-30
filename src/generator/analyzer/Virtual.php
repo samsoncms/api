@@ -7,6 +7,7 @@
 namespace samsoncms\api\generator\analyzer;
 
 use samson\activerecord\dbMySQLConnector;
+use samson\activerecord\structure;
 use samsoncms\api\Field;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
 
@@ -40,9 +41,9 @@ class Virtual extends GenericAnalyzer
             // TODO: Add multiple parent and fetching their data in a loop
 
             // Set pointer to parent entity
-            if (null !== $metadata->parentID) {
-                if (array_key_exists($metadata->parentID, $metadataCollection)) {
-                    $metadata->parent = $metadataCollection[$metadata->parentID];
+            if (null !== $metadata->parentID && (int)$structureRow['type'] === 0) {
+                if (array_key_exists($metadata->parentID, self::$metadata)) {
+                    $metadata->parent = self::$metadata[$metadata->parentID];
                     // Add all parent metadata to current object
                     $metadata->defaultValues = $metadata->parent->defaultValues;
                     $metadata->realNames = $metadata->parent->realNames;
@@ -99,9 +100,9 @@ class Virtual extends GenericAnalyzer
             }
 
             // Store metadata by entity identifier
-            $metadataCollection[$structureRow['StructureID']] = $metadata;
+            $metadataCollection[(int)$structureRow['StructureID']] = $metadata;
             // Store global collection
-            self::$metadata[$structureRow['StructureID']] = $metadata;
+            self::$metadata[(int)$structureRow['StructureID']] = $metadata;
         }
 
 
@@ -191,7 +192,7 @@ WHERE sm.child_id = "' . $entityID . '"
 AND s.StructureID != "' . $entityID . '"
 ');
         // Get parent entity identifier
-        return count($parentData) ? $parentData[0]['StructureID'] : null;
+        return count($parentData) ? (int)$parentData[0]['StructureID'] : null;
     }
 
     /**
