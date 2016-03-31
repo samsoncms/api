@@ -42,6 +42,7 @@ class Row extends Entity
         $this->generator
             ->multiComment(array(
                 'Class for rendering "' . $metadata->entityRealName . '" row',
+                '@deprecated Use ' . $this->className . 'Entity instead'
             ))
             ->defClass($this->className, '\\'.\samsoncms\api\field\Row::class)
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')
