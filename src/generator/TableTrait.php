@@ -90,12 +90,11 @@ class TableTrait extends Generic
 
                 $code = "\n\t" . '/**';
                 $code .= "\n\t" . ' * Create virtual ' . $metadataInstance->entityRealName . ' table row instance.';
-                $code .= "\n\t" . ' * @param ViewInterface $renderer Renderer instance';
                 $code .= "\n\t" . ' * @param string $locale Locale';
                 $code .= "\n\t" . ' *';
                 $code .= "\n\t" . ' * @return ' . $tableEntity . ' Table instance';
                 $code .= "\n\t" . ' */';
-                $code .= "\n\t" . 'public function add' . lcfirst($tableEntity) . 'Row(ViewInterface $renderer, $locale = null)';
+                $code .= "\n\t" . 'public function add' . lcfirst($tableEntity) . 'Row($locale = null)';
                 $code .= "\n\t" . '{';
                 $code .= "\n\t\t" . '$row = new ' . $tableEntity . '();';
                 $code .= "\n\t\t" . '$row->parent_id = $this->id;';
