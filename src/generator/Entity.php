@@ -6,7 +6,6 @@
  */
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\GenericMetadata;
 use samsoncms\api\generator\metadata\Virtual;
 
 /**
@@ -88,39 +87,6 @@ class Entity extends Generic
                 ->commentVar($metadata->allFieldTypes[$fieldID], $metadata->fieldDescriptions[$fieldID])
                 ->defClassVar('$' . $fieldName, 'public');
         }
-    }
-
-    /**
-     * Class methods generation part.
-     *
-     * @param Virtual $metadata Entity metadata
-     */
-    protected function createMethods($metadata)
-    {
-        $methods = [];
-        /** @var Virtual $metadataInstance Iterate all metadata entities */
-        foreach (GenericMetadata::$instances as $metadataInstance) {
-            if ($metadataInstance->type === Virtual::TYPE_TABLE) {
-                // Create table virtual entity with correct name ending
-                $tableEntity = rtrim($metadataInstance->entity, 'Table') . 'Table';
-
-                $code = "\n\t" . '/**';
-                $code .= "\n\t" . ' * Create virtual ' . $metadataInstance->entityRealName . ' table instance.';
-                $code .= "\n\t" . ' * @param ViewInterface $renderer Renderer instance';
-                $code .= "\n\t" . ' *';
-                $code .= "\n\t" . ' * @return $this Chaining';
-                $code .= "\n\t" . ' */';
-                $code .= "\n\t" . 'public function ' . lcfirst($tableEntity) . '(ViewInterface $renderer)';
-                $code .= "\n\t" . '{';
-                $code .= "\n\t\t" . 'return new ' . $tableEntity . '($renderer, $this->id);';
-                $code .= "\n\t" . '}';
-
-                $methods[] = $code;
-            }
-        }
-
-        // Add method text to generator
-        $this->generator->text(implode("\n", $methods));
     }
 
     /**
