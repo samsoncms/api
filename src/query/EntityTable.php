@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api\query;
 
+use samsoncms\api\Material;
 use samsonframework\orm\QueryInterface;
 
 /**
@@ -31,5 +32,24 @@ class EntityTable extends Entity
         $this->parentID = $parentID;
 
         parent::__construct($query, $locale);
+    }
+
+    /**
+     * Prepare entity identifiers.
+     *
+     * @param array $entityIDs Collection of identifier for filtering
+     *
+     * @return array Collection of entity identifiers
+     */
+    protected function findEntityIDs(array $entityIDs = array())
+    {
+        // Get parent logic
+        $entityIDs = parent::findEntityIDs($entityIDs);
+
+        // Filter entity identifiers by parent
+        return $this->query->entity(Material::class)
+            ->where(Material::F_PRIMARY, $entityIDs)
+            ->where(Material::F_PARENT, $this->parentID)
+            ->fields(Material::F_PRIMARY);
     }
 }
