@@ -22,6 +22,9 @@ class GenericWriter
     /** @var \samsoncms\api\generator\Generic[string] Collection of entity generators */
     protected $generators = [];
 
+    /** @var array Analyzers metadata */
+    protected $metadata = [];
+
     /** @var Generator Code generator */
     protected $codeGenerator;
 
@@ -50,6 +53,9 @@ class GenericWriter
             if (class_exists($analyzerClass)) {
                 $this->analyzers[$analyzerClass] = new $analyzerClass($db);
 
+                // Analyze to get metadata
+                $this->metadata[$analyzerClass] = $this->analyzers[$analyzerClass]->analyze();
+
                 // Validate generator classes
                 foreach ($generators as $generator) {
                     if (class_exists($generator)) {
@@ -76,7 +82,7 @@ class GenericWriter
 
         foreach ($this->analyzers as $analyzerClass => $analyzer) {
             // Analyze database structure and get entities metadata
-            foreach ($analyzer->analyze() as $metadata) {
+            foreach ($this->metadata[$analyzerClass] as $metadata) {
                 // Iterate all generators for analyzer
                 foreach ($this->generators[$analyzerClass] as $generator) {
                     /** @var Generic $generator Create class generator */
