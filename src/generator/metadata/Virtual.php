@@ -8,6 +8,11 @@ namespace samsoncms\api\generator\metadata;
  */
 class Virtual extends GenericMetadata
 {
+    /** Virtual entity types */
+    const TYPE_STRUCTURE = 0;
+    const TYPE_TABLE = 2;
+    const TYPE_RELATED = 1;
+
     /** @var string Real database entity identifier */
     public $entityID;
 

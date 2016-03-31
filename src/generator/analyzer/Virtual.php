@@ -9,6 +9,7 @@ namespace samsoncms\api\generator\analyzer;
 use samson\activerecord\dbMySQLConnector;
 use samsoncms\api\Field;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
+use samsoncms\api\generator\metadata\GenericMetadata;
 use samsoncms\api\Navigation;
 
 /**
@@ -41,7 +42,7 @@ class Virtual extends GenericAnalyzer
             // TODO: Add multiple parent and fetching their data in a loop
 
             // Set pointer to parent entity
-            if (null !== $metadata->parentID) {
+            if (null !== $metadata->parentID && $structureRow[Navigation::F_TYPE] === \samsoncms\api\generator\metadata\Virtual::TYPE_STRUCTURE) {
                 if (array_key_exists($metadata->parentID, $metadataCollection)) {
                     $metadata->parent = $metadataCollection[$metadata->parentID];
                     // Add all parent metadata to current object
@@ -77,11 +78,11 @@ class Virtual extends GenericAnalyzer
             $metadata->arGroup[] = dbMySQLConnector::$prefix . 'material.MaterialID';
 
             // Iterate entity fields
-            foreach ($this->getEntityFields($structureRow['StructureID']) as $fieldID => $fieldRow) {
+            foreach ($this->getEntityFields($structureRow[Navigation::F_PRIMARY]) as $fieldID => $fieldRow) {
                 $this->analyzeFieldRecord($metadata, $fieldID, $fieldRow);
 
                 // Get camelCase and transliterated field name
-                $fieldName = $this->fieldName($fieldRow['Name']);
+                $fieldName = $this->fieldName($fieldRow[Field::F_IDENTIFIER]);
 
                 // Fill localization fields collections
                 if ($fieldRow[Field::F_LOCALIZED] == 1) {
@@ -100,9 +101,9 @@ class Virtual extends GenericAnalyzer
             }
 
             // Store metadata by entity identifier
-            $metadataCollection[$structureRow['StructureID']] = $metadata;
+            $metadataCollection[$structureRow[Navigation::F_PRIMARY]] = $metadata;
             // Store global collection
-            self::$metadata[$structureRow['StructureID']] = $metadata;
+            GenericMetadata::$instances[$structureRow[Navigation::F_PRIMARY]] = $metadata;
         }
 
 
@@ -196,7 +197,7 @@ AND s.StructureID != "' . $entityID . '"
     public function analyzeFieldRecord(&$metadata, $fieldID, array $fieldRow)
     {
         // Get camelCase and transliterated field name
-        $fieldName = $this->fieldName($fieldRow['Name']);
+        $fieldName = $this->fieldName($fieldRow[Field::F_IDENTIFIER]);
 
         // TODO: Set default for additional field storing type accordingly.
 
