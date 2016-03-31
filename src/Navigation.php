@@ -22,7 +22,7 @@ class Navigation extends structure
     const F_PRIMARY = 'StructureID';
     const F_IDENTIFIER = 'Url';
     const F_NAME = 'Name';
-    const F_TYPE = 'Type';
+    const F_TYPE = 'type';
     const F_DELETION = 'Active';
     const F_PARENT = 'ParentID';
     const F_PRIORITY = 'priority';
