@@ -6,6 +6,8 @@
  */
 namespace samsoncms\api\generator;
 
+use samsoncms\api\generator\metadata\Virtual;
+
 /**
  * Entity class generator.
  *
@@ -16,7 +18,7 @@ class Entity extends Generic
     /**
      * Class definition generation part.
      *
-     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
+     * @param Virtual $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
@@ -32,14 +34,12 @@ class Entity extends Generic
         $this->generator
             ->multiComment(array('"' . $metadata->entityRealName . '" database entity class'))
             ->defClass($metadata->entity, $parentClass);
-
-        return $metadata->entity;
     }
 
     /**
      * Class constants generation part.
      *
-     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
+     * @param Virtual $metadata Entity metadata
      */
     protected function createConstants($metadata)
     {
@@ -66,7 +66,7 @@ class Entity extends Generic
     /**
      * Class fields generation part.
      *
-     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
+     * @param Virtual $metadata Entity metadata
      */
     protected function createFields($metadata)
     {
@@ -80,7 +80,7 @@ class Entity extends Generic
     /**
      * Class methods generation part.
      *
-     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
+     * @param Virtual $metadata Entity metadata
      */
     protected function createMethods($metadata)
     {
@@ -90,7 +90,7 @@ class Entity extends Generic
     /**
      * Class static fields generation part.
      *
-     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
+     * @param Virtual $metadata Entity metadata
      */
     protected function createStaticFields($metadata)
     {
