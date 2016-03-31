@@ -84,6 +84,25 @@ class TableTrait extends Generic
                 $code .= "\n\t" . '}';
 
                 $methods[] = $code;
+
+                // Create table virtual entity with correct name ending
+                $tableEntity = rtrim($metadataInstance->entity, 'Table') . 'TableEntity';
+
+                $code = "\n\t" . '/**';
+                $code .= "\n\t" . ' * Create virtual ' . $metadataInstance->entityRealName . ' table row instance.';
+                $code .= "\n\t" . ' * @param ViewInterface $renderer Renderer instance';
+                $code .= "\n\t" . ' * @param string $locale Locale';
+                $code .= "\n\t" . ' *';
+                $code .= "\n\t" . ' * @return ' . $tableEntity . ' Table instance';
+                $code .= "\n\t" . ' */';
+                $code .= "\n\t" . 'public function add' . lcfirst($tableEntity) . 'Row(ViewInterface $renderer, $locale = null)';
+                $code .= "\n\t" . '{';
+                $code .= "\n\t\t" . '$row = ' . $tableEntity . '();';
+                $code .= "\n\t\t" . '$row->parent_id = $this->id;';
+                $code .= "\n\t\t" . 'return $row;';
+                $code .= "\n\t" . '}';
+
+                $methods[] = $code;
             }
         }
 
