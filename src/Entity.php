@@ -37,7 +37,7 @@ class Entity extends Material
      * @param null|DatabaseInterface $database
      * @param null|QueryInterface    $query
      */
-    public function __construct($locale, $database = null, $query = null)
+    public function __construct($locale = null, $database = null, $query = null)
     {
         $this->locale = $locale;
 
