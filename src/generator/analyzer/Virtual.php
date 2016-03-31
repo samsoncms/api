@@ -9,6 +9,7 @@ namespace samsoncms\api\generator\analyzer;
 use samson\activerecord\dbMySQLConnector;
 use samsoncms\api\Field;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
+use samsoncms\api\Navigation;
 
 /**
  * Generic entities metadata analyzer.
@@ -124,6 +125,7 @@ class Virtual extends GenericAnalyzer
         $metadata->entityClassName = $this->fullEntityName($metadata->entity);
         $metadata->entityRealName = $structureRow['Name'];
         $metadata->entityID = $structureRow['StructureID'];
+        $metadata->type = $structureRow[Navigation::F_TYPE]
 
         // Try to find entity parent identifier for building future relations
         $metadata->parentID = $this->getParentEntity($structureRow['StructureID']);
