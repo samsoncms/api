@@ -7,6 +7,9 @@
  */
 namespace samsoncms\api;
 
+use samsonframework\orm\DatabaseInterface;
+use samsonframework\orm\QueryInterface;
+
 /**
  * SamsonCMS Entity that has relation to specific navigation
  * and though has additional fields.
@@ -23,6 +26,23 @@ class Entity extends Material
 
     /** @var array Collection of additional fields value column names */
     protected static $fieldValueColumns = array();
+
+    /** @var string Locale */
+    protected $locale;
+
+    /**
+     * Entity constructor.
+     *
+     * @param null|string            $locale Locale
+     * @param null|DatabaseInterface $database
+     * @param null|QueryInterface    $query
+     */
+    public function __construct($locale, $database = null, $query = null)
+    {
+        $this->locale = $locale;
+
+        parent::__construct($database, $query);
+    }
 
     /**
      * Override default entity saving
