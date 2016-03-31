@@ -78,6 +78,16 @@ class Entity extends Generic
     }
 
     /**
+     * Class methods generation part.
+     *
+     * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata
+     */
+    protected function createMethods($metadata)
+    {
+
+    }
+
+    /**
      * Class static fields generation part.
      *
      * @param \samsoncms\api\generator\metadata\GenericMetadata $metadata Entity metadata

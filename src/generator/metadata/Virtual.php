@@ -17,6 +17,9 @@ class Virtual extends GenericMetadata
     /** @var int Parent entity identifier  */
     public $parentID;
 
+    /** @var int Virtual entity type */
+    public $type;
+
     /** @var self Metadata parent entity name */
     public $parent;
 
