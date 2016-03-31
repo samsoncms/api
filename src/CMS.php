@@ -8,12 +8,12 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
+use samson\activerecord\dbMySQLConnector;
+use samson\activerecord\TableRelation;
+use samson\core\CompressableService;
 use samsoncms\api\generator\GenericWriter;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
-use samson\activerecord\TableRelation;
-use samson\core\CompressableService;
-use samson\activerecord\dbMySQLConnector;
 use samsonphp\generator\Generator;
 
 /**
@@ -30,18 +30,14 @@ class CMS extends CompressableService
     const FIELD_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurefield';
     /** Database entity name for relations between material and additional fields values */
     const MATERIAL_FIELD_RELATION_ENTITY = MaterialField::class;
-
-    /** Identifier */
-    protected $id = 'cmsapi2';
-
-    /** @var \samsonframework\orm\DatabaseInterface */
-    protected $database;
-
-    /** @var array[string] Collection of generated queries */
-    protected $queries;
-
     /** @var string Database table names prefix */
     public $tablePrefix = '';
+    /** Identifier */
+    protected $id = 'cmsapi2';
+    /** @var \samsonframework\orm\DatabaseInterface */
+    protected $database;
+    /** @var array[string] Collection of generated queries */
+    protected $queries;
 
     /**
      * CMS constructor.
@@ -69,6 +65,20 @@ class CMS extends CompressableService
         $this->rewriteEntityLocale();
     }
 
+    /**
+     * Entity additional fields localization support.
+     */
+    protected function rewriteEntityLocale()
+    {
+        // Iterate all generated entity classes
+        foreach (get_declared_classes() as $entityClass) {
+            if (is_subclass_of($entityClass, '\samsoncms\api\Entity')) {
+                // Insert current application locale
+                str_replace('@locale', locale(), $entityClass::$_sql_select);
+            }
+        }
+    }
+
     public function beforeCompress(& $obj = null, array & $code = null)
     {
 
@@ -87,43 +97,7 @@ class CMS extends CompressableService
         }
     }
 
-    /**
-     * Entity additional fields localization support.
-     */
-    protected function rewriteEntityLocale()
-    {
-        // Iterate all generated entity classes
-        foreach (get_declared_classes() as $entityClass) {
-            if (is_subclass_of($entityClass, '\samsoncms\api\Entity')) {
-                // Insert current application locale
-                str_replace('@locale', locale(), $entityClass::$_sql_select);
-            }
-        }
-    }
-
     //[PHPCOMPRESSOR(remove,start)]
-    /**
-     * Read SQL file with variables placeholders pasting
-     * @param string $filePath SQL file for reading
-     * @param string $prefix Prefix for addition
-     * @return array Collection of SQL command texts
-     */
-    public function readSQL($filePath, $prefix = '')
-    {
-        $sql = '';
-
-        // Build path to SQL folder
-        if (file_exists($filePath)) {
-            // Replace prefix
-            $sql = str_replace('@prefix', $prefix, file_get_contents($filePath));
-        }
-
-        // Split queries
-        $sqlCommands = explode(';', str_replace("\n", '', $sql));
-
-        // Always return array
-        return array_filter(is_array($sqlCommands) ? $sqlCommands : array($sqlCommands));
-    }
 
     /**
      * @see ModuleConnector::prepare()
@@ -142,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             // Perform SQL table creation
             $path = __DIR__ . '/../sql/';
             foreach (array_slice(scandir($path), 2) as $file) {
-                trace('Performing database script ['.$file.']');
+                trace('Performing database script [' . $file . ']');
                 foreach ($this->readSQL($path . $file, $this->tablePrefix) as $sql) {
                     $this->database->execute($sql);
                 }
@@ -153,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         // Initiate migration mechanism
         $this->database->migration(get_class($this), array($this, 'migrator'));
 
-                // Define permanent table relations
+        // Define permanent table relations
         new TableRelation('material', 'user', 'UserID', 0, 'user_id');
         new TableRelation('material', 'gallery', 'MaterialID', TableRelation::T_ONE_TO_MANY);
         new TableRelation('material', 'materialfield', 'MaterialID', TableRelation::T_ONE_TO_MANY);
@@ -191,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         $classWriter = new GenericWriter(
             $this->database,
             new Generator(),
-            __NAMESPACE__.'\\generated',
+            __NAMESPACE__ . '\\generated',
             [
                 \samsoncms\api\generator\analyzer\Virtual::class => [
                     \samsoncms\api\generator\Entity::class,
@@ -204,7 +178,10 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
                 \samsoncms\api\generator\analyzer\Table::class => [
                     \samsoncms\api\generator\Table::class,
                     \samsoncms\api\generator\Row::class
-                ]
+                ],
+                \samsoncms\api\generator\analyzer\TableTrait::class => [
+                    \samsoncms\api\generator\TableTrait::class
+                ],
             ],
             $this->cache_path
         );
@@ -216,7 +193,9 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
 
     /**
      * Handler for CMSAPI database version manipulating
+     *
      * @param string $toVersion Version to switch to
+     *
      * @return string Current database version
      */
     public function migrator($toVersion = null)
@@ -238,6 +217,31 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
                 return 0;
             }
         }
+    }
+
+    /**
+     * Read SQL file with variables placeholders pasting
+     *
+     * @param string $filePath SQL file for reading
+     * @param string $prefix   Prefix for addition
+     *
+     * @return array Collection of SQL command texts
+     */
+    public function readSQL($filePath, $prefix = '')
+    {
+        $sql = '';
+
+        // Build path to SQL folder
+        if (file_exists($filePath)) {
+            // Replace prefix
+            $sql = str_replace('@prefix', $prefix, file_get_contents($filePath));
+        }
+
+        // Split queries
+        $sqlCommands = explode(';', str_replace("\n", '', $sql));
+
+        // Always return array
+        return array_filter(is_array($sqlCommands) ? $sqlCommands : array($sqlCommands));
     }
     //[PHPCOMPRESSOR(remove,end)]
 }
