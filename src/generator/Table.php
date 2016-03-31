@@ -90,6 +90,36 @@ class Table extends Generic
     }
 
     /**
+     * Class methods generation part.
+     *
+     * @param Virtual $metadata Entity metadata
+     */
+    protected function createMethods($metadata)
+    {
+        $methods = [];
+        // TODO: Add different method generation depending on their field type
+        // Generate Query::where() analog for specific field.
+        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
+            $code = "\n\t" . '/**';
+            $code .= "\n\t" . ' * Get collection of ' . $fieldName . '(#' . $fieldID . ') table column values.';
+            $code .= "\n\t" . ' * @see \samsoncms\api\field\Table::values($fieldID)';
+            $code .= "\n\t" . ' * @param string $relation Field to value condition relation';
+            $code .= "\n\t" . ' *';
+            $code .= "\n\t" . ' * @return ' . $metadata->allFieldTypes[$fieldID] . '[] ' . $fieldName . ' values collection';
+            $code .= "\n\t" . ' */';
+            $code .= "\n\t" . 'public function ' . $fieldName . '()';
+            $code .= "\n\t" . '{';
+            $code .= "\n\t\t" . 'return $this->values(' . $fieldID . ');';
+            $code .= "\n\t" . '}';
+
+            $methods[] = $code;
+        }
+
+        // Add method text to generator
+        $this->generator->text(implode("\n", $methods));
+    }
+
+    /**
      * Class constructor generation part.
      *
      * @param Virtual $metadata Entity metadata
