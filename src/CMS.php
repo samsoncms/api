@@ -167,6 +167,9 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             new Generator(),
             __NAMESPACE__ . '\\generated',
             [
+                \samsoncms\api\generator\analyzer\TableTrait::class => [
+                    \samsoncms\api\generator\TableTrait::class
+                ],
                 \samsoncms\api\generator\analyzer\Virtual::class => [
                     \samsoncms\api\generator\Entity::class,
                     \samsoncms\api\generator\Query::class,
@@ -178,10 +181,7 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
                 \samsoncms\api\generator\analyzer\Table::class => [
                     \samsoncms\api\generator\Table::class,
                     \samsoncms\api\generator\Row::class
-                ],
-                \samsoncms\api\generator\analyzer\TableTrait::class => [
-                    \samsoncms\api\generator\TableTrait::class
-                ],
+                ]
             ],
             $this->cache_path
         );

@@ -45,7 +45,9 @@ class Entity extends Generic
 
         $this->generator
             ->multiComment(array('"' . $metadata->entityRealName . '" database entity class'))
-            ->defClass($metadata->entity, $parentClass);
+            ->defClass($metadata->entity, $parentClass)
+            ->newLine('use TableTrait;')
+            ->newLine();;
     }
 
     /**
