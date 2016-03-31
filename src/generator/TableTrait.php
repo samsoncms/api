@@ -97,7 +97,7 @@ class TableTrait extends Generic
                 $code .= "\n\t" . ' */';
                 $code .= "\n\t" . 'public function add' . lcfirst($tableEntity) . 'Row(ViewInterface $renderer, $locale = null)';
                 $code .= "\n\t" . '{';
-                $code .= "\n\t\t" . '$row = ' . $tableEntity . '();';
+                $code .= "\n\t\t" . '$row = new ' . $tableEntity . '();';
                 $code .= "\n\t\t" . '$row->parent_id = $this->id;';
                 $code .= "\n\t\t" . 'return $row;';
                 $code .= "\n\t" . '}';
