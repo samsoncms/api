@@ -207,8 +207,8 @@ AND s.StructureID != "' . $entityID . '"
         $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
         $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow[Field::F_TYPE]);
         $metadata->allFieldCmsTypes[$fieldID] = (int)$fieldRow[Field::F_TYPE];
-        $metadata->fieldDescriptions[$fieldID] = $fieldRow[Field::F_DESCRIPTION] . ', ' . $fieldRow['Name'] . '#' . $fieldID;
-        $metadata->fieldRawDescriptions[$fieldID] = $fieldRow['Description'];
+        $metadata->fieldDescriptions[$fieldID] = $fieldRow[Field::F_DESCRIPTION] . ', ' . $fieldRow[Field::F_IDENTIFIER] . '#' . $fieldID;
+        $metadata->fieldRawDescriptions[$fieldID] = $fieldRow[Field::F_DESCRIPTION];
     }
 
     /**
