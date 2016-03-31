@@ -60,24 +60,22 @@ class Entity extends Material
 
             // If material field relation exists use it or create new
             $materialField = null;
-            if ($this->query
+            if (!$this->query
                 ->entity($relationEntity)
                 ->where(Field::F_PRIMARY, $fieldID)
                 ->where(Material::F_PRIMARY, $this->id)
                 ->first($materialField)
             ) {
-                $materialField->$type = $this->$fieldName;
-                $materialField->save();
-            } else {
-
                 /** @var \samson\activerecord\materialfield $materialfield */
                 $materialField = new $relationEntity();
                 $materialField->Active = 1;
                 $materialField->MaterialID = $this->id;
                 $materialField->FieldID = $fieldID;
-                $materialField->$type = $this->$fieldName;
-                $materialField->save();
             }
+
+            $materialField->$type = $this->$fieldName;
+            $materialField->locale = $this->locale;
+            $materialField->save();
         }
         $this->attachTo(static::$navigationIDs);
     }
