@@ -17,6 +17,18 @@ use samsoncms\api\generator\metadata\Virtual;
 class Entity extends Generic
 {
     /**
+     * Class uses generation part.
+     *
+     * @param Virtual $metadata Entity metadata
+     */
+    protected function createUses($metadata)
+    {
+        $this->generator
+            ->newLine('use samsonframework\core\ViewInterface;')
+            ->newLine();
+    }
+
+    /**
      * Class definition generation part.
      *
      * @param Virtual $metadata Entity metadata
