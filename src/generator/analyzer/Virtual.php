@@ -109,71 +109,41 @@ class Virtual extends GenericAnalyzer
         return $metadataCollection;
     }
 
+    /**
+     * Get virtual entities from database by their type.
+     *
+     * @param int $type Virtual entity type
+     *
+     * @return array Get collection of navigation objects
+     */
+    protected function getVirtualEntities($type = 0)
+    {
+        return $this->database->fetch('
+        SELECT * FROM `structure`
+        WHERE `Active` = "1" AND `Type` = "' . $type . '"
+        ORDER BY `ParentID` ASC
+        ');
+    }
 
     /**
      * Analyze entity.
      *
      * @param \samsoncms\api\generator\metadata\Virtual $metadata
-     * @param array $structureRow Entity database row
+     * @param array                                     $structureRow Entity database row
      */
     public function analyzeEntityRecord(&$metadata, array $structureRow)
     {
         $metadata->structureRow = $structureRow;
 
         // Get CapsCase and transliterated entity name
-        $metadata->entity = $this->entityName($structureRow['Name']);
+        $metadata->entity = $this->entityName($structureRow[Navigation::F_NAME]);
         $metadata->entityClassName = $this->fullEntityName($metadata->entity);
-        $metadata->entityRealName = $structureRow['Name'];
-        $metadata->entityID = $structureRow['StructureID'];
-        $metadata->type = $structureRow[Navigation::F_TYPE]
+        $metadata->entityRealName = $structureRow[Navigation::F_NAME];
+        $metadata->entityID = $structureRow[Navigation::F_PRIMARY];
+        $metadata->type = $structureRow[Navigation::F_TYPE];
 
         // Try to find entity parent identifier for building future relations
-        $metadata->parentID = $this->getParentEntity($structureRow['StructureID']);
-    }
-
-    /**
-     * Virtual entity additional field analyzer.
-     *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Metadata instance for filling
-     * @param int      $fieldID Additional field identifier
-     * @param array $fieldRow Additional field database row
-     */
-    public function analyzeFieldRecord(&$metadata, $fieldID, array $fieldRow)
-    {
-        // Get camelCase and transliterated field name
-        $fieldName = $this->fieldName($fieldRow['Name']);
-
-        // TODO: Set default for additional field storing type accordingly.
-
-        // Store field metadata
-        $metadata->realNames[$fieldRow['Name']] = $fieldName;
-        $metadata->allFieldIDs[$fieldID] = $fieldName;
-        $metadata->allFieldNames[$fieldName] = $fieldID;
-        $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
-        $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow['Type']);
-        $metadata->allFieldCmsTypes[$fieldID] = (int)$fieldRow['Type'];
-        $metadata->fieldDescriptions[$fieldID] = $fieldRow['Description'] . ', ' . $fieldRow['Name'] . '#' . $fieldID;
-        $metadata->fieldRawDescriptions[$fieldID] = $fieldRow['Description'];
-    }
-
-    /**
-     * Get entity fields.
-     *
-     * @param int $entityID Entity identifier
-     *
-     * @return array Collection of entity fields
-     */
-    protected function getEntityFields($entityID)
-    {
-        $return = array();
-        // TODO: Optimize queries make one single query with only needed data
-        foreach ($this->database->fetch('SELECT * FROM `structurefield` WHERE `StructureID` = "' . $entityID . '" AND `Active` = "1"') as $fieldStructureRow) {
-            foreach ($this->database->fetch('SELECT * FROM `field` WHERE `FieldID` = "' . $fieldStructureRow['FieldID'] . '"') as $fieldRow) {
-                $return[$fieldRow['FieldID']] = $fieldRow;
-            }
-        }
-
-        return $return;
+        $metadata->parentID = $this->getParentEntity($structureRow[Navigation::F_PRIMARY]);
     }
 
     /**
@@ -197,6 +167,51 @@ AND s.StructureID != "' . $entityID . '"
     }
 
     /**
+     * Get entity fields.
+     *
+     * @param int $entityID Entity identifier
+     *
+     * @return array Collection of entity fields
+     */
+    protected function getEntityFields($entityID)
+    {
+        $return = array();
+        // TODO: Optimize queries make one single query with only needed data
+        foreach ($this->database->fetch('SELECT * FROM `structurefield` WHERE `StructureID` = "' . $entityID . '" AND `Active` = "1"') as $fieldStructureRow) {
+            foreach ($this->database->fetch('SELECT * FROM `field` WHERE `FieldID` = "' . $fieldStructureRow['FieldID'] . '"') as $fieldRow) {
+                $return[$fieldRow['FieldID']] = $fieldRow;
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * Virtual entity additional field analyzer.
+     *
+     * @param \samsoncms\api\generator\metadata\Virtual $metadata Metadata instance for filling
+     * @param int                                       $fieldID  Additional field identifier
+     * @param array                                     $fieldRow Additional field database row
+     */
+    public function analyzeFieldRecord(&$metadata, $fieldID, array $fieldRow)
+    {
+        // Get camelCase and transliterated field name
+        $fieldName = $this->fieldName($fieldRow['Name']);
+
+        // TODO: Set default for additional field storing type accordingly.
+
+        // Store field metadata
+        $metadata->realNames[$fieldRow[Field::F_IDENTIFIER]] = $fieldName;
+        $metadata->allFieldIDs[$fieldID] = $fieldName;
+        $metadata->allFieldNames[$fieldName] = $fieldID;
+        $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
+        $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow[Field::F_TYPE]);
+        $metadata->allFieldCmsTypes[$fieldID] = (int)$fieldRow[Field::F_TYPE];
+        $metadata->fieldDescriptions[$fieldID] = $fieldRow[Field::F_DESCRIPTION] . ', ' . $fieldRow['Name'] . '#' . $fieldID;
+        $metadata->fieldRawDescriptions[$fieldID] = $fieldRow['Description'];
+    }
+
+    /**
      * Get child entities by parent identifier.
      *
      * @param int $parentId Parent entity identifier
@@ -208,22 +223,6 @@ AND s.StructureID != "' . $entityID . '"
         return $this->database->fetch('
         SELECT * FROM `structure`
         WHERE `Active` = "1" AND `ParentID` = ' . $parentId . '
-        ORDER BY `ParentID` ASC
-        ');
-    }
-
-    /**
-     * Get virtual entities from database by their type.
-     *
-     * @param int $type Virtual entity type
-     *
-     * @return array Get collection of navigation objects
-     */
-    protected function getVirtualEntities($type = 0)
-    {
-        return $this->database->fetch('
-        SELECT * FROM `structure`
-        WHERE `Active` = "1" AND `Type` = "' . $type . '"
         ORDER BY `ParentID` ASC
         ');
     }
