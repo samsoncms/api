@@ -31,7 +31,7 @@ class Query extends Generic
 
         $this->className .= 'Query';
         $this->parentClass = '\\' . \samsoncms\api\query\Entity::class;
-        $this->entityClass = $metadata->entity;
+        $this->entityClass = '\samsoncms\api\generated\\' . $metadata->entity;
     }
 
     /**
@@ -78,7 +78,7 @@ class Query extends Generic
             ->commentVar('array', 'Collection of navigation identifiers')
             ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
             ->commentVar('string', 'Entity full class name')
-            ->defClassVar('$identifier', 'protected static', $metadata->entityClassName)
+            ->defClassVar('$identifier', 'protected static', $this->entityClass)
             ->commentVar('array', 'Collection of localized additional fields identifiers')
             ->defClassVar('$localizedFieldIDs', 'protected static', $metadata->localizedFieldIDs)
             ->commentVar('array', 'Collection of NOT localized additional fields identifiers')

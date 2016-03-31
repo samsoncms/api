@@ -76,7 +76,7 @@ class TableTrait extends Generic
                 $code .= "\n\t" . ' * @param ViewInterface $renderer Renderer instance';
                 $code .= "\n\t" . ' * @param string $locale Locale';
                 $code .= "\n\t" . ' *';
-                $code .= "\n\t" . ' * @return $this Chaining';
+                $code .= "\n\t" . ' * @return ' . $tableEntity . ' Table instance';
                 $code .= "\n\t" . ' */';
                 $code .= "\n\t" . 'public function ' . lcfirst($tableEntity) . '(ViewInterface $renderer, $locale = null)';
                 $code .= "\n\t" . '{';

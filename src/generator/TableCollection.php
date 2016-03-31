@@ -29,7 +29,7 @@ class TableCollection extends Collection
 
         $this->className = rtrim($this->metadata->entity, 'Table') . 'TableCollection';
         $this->parentClass = rtrim($this->metadata->entity, 'Table') . 'TableQuery';
-        $this->entityClass = rtrim($this->metadata->entity, 'Table') . 'TableEntity';
+        $this->entityClass = '\samsoncms\api\generated\\' . rtrim($this->metadata->entity, 'Table') . 'TableEntity';
     }
 
     /**

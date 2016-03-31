@@ -29,7 +29,7 @@ class TableQuery extends Query
 
         $this->className = rtrim($this->metadata->entity, 'Table') . 'TableQuery';
         $this->parentClass = '\\' . \samsoncms\api\query\EntityTable::class;
-        $this->entityClass = rtrim($this->metadata->entity, 'Table') . 'TableEntity';
+        $this->entityClass = '\samsoncms\api\generated\\' . rtrim($this->metadata->entity, 'Table') . 'TableEntity';
     }
 
     /**
