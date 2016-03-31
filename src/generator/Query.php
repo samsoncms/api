@@ -16,6 +16,9 @@ use samsonphp\generator\Generator;
  */
 class Query extends Generic
 {
+    /** @var string Query returned entity class name */
+    protected $entityClass;
+
     /**
      * Query constructor.
      *
@@ -27,6 +30,8 @@ class Query extends Generic
         parent::__construct($generator, $metadata);
 
         $this->className .= 'Query';
+        $this->parentClass = '\\' . \samsoncms\api\query\Entity::class;
+        $this->entityClass = $metadata->entity;
     }
 
     /**
@@ -51,10 +56,10 @@ class Query extends Generic
         $this->generator
             ->multiComment(array(
                 'Class for querying and fetching "' . $metadata->entityRealName . '" instances from database',
-                '@method ' . $metadata->entity . ' first();',
-                '@method ' . $metadata->entity . '[] find();',
+                '@method ' . $this->entityClass . ' first();',
+                '@method ' . $this->entityClass . '[] find();',
             ))
-            ->defClass($this->className, '\\'. \samsoncms\api\query\Entity::class);
+            ->defClass($this->className, $this->parentClass);
     }
 
     /**

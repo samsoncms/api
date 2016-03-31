@@ -25,6 +25,7 @@ class Collection extends Generic
     {
         parent::__construct($generator, $metadata);
 
+        $this->parentClass = $this->className . 'Query';
         $this->className .= 'Collection';
     }
 
@@ -56,7 +57,7 @@ class Collection extends Generic
                 '@method ' . $metadata->entity . ' first();',
                 '@method ' . $metadata->entity . '[] find();',
             ))
-            ->defClass($this->className, $metadata->entity .'Query')
+            ->defClass($this->className, $this->parentClass)
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')
         ->newLine();
     }

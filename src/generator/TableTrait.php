@@ -69,17 +69,18 @@ class TableTrait extends Generic
         foreach (GenericMetadata::$instances as $metadataInstance) {
             if ($metadataInstance->type === Virtual::TYPE_TABLE) {
                 // Create table virtual entity with correct name ending
-                $tableEntity = rtrim($metadataInstance->entity, 'Table') . 'Table';
+                $tableEntity = rtrim($metadataInstance->entity, 'Table') . 'TableCollection';
 
                 $code = "\n\t" . '/**';
                 $code .= "\n\t" . ' * Create virtual ' . $metadataInstance->entityRealName . ' table instance.';
                 $code .= "\n\t" . ' * @param ViewInterface $renderer Renderer instance';
+                $code .= "\n\t" . ' * @param string $locale Locale';
                 $code .= "\n\t" . ' *';
                 $code .= "\n\t" . ' * @return $this Chaining';
                 $code .= "\n\t" . ' */';
-                $code .= "\n\t" . 'public function ' . lcfirst($tableEntity) . '(ViewInterface $renderer)';
+                $code .= "\n\t" . 'public function ' . lcfirst($tableEntity) . '(ViewInterface $renderer, $locale = null)';
                 $code .= "\n\t" . '{';
-                $code .= "\n\t\t" . 'return new ' . $tableEntity . '($renderer, $this->id);';
+                $code .= "\n\t\t" . 'return new ' . $tableEntity . '($renderer, $this->id, $this->query, $locale);';
                 $code .= "\n\t" . '}';
 
                 $methods[] = $code;

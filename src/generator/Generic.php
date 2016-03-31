@@ -18,6 +18,9 @@ abstract class Generic
     /** @var string Generated class name */
     public $className;
 
+    /** @var string Generated parent class */
+    protected $parentClass;
+
     /** @var Generator Code generation instance */
     protected $generator;
 

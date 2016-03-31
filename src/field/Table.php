@@ -8,6 +8,7 @@
 namespace samsoncms\api\field;
 
 use samsoncms\api\CMS;
+use samsoncms\api\Field;
 use samsoncms\api\Material;
 use samsoncms\api\MaterialField;
 use samsoncms\api\query\FieldNavigation;
@@ -15,11 +16,11 @@ use samsoncms\api\query\MaterialNavigation;
 use samsonframework\orm\Condition;
 use samsonframework\orm\ConditionInterface;
 use samsonframework\orm\QueryInterface;
-use samsoncms\api\Field;
 
 /**
  * Material additional fields table.
  * @package samsoncms\api
+ * @deprecated Use \samsoncms\api\query\EntityTable
  */
 class Table
 {
@@ -47,31 +48,71 @@ class Table
     /** @var string Row class name */
     protected $rowInstance = '\samsoncms\api\field\Row';
 
-    /** @return array Get field table column names collection */
-    public function columns()
+    /**
+     * FieldsTable constructor.
+     *
+     * @param QueryInterface $query        Database query interface
+     * @param int[]          $navigationID Navigation identifier for table structure
+     * @param integer        $materialID   Table parent material identifier
+     * @param string|null    $locale       Locale identifier
+     */
+    public function __construct(QueryInterface $query, $navigationID, $materialID, $locale = null)
     {
-        return array_column($this->fields, Field::F_IDENTIFIER);
+        $this->query = $query;
+        $this->navigationID = $navigationID;
+        $this->materialID = $materialID;
+        $this->locale = $locale;
+
+        $this->find();
     }
 
     /**
-     * Get collection of table column values as array.
-     *
-     * @param string $fieldID Additional field identifier
-     *
-     * @return array Collection of table column values as array
+     * Fill table with data from database.
      */
-    public function values($fieldID)
+    protected function find()
     {
-        return (null !== $this->fields[$fieldID]) ? array_column($this->collection, $fieldID) : array();
-    }
+        // Get table Fields instances
+        $this->fields = (new FieldNavigation())->byRelationID($this->navigationID);
 
-    /**
-     * Get field table as multidimensional array.
-     *
-     * @return Row[] Field table represented as array
-     */
-    public function toArray()
-    {
+        $collection = array();
+        if (count($rowIDs = $this->rowIDs())) {
+            /** @var MaterialField $fieldValue Get additional field value instances */
+            foreach ($this->query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
+                         // Get only needed rows(materials)
+                         ->where(Material::F_PRIMARY, $rowIDs)
+                         ->where(Material::F_DELETION, 1)
+                         // Get correct localizes field condition for columns
+                         ->whereCondition($this->fieldsCondition($this->fields))
+                         ->exec() as $fieldValue) {
+                /** @var Field $field Try to find Field instance by identifier */
+                $field = &$this->fields[$fieldValue[Field::F_PRIMARY]];
+                if (null !== $field) {
+                    /**
+                     * As we generate camelCase names for fields we need to store
+                     * original names to get their values and correctly set row
+                     * fields.
+                     */
+                    $fieldName = null !== static::$fieldsRealNames[$field->Name]
+                        ? static::$fieldsRealNames[$field->Name] : $field->Name;
+                    /**
+                     * Store table row(material) as it primary, store columns(Fields)
+                     * by field primary. Use correct column for value.
+                     */
+                    $collection[$fieldValue[Material::F_PRIMARY]][$fieldName]
+                        = $fieldValue[$field->valueFieldName()];
+                }
+            }
+
+            /** @var Material[] $materials */
+            $materials = $this->query->entity(Material::class)->where(Material::F_PRIMARY, array_keys($collection))->exec();
+
+
+            // Go through collection again and created specific rows
+            foreach ($collection as $materialID => $fields) {
+                $this->collection[$materialID] = new $this->rowInstance($materialID, array_merge($fields, array('created' => $materials[$materialID]->Created, 'modified' => $materials[$materialID]->Modyfied)));
+            }
+        }
+
         return $this->collection;
     }
 
@@ -129,72 +170,31 @@ class Table
         return $fieldsCondition;
     }
 
-    /**
-     * Fill table with data from database.
-     */
-    protected function find()
+    /** @return array Get field table column names collection */
+    public function columns()
     {
-        // Get table Fields instances
-        $this->fields = (new FieldNavigation())->byRelationID($this->navigationID);
-
-        $collection = array();
-        if (count($rowIDs = $this->rowIDs())) {
-            /** @var MaterialField $fieldValue Get additional field value instances */
-            foreach ($this->query->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
-                         // Get only needed rows(materials)
-                         ->where(Material::F_PRIMARY, $rowIDs)
-                         ->where(Material::F_DELETION, 1)
-                         // Get correct localizes field condition for columns
-                         ->whereCondition($this->fieldsCondition($this->fields))
-                         ->exec() as $fieldValue) {
-                /** @var Field $field Try to find Field instance by identifier */
-                $field = &$this->fields[$fieldValue[Field::F_PRIMARY]];
-                if (null !== $field) {
-                    /**
-                     * As we generate camelCase names for fields we need to store
-                     * original names to get their values and correctly set row
-                     * fields.
-                     */
-                    $fieldName = null !== static::$fieldsRealNames[$field->Name]
-                        ? static::$fieldsRealNames[$field->Name] : $field->Name;
-                    /**
-                     * Store table row(material) as it primary, store columns(Fields)
-                     * by field primary. Use correct column for value.
-                     */
-                    $collection[$fieldValue[Material::F_PRIMARY]][$fieldName]
-                        = $fieldValue[$field->valueFieldName()];
-                }
-            }
-
-            /** @var Material[] $materials */
-            $materials = $this->query->entity(Material::class)->where(Material::F_PRIMARY, array_keys($collection))->exec();
-
-
-
-            // Go through collection again and created specific rows
-            foreach ($collection as $materialID => $fields) {
-                $this->collection[$materialID] = new $this->rowInstance($materialID, array_merge($fields, array('created' => $materials[$materialID]->Created, 'modified' => $materials[$materialID]->Modyfied)));
-            }
-        }
-
-        return $this->collection;
+        return array_column($this->fields, Field::F_IDENTIFIER);
     }
 
     /**
-     * FieldsTable constructor.
+     * Get collection of table column values as array.
      *
-     * @param QueryInterface $query        Database query interface
-     * @param int[]        $navigationID Navigation identifier for table structure
-     * @param integer        $materialID   Table parent material identifier
-     * @param string|null    $locale       Locale identifier
+     * @param string $fieldID Additional field identifier
+     *
+     * @return array Collection of table column values as array
      */
-    public function __construct(QueryInterface $query, $navigationID, $materialID, $locale = null)
+    public function values($fieldID)
     {
-        $this->query = $query;
-        $this->navigationID = $navigationID;
-        $this->materialID = $materialID;
-        $this->locale = $locale;
+        return (null !== $this->fields[$fieldID]) ? array_column($this->collection, $fieldID) : array();
+    }
 
-        $this->find();
+    /**
+     * Get field table as multidimensional array.
+     *
+     * @return Row[] Field table represented as array
+     */
+    public function toArray()
+    {
+        return $this->collection;
     }
 }
