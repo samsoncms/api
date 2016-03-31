@@ -98,7 +98,7 @@ class Entity extends Generic
                 $code .= "\n\t" . ' *';
                 $code .= "\n\t" . ' * @return $this Chaining';
                 $code .= "\n\t" . ' */';
-                $code .= "\n\t" . 'public function ' . $tableEntity . '(ViewInterface $renderer)';
+                $code .= "\n\t" . 'public function ' . lcfirst($tableEntity) . '(ViewInterface $renderer)';
                 $code .= "\n\t" . '{';
                 $code .= "\n\t\t" . 'return new ' . $tableEntity . '($renderer, $this->id);';
                 $code .= "\n\t" . '}';
