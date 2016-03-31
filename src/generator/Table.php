@@ -55,6 +55,7 @@ class Table extends Generic
         $this->generator
             ->multiComment(array(
                 'Class for rendering "' . $metadata->entityRealName . '" table',
+                '@deprecated Use ' . $this->className . 'Collection instead'
             ))
             ->defClass($this->className, '\\'.\samsoncms\api\field\Table::class)
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')
@@ -131,6 +132,7 @@ class Table extends Generic
         $class .= "\n\t" . ' * @param int $materialID material identifier';
         $class .= "\n\t" . ' * @param QueryInterface $query Database query instance';
         $class .= "\n\t" . ' * @param string $locale locale';
+        $class .= "\n\t" . ' * @deprecated Use ' . $this->className . 'Collection instead';
         $class .= "\n\t" . ' */';
         $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, $materialID, QueryInterface $query = null, $locale = null)';
         $class .= "\n\t" . '{';
