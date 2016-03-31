@@ -42,8 +42,8 @@ class Virtual extends GenericAnalyzer
             // TODO: Add multiple parent and fetching their data in a loop
 
             // Set pointer to parent entity
-            if (null !== $metadata->parentID && $structureRow[Navigation::F_TYPE] === \samsoncms\api\generator\metadata\Virtual::TYPE_STRUCTURE) {
-                if (array_key_exists($metadata->parentID, $metadataCollection)) {
+            if (null !== $metadata->parentID && (int)$structureRow[Navigation::F_TYPE] === \samsoncms\api\generator\metadata\Virtual::TYPE_STRUCTURE) {
+                if (array_key_exists($metadata->parentID, GenericMetadata::$instances)) {
                     $metadata->parent = $metadataCollection[$metadata->parentID];
                     // Add all parent metadata to current object
                     $metadata->defaultValues = $metadata->parent->defaultValues;
@@ -101,9 +101,9 @@ class Virtual extends GenericAnalyzer
             }
 
             // Store metadata by entity identifier
-            $metadataCollection[$structureRow[Navigation::F_PRIMARY]] = $metadata;
+            $metadataCollection[(int)$structureRow[Navigation::F_PRIMARY]] = $metadata;
             // Store global collection
-            GenericMetadata::$instances[$structureRow[Navigation::F_PRIMARY]] = $metadata;
+            GenericMetadata::$instances[(int)$structureRow[Navigation::F_PRIMARY]] = $metadata;
         }
 
 
@@ -141,7 +141,7 @@ class Virtual extends GenericAnalyzer
         $metadata->entityClassName = $this->fullEntityName($metadata->entity);
         $metadata->entityRealName = $structureRow[Navigation::F_NAME];
         $metadata->entityID = $structureRow[Navigation::F_PRIMARY];
-        $metadata->type = $structureRow[Navigation::F_TYPE];
+        $metadata->type = (int)$structureRow[Navigation::F_TYPE];
 
         // Try to find entity parent identifier for building future relations
         $metadata->parentID = $this->getParentEntity($structureRow[Navigation::F_PRIMARY]);
