@@ -69,7 +69,7 @@ class Entity extends Material
                 ->where(Material::F_PRIMARY, $this->id)
                 ->first($materialField)
             ) {
-                /** @var \samson\activerecord\materialfield $materialfield */
+                /** @var Field $materialfield */
                 $materialField = new $relationEntity();
                 $materialField->Active = 1;
                 $materialField->MaterialID = $this->id;
