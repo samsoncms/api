@@ -79,7 +79,7 @@ class TableTrait extends Generic
                 $code .= "\n\t" . ' *';
                 $code .= "\n\t" . ' * @return ' . $tableEntity . ' Table instance';
                 $code .= "\n\t" . ' */';
-                $code .= "\n\t" . 'public function create' . lcfirst($tableEntity) . '(ViewInterface $renderer, $locale = null)';
+                $code .= "\n\t" . 'public function create' . $tableEntity . '(ViewInterface $renderer, $locale = null)';
                 $code .= "\n\t" . '{';
                 $code .= "\n\t\t" . 'return new ' . $tableEntity . '($renderer, $this->id, $this->query, $locale);';
                 $code .= "\n\t" . '}';
