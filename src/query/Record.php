@@ -22,11 +22,14 @@ class Record
     /** @var string Table class name */
     protected static $identifier;
 
+    /** @var array Collection of all supported entity fields ids => names */
+    protected static $fieldIDs = array();
+
+    /** @var array Collection of all supported entity fields names => ids */
+    protected static $fieldNames = array();
+
     /** @var string Table primary field name */
     protected static $primaryFieldName;
-
-    /** @var array Collection of all entity fields */
-    protected static $parentFields = array();
 
     /** @var QueryInterface Database query instance */
     protected $query;
@@ -91,7 +94,7 @@ class Record
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
-        if (array_key_exists($fieldName, static::$parentFields)) {
+        if (array_key_exists($fieldName, static::$fieldIDs)) {
             $this->orderBy = array($fieldName, $order);
         }
 
@@ -245,7 +248,7 @@ class Record
      */
     protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
     {
-        if (array_key_exists($fieldName, static::$parentFields)) {
+        if (array_key_exists($fieldName, static::$fieldIDs)) {
             // Order by parent fields
             return $this->query
                 ->entity(static::$identifier)
