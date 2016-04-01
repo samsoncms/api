@@ -11,17 +11,16 @@ namespace samsoncms\api\field;
  * with defined fields.
  *
  * @package samsoncms\api\field
+ * @deprecated Use generated \samsoncms\api\generated\*TableEntity
  */
 class Row
 {
     /** @var array Collection of additional fields identifiers */
     protected static $fieldIDs = array();
-
-    /** @var array Field table row fields collection */
-    protected $collection;
-
     /** @var int Material primary identifier */
     public $primary;
+    /** @var array Field table row fields collection */
+    protected $collection;
 
     /**
      * Row constructor.

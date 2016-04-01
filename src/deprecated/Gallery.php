@@ -7,13 +7,13 @@
  */
 namespace samsoncms\api;
 
-use samson\cms\CMSGallery;
 use samsonframework\orm\QueryInterface;
 
 /***
  *  Gallery additional field for material.
  *  This class enables getting all information about additional fields gallery for specific material.
  *  @author myslyvyi@samsonos.com
+ * @deprecated Use \samsoncms\api\generator\GalleryCollection instead
  */
 class Gallery
 {
@@ -25,7 +25,8 @@ class Gallery
 
     /**
      * Constructor Gallery.
-     * This constructor finds identifier additional field gallery from database record its material and field identifiers.
+     * This constructor finds identifier additional field gallery from
+     * database record its material and field identifiers.
      *
      * @param QueryInterface $query Database query interface
      * @param integer $materialId material identifier
