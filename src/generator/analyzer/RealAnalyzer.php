@@ -48,8 +48,10 @@ class RealAnalyzer extends GenericAnalyzer
                 // Get old AR collections of metadata
                 $arEntity = '\samson\activerecord\\'.$metadata->entity;
                 if (class_exists($arEntity)) {
+                    foreach ($arEntity::$_attributes as $attribute) {
+                        $metadata->arAttributes[$this->fieldName($attribute)] = $attribute;
+                    }
                     $metadata->arSelect = $arEntity::$_sql_select;
-                    $metadata->arAttributes = $arEntity::$_attributes;
                     $metadata->arMap = $arEntity::$_map;
                     $metadata->arFrom = $arEntity::$_sql_from;
                     $metadata->arGroup = $arEntity::$_own_group;

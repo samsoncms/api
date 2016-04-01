@@ -17,6 +17,20 @@ use samsonphp\generator\Generator;
 class VirtualQuery extends RealQuery
 {
     /**
+     * Class uses generation part.
+     *
+     * @param VirtualMetadata $metadata Entity metadata
+     */
+    protected function createUses($metadata)
+    {
+        $this->generator
+            ->newLine('use samsonframework\orm\QueryInterface;')
+            ->newLine('use samsonframework\orm\ArgumentInterface;')
+            ->newLine('use samson\activerecord\dbQuery;')
+            ->newLine();
+    }
+
+    /**
      * Query constructor.
      *
      * @param Generator $generator
@@ -55,6 +69,25 @@ class VirtualQuery extends RealQuery
             ->defClassVar('$fieldIDs', 'protected static', $metadata->fields)
             ->commentVar('array', 'Collection of additional fields value column names')
             ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns);
+    }
+
+    /**
+     * Class constructor generation part.
+     *
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata Entity metadata
+     */
+    protected function createConstructor($metadata)
+    {
+        $class = "\n\t" . '/**';
+        $class .= "\n\t" . ' * @param string $locale Localization identifier';
+        $class .= "\n\t" . ' * @param QueryInterface $query Database query instance';
+        $class .= "\n\t" . ' */';
+        $class .= "\n\t" . 'public function __construct($locale = null, QueryInterface $query = null)';
+        $class .= "\n\t" . '{';
+        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $locale);';
+        $class .= "\n\t" . '}';
+
+        $this->generator->text($class);
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

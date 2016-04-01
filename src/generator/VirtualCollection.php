@@ -28,7 +28,7 @@ class VirtualCollection extends RealCollection
         $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, QueryInterface $query = null, $locale = null)';
         $class .= "\n\t" . '{';
         $class .= "\n\t\t" . '$this->renderer = $renderer;';
-        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $locale);';
+        $class .= "\n\t\t" . 'parent::__construct($locale, isset($query) ? $query : new dbQuery());';
         $class .= "\n\t" . '}';
 
         $this->generator->text($class);
