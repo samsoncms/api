@@ -24,7 +24,7 @@ if (!class_exists('\samson\activerecord\gallery', false)) {
         public $MaterialID;
 
         /** @var integer MaterialField identifier */
-        public $materialFieldid;
+        public $materialFieldID;
 
         /** @var integer Priority inside material relation */
         public $priority;
