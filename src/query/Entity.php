@@ -8,12 +8,12 @@
 namespace samsoncms\api\query;
 
 use samson\activerecord\dbQuery;
-use samsonframework\orm\Argument;
-use samsonframework\orm\ArgumentInterface;
 use samsoncms\api\CMS;
 use samsoncms\api\exception\EntityFieldNotFound;
 use samsoncms\api\Field;
 use samsoncms\api\Material;
+use samsonframework\orm\Argument;
+use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
 use samsonframework\orm\ConditionInterface;
 use samsonframework\orm\QueryInterface;
@@ -52,12 +52,29 @@ class Entity extends Generic
     protected $searchFilter = array();
 
     /**
+     * Generic constructor.
+     *
+     * @param QueryInterface $query  Database query instance
+     * @param string         $locale Query localization
+     */
+    public function __construct(QueryInterface $query = null, $locale = null)
+    {
+        $this->locale = $locale;
+
+        parent::__construct(null === $query ? new dbQuery() : $query);
+
+        // Work only with active entities
+        $this->active(true);
+    }
+
+    /**
      * Select specified entity fields.
      * If this method is called then only selected entity fields
-     * would be return in entity instances.
+     * would be filled in entity instances.
      *
      * @param mixed $fieldNames Entity field name or collection of names
-     * @return $this Chaining
+     *
+*@return $this Chaining
      */
     public function select($fieldNames)
     {
@@ -120,25 +137,48 @@ class Entity extends Generic
     }
 
     /**
-     * Add condition to current query.
+     * Perform SamsonCMS query and get collection of entities.
      *
-     * @param string $fieldName Entity field name
-     * @param string $fieldValue Value
-     * @param string $fieldRelation Entity field to value relation
-     * @return $this Chaining
+     * @param int $page Page number
+     * @param int $size Page size
+     *
+     * @return \samsoncms\api\Entity[] Collection of entity fields
      */
-    public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
+    public function find($page = null, $size = null)
     {
-        // Try to find entity additional field
-        $pointer = &static::$fieldNames[$fieldName];
-        if (isset($pointer)) {
-            // Store additional field filter value
-            $this->fieldFilter[$pointer] = (new Condition())->add(static::$fieldValueColumns[$pointer], $fieldValue, $fieldRelation);
-        } else {
-            parent::where($fieldName, $fieldValue, $fieldRelation);
+        $return = array();
+        if (count($this->entityIDs = $this->findEntityIDs())) {
+            $additionalFields = $this->findAdditionalFields($this->entityIDs);
+
+            if (count($this->searchFilter)) {
+                $this->entityIDs = $this->applySearch($this->entityIDs);
+
+                // Return result if not ids
+                if (count($this->entityIDs) === 0) {
+                    return $return;
+                }
+            }
+
+            // Slice identifier array to match pagination
+            if (null !== $page && null !== $size) {
+                $this->entityIDs = array_slice($this->entityIDs, ($page - 1) * $size, $size);
+            }
+
+            // Perform parent find() only if we have entity identifiers
+            if (count($this->entityIDs)) {
+                /** @var \samsoncms\api\Entity $item Find entity instances */
+                foreach (parent::find() as $item) {
+                    $item = $this->fillEntityFields($item, $additionalFields);
+
+                    // Store entity by identifier
+                    $return[$item[Material::F_PRIMARY]] = $item;
+                }
+            }
         }
 
-        return $this;
+        //elapsed('Finish SamsonCMS '.static::$identifier.' query');
+
+        return $return;
     }
 
     /**
@@ -181,17 +221,6 @@ class Entity extends Generic
     }
 
     /**
-     * Get collection of entity identifiers filtered by navigation identifiers.
-     *
-     * @param array $entityIDs Additional collection of entity identifiers for filtering
-     * @return array Collection of material identifiers by navigation identifiers
-     */
-    protected function findByNavigationIDs($entityIDs = array())
-    {
-        return (new MaterialNavigation($entityIDs))->idsByRelationID(static::$navigationIDs);
-    }
-
-    /**
      * Get collection of entity identifiers filtered by additional field and its value.
      *
      * @param Condition[] $additionalFields Collection of additional field identifiers => values
@@ -220,26 +249,15 @@ class Entity extends Generic
     }
 
     /**
-     * @param array $entityIDs
-     * @return array
+     * Get collection of entity identifiers filtered by navigation identifiers.
+     *
+     * @param array $entityIDs Additional collection of entity identifiers for filtering
+     *
+     * @return array Collection of material identifiers by navigation identifiers
      */
-    protected function applySearch(array $entityIDs)
+    protected function findByNavigationIDs($entityIDs = array())
     {
-        $condition = new Condition(ConditionInterface::DISJUNCTION);
-
-        foreach ($this->searchFilter as $searchText) {
-            foreach (static::$fieldValueColumns as $fieldId => $fieldColumn) {
-                $condition->addCondition((new Condition())
-                    ->addArgument(new Argument($fieldColumn, '%' . $searchText . '%', ArgumentInterface::LIKE))
-                    ->addArgument(new Argument(\samsoncms\api\MaterialField::F_FIELDID, $fieldId)));
-            }
-        }
-
-        return $this->query
-            ->entity(\samsoncms\api\MaterialField::class)
-            ->whereCondition($condition)
-            ->where(Material::F_PRIMARY, $entityIDs)
-            ->fields(Material::F_PRIMARY);
+        return (new MaterialNavigation($entityIDs))->idsByRelationID(static::$navigationIDs);
     }
 
     /**
@@ -340,6 +358,30 @@ class Entity extends Generic
     }
 
     /**
+     * @param array $entityIDs
+     *
+     * @return array
+     */
+    protected function applySearch(array $entityIDs)
+    {
+        $condition = new Condition(ConditionInterface::DISJUNCTION);
+
+        foreach ($this->searchFilter as $searchText) {
+            foreach (static::$fieldValueColumns as $fieldId => $fieldColumn) {
+                $condition->addCondition((new Condition())
+                    ->addArgument(new Argument($fieldColumn, '%' . $searchText . '%', ArgumentInterface::LIKE))
+                    ->addArgument(new Argument(\samsoncms\api\MaterialField::F_FIELDID, $fieldId)));
+            }
+        }
+
+        return $this->query
+            ->entity(\samsoncms\api\MaterialField::class)
+            ->whereCondition($condition)
+            ->where(Material::F_PRIMARY, $entityIDs)
+            ->fields(Material::F_PRIMARY);
+    }
+
+    /**
      * Fill entity additional fields.
      *
      * @param \samsoncms\api\Entity $entity Entity instance for filling
@@ -361,51 +403,6 @@ class Entity extends Generic
         }
 
         return $entity;
-    }
-
-    /**
-     * Perform SamsonCMS query and get collection of entities.
-     *
-     * @param int $page Page number
-     * @param int $size Page size
-     *
-     * @return \samsoncms\api\Entity[] Collection of entity fields
-     */
-    public function find($page = null, $size = null)
-    {
-        $return = array();
-        if (count($this->entityIDs = $this->findEntityIDs())) {
-            $additionalFields = $this->findAdditionalFields($this->entityIDs);
-
-            if (count($this->searchFilter)) {
-                $this->entityIDs = $this->applySearch($this->entityIDs);
-
-                // Return result if not ids
-                if (count($this->entityIDs) === 0) {
-                    return $return;
-                }
-            }
-
-            // Slice identifier array to match pagination
-            if (null !== $page && null !== $size) {
-                $this->entityIDs = array_slice($this->entityIDs, ($page - 1) * $size, $size);
-            }
-
-            // Perform parent find() only if we have entity identifiers
-            if (count($this->entityIDs)) {
-                /** @var \samsoncms\api\Entity $item Find entity instances */
-                foreach (parent::find() as $item) {
-                    $item = $this->fillEntityFields($item, $additionalFields);
-
-                    // Store entity by identifier
-                    $return[$item[Material::F_PRIMARY]] = $item;
-                }
-            }
-        }
-
-        //elapsed('Finish SamsonCMS '.static::$identifier.' query');
-
-        return $return;
     }
 
     /**
@@ -465,6 +462,29 @@ class Entity extends Generic
     }
 
     /**
+     * Add condition to current query.
+     *
+     * @param string $fieldName     Entity field name
+     * @param string $fieldValue    Value
+     * @param string $fieldRelation Entity field to value relation
+     *
+     * @return $this Chaining
+     */
+    public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
+    {
+        // Try to find entity additional field
+        $pointer = &static::$fieldNames[$fieldName];
+        if (isset($pointer)) {
+            // Store additional field filter value
+            $this->fieldFilter[$pointer] = (new Condition())->add(static::$fieldValueColumns[$pointer], $fieldValue, $fieldRelation);
+        } else {
+            parent::where($fieldName, $fieldValue, $fieldRelation);
+        }
+
+        return $this;
+    }
+
+    /**
      * Perform SamsonCMS query and get amount resulting entities.
      *
      * @return int Amount of resulting entities
@@ -488,21 +508,5 @@ class Entity extends Generic
         }
 
         return $return;
-    }
-
-    /**
-     * Generic constructor.
-     *
-     * @param QueryInterface $query Database query instance
-     * @param string $locale Query localization
-     */
-    public function __construct(QueryInterface $query = null, $locale = null)
-    {
-        $this->locale = $locale;
-
-        parent::__construct(null === $query ? new dbQuery() : $query);
-
-        // Work only with active entities
-        $this->active(true);
     }
 }
