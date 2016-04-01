@@ -42,7 +42,7 @@ class VirtualQuery extends RealQuery
             ->commentVar('array', 'Collection of real additional field names')
             ->defClassVar('$fieldRealNames', 'public static', $metadata->realNames)
             ->commentVar('array', 'Collection of additional field names')
-            ->defClassVar('$fieldNames', 'public static', $metadata->allFieldNames)
+            ->defClassVar('$fieldNames', 'public static', $metadata->fieldNames)
             // TODO: two above fields should be protected
             ->commentVar('array', 'Collection of navigation identifiers')
             ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
@@ -53,7 +53,7 @@ class VirtualQuery extends RealQuery
             ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
             ->defClassVar('$notLocalizedFieldIDs', 'protected static', $metadata->notLocalizedFieldIDs)
             ->commentVar('array', 'Collection of localized additional fields identifiers')
-            ->defClassVar('$fieldIDs', 'protected static', $metadata->allFieldIDs)
+            ->defClassVar('$fieldIDs', 'protected static', $metadata->fields)
             ->commentVar('array', 'Collection of additional fields value column names')
             ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns);
     }
@@ -68,11 +68,11 @@ class VirtualQuery extends RealQuery
         $methods = [];
         // TODO: Add different method generation depending on their field type
         // Generate Query::where() analog for specific field.
-        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
+        foreach ($metadata->fields as $fieldID => $fieldName) {
             $code = "\n\t" . '/**';
             $code .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldID . ') field query condition.';
             $code .= "\n\t" . ' * @see Generic::where()';
-            $code .= "\n\t" . ' * @param ' . $metadata->allFieldTypes[$fieldID] . ' $value Field value';
+            $code .= "\n\t" . ' * @param ' . $metadata->types[$fieldID] . ' $value Field value';
             $code .= "\n\t" . ' * @param string $relation Field to value condition relation';
             $code .= "\n\t" . ' *';
             $code .= "\n\t" . ' * @return $this Chaining';

@@ -56,7 +56,7 @@ class VirtualEntity extends Generic
             ->defClassConst('NAME', $metadata->entityRealName);
 
         // Create all entity fields constants storing each additional field metadata
-        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
+        foreach ($metadata->fields as $fieldID => $fieldName) {
             $this->generator
                 ->commentVar('string', $metadata->fieldDescriptions[$fieldID] . ' variable name')
                 ->defClassConst('F_' . $fieldName, $fieldName)
@@ -72,9 +72,9 @@ class VirtualEntity extends Generic
      */
     protected function createFields($metadata)
     {
-        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
+        foreach ($metadata->fields as $fieldID => $fieldName) {
             $this->generator
-                ->commentVar($metadata->allFieldTypes[$fieldID], $metadata->fieldDescriptions[$fieldID])
+                ->commentVar($metadata->types[$fieldID], $metadata->fieldDescriptions[$fieldID])
                 ->defClassVar('$' . $fieldName, 'public');
         }
     }

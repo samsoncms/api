@@ -48,10 +48,10 @@ class Virtual extends GenericAnalyzer
                     // Add all parent metadata to current object
                     $metadata->defaultValues = $metadata->parent->defaultValues;
                     $metadata->realNames = $metadata->parent->realNames;
-                    $metadata->allFieldIDs = $metadata->parent->allFieldIDs;
-                    $metadata->allFieldNames = $metadata->parent->allFieldNames;
+                    $metadata->fields = $metadata->parent->fields;
+                    $metadata->fieldNames = $metadata->parent->fieldNames;
+                    $metadata->types = $metadata->parent->types;
                     $metadata->allFieldValueColumns = $metadata->parent->allFieldValueColumns;
-                    $metadata->allFieldTypes = $metadata->parent->allFieldTypes;
                     $metadata->fieldDescriptions = $metadata->parent->fieldDescriptions;
                     $metadata->localizedFieldIDs = $metadata->parent->localizedFieldIDs;
                     $metadata->notLocalizedFieldIDs = $metadata->parent->notLocalizedFieldIDs;
@@ -203,10 +203,10 @@ AND s.StructureID != "' . $entityID . '"
 
         // Store field metadata
         $metadata->realNames[$fieldRow[Field::F_IDENTIFIER]] = $fieldName;
-        $metadata->allFieldIDs[$fieldID] = $fieldName;
-        $metadata->allFieldNames[$fieldName] = $fieldID;
+        $metadata->fields[$fieldID] = $fieldName;
+        $metadata->fieldNames[$fieldName] = $fieldID;
         $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
-        $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow[Field::F_TYPE]);
+        $metadata->types[$fieldID] = Field::phpType($fieldRow[Field::F_TYPE]);
         $metadata->allFieldCmsTypes[$fieldID] = (int)$fieldRow[Field::F_TYPE];
         $metadata->fieldDescriptions[$fieldID] = $fieldRow[Field::F_DESCRIPTION] . ', ' . $fieldRow[Field::F_IDENTIFIER] . '#' . $fieldID;
         $metadata->fieldRawDescriptions[$fieldID] = $fieldRow[Field::F_DESCRIPTION];

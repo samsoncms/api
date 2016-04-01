@@ -49,10 +49,10 @@ class Application extends \samsoncms\api\generator\analyzer\Virtual
 
         // Store field metadata
         $metadata->realNames[$fieldRow['Name']] = $fieldName;
-        $metadata->allFieldIDs[$fieldID] = $fieldName;
-        $metadata->allFieldNames[$fieldName] = $fieldID;
+        $metadata->fields[$fieldID] = $fieldName;
+        $metadata->fieldNames[$fieldName] = $fieldID;
         $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
-        $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow['Type']);
+        $metadata->types[$fieldID] = Field::phpType($fieldRow['Type']);
         $metadata->allFieldCmsTypes[$fieldID] = (int)$fieldRow['Type'];
         $metadata->fieldDescriptions[$fieldID] = $fieldRow['Description'] . ', ' . $fieldRow['Name'] . '#' . $fieldID;
         $metadata->fieldRawDescriptions[$fieldID] = $fieldRow['Description'];

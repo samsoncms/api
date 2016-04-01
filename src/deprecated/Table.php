@@ -101,13 +101,13 @@ class Table extends Generic
         $methods = [];
         // TODO: Add different method generation depending on their field type
         // Generate Query::where() analog for specific field.
-        foreach ($metadata->allFieldIDs as $fieldID => $fieldName) {
+        foreach ($metadata->fields as $fieldID => $fieldName) {
             $code = "\n\t" . '/**';
             $code .= "\n\t" . ' * Get collection of ' . $fieldName . '(#' . $fieldID . ') table column values.';
             $code .= "\n\t" . ' * @see \samsoncms\api\field\Table::values($fieldID)';
             $code .= "\n\t" . ' * @param string $relation Field to value condition relation';
             $code .= "\n\t" . ' *';
-            $code .= "\n\t" . ' * @return ' . $metadata->allFieldTypes[$fieldID] . '[] ' . $fieldName . ' values collection';
+            $code .= "\n\t" . ' * @return ' . $metadata->types[$fieldID] . '[] ' . $fieldName . ' values collection';
             $code .= "\n\t" . ' */';
             $code .= "\n\t" . 'public function ' . $fieldName . '()';
             $code .= "\n\t" . '{';
