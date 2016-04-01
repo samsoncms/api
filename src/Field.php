@@ -84,6 +84,25 @@ class Field extends \samson\activerecord\field
     }
 
     /**
+     * Get internal field type in form of Field constant name
+     * by php originial type.
+     *
+     * @param string $fieldType PHP type
+     *
+     * @return string Additional field type constant
+     * @throws AdditionalFieldTypeNotFound
+     */
+    public static function internalType($fieldType)
+    {
+        $types = array_flip(static::$phpTYPE);
+        if (array_key_exists($fieldType, $types)) {
+            return $types[$fieldType];
+        } else {
+            throw new AdditionalFieldTypeNotFound($fieldType);
+        }
+    }
+
+    /**
      * Get current entity instances collection by navigation identifier.
      *
      * @param QueryInterface    $query        Database query

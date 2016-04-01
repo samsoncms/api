@@ -9,15 +9,18 @@ namespace samsoncms\api\generator\metadata;
 class RealMetadata extends GenericMetadata
 {
     /** @var array Collection of entity field names */
-    protected $fields = array();
+    public $fields = array();
+
+    /** @var array Collection of real entity field names to generated */
+    public $fieldNames = array();
 
     /** @var array Collection of entity field types by names */
-    protected $types = array();
+    public $types = array();
 
     /** @var array Collection of SamsonCMS entity field types by names */
-    protected $internalTypes = array();
+    public $internalTypes = array();
 
     /** @var array Collection of entity field default values by names */
-    protected $defaults = array();
+    public $defaults = array();
 }
 //[PHPCOMPRESSOR(remove,end)]

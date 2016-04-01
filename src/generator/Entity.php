@@ -98,29 +98,29 @@ class Entity extends Generic
      */
     protected function createStaticFields($metadata)
     {
-        return $this->generator
+        $this->generator
             ->commentVar('array', 'Collection of navigation identifiers')
             ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$_sql_select', 'public static ', $metadata->arSelect)
+            ->defClassVar('$_sql_select', 'public static', $metadata->arSelect)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$_attributes', 'public static ', $metadata->arAttributes)
+            ->defClassVar('$_attributes', 'public static', $metadata->arAttributes)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$_map', 'public static ', $metadata->arMap)
+            ->defClassVar('$_map', 'public static', $metadata->arMap)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$_sql_from', 'public static ', $metadata->arFrom)
+            ->defClassVar('$_sql_from', 'public static', $metadata->arFrom)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$_own_group', 'public static ', $metadata->arGroup)
+            ->defClassVar('$_own_group', 'public static', $metadata->arGroup)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$_relation_alias', 'public static ', $metadata->arRelationAlias)
+            ->defClassVar('$_relation_alias', 'public static', $metadata->arRelationAlias)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$_relation_type', 'public static ', $metadata->arRelationType)
+            ->defClassVar('$_relation_type', 'public static', $metadata->arRelationType)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
+            ->defClassVar('$_relations', 'public static', $metadata->arRelations)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$fieldIDs', 'protected static ', $metadata->allFieldIDs)
+            ->defClassVar('$fieldIDs', 'protected static', $metadata->allFieldIDs)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$fieldValueColumns', 'protected static ', $metadata->allFieldValueColumns);
+            ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns);
     }
 }
 //[PHPCOMPRESSOR(remove,end)]
