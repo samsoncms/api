@@ -57,36 +57,5 @@ class VirtualQuery extends RealQuery
             ->commentVar('array', 'Collection of additional fields value column names')
             ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns);
     }
-
-    /**
-     * Class methods generation part.
-     *
-     * @param Virtual $metadata Entity metadata
-     */
-    protected function createMethods($metadata)
-    {
-        $methods = [];
-        // TODO: Add different method generation depending on their field type
-        // Generate Query::where() analog for specific field.
-        foreach ($metadata->fields as $fieldID => $fieldName) {
-            $code = "\n\t" . '/**';
-            $code .= "\n\t" . ' * Add '.$fieldName.'(#' . $fieldID . ') field query condition.';
-            $code .= "\n\t" . ' * @see Generic::where()';
-            $code .= "\n\t" . ' * @param ' . $metadata->types[$fieldID] . ' $value Field value';
-            $code .= "\n\t" . ' * @param string $relation Field to value condition relation';
-            $code .= "\n\t" . ' *';
-            $code .= "\n\t" . ' * @return $this Chaining';
-            $code .= "\n\t" . ' */';
-            $code .= "\n\t" . 'public function ' . $fieldName . '($value, $relation = ArgumentInterface::EQUAL)';
-            $code .= "\n\t" . '{';
-            $code .= "\n\t\t" . 'return $this->where(\'' . $fieldName . '\', $value, $relation);';
-            $code .= "\n\t" . '}';
-
-            $methods[] = $code;
-        }
-
-        // Add method text to generator
-        $this->generator->text(implode("\n", $methods));
-    }
 }
 //[PHPCOMPRESSOR(remove,end)]
