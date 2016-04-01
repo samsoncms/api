@@ -15,7 +15,7 @@ use samsonphp\generator\Generator;
  *
  * @package samsoncms\api\generator
  */
-class TableCollection extends Collection
+class TableVirtualCollection extends VirtualCollection
 {
     /**
      * Query constructor.

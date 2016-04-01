@@ -6,14 +6,15 @@
  */
 namespace samsoncms\api\generator;
 
+use samsoncms\api\generator\metadata\RealMetadata;
 use samsonphp\generator\Generator;
 
 /**
- * Entity Query class generator.
+ * Real entity collection class generator.
  *
  * @package samsoncms\api\generator
  */
-class Collection extends Generic
+class RealCollection extends Generic
 {
     /**
      * Query constructor.
@@ -32,7 +33,7 @@ class Collection extends Generic
     /**
      * Class uses generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
+     * @param RealMetadata $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -47,13 +48,13 @@ class Collection extends Generic
     /**
      * Class definition generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
+     * @param RealMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array(
-                'Class for rendering and querying and fetching "' . $metadata->entityRealName . '" instances from database',
+                'Class for rendering and querying and fetching "' . $metadata->entity . '" instances from database',
                 '@method ' . $metadata->entity . ' first();',
                 '@method ' . $metadata->entity . '[] find();',
             ))
@@ -65,20 +66,19 @@ class Collection extends Generic
     /**
      * Class constructor generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
+     * @param RealMetadata $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {
-        $class = "\n\t".'/**';
-        $class .= "\n\t".' * @param ViewInterface $renderer Rendering instance';
+        $class = "\n\t" . '/**';
+        $class .= "\n\t" . ' * @param ViewInterface $renderer Rendering instance';
         $class .= "\n\t" . ' * @param QueryInterface $query Database query instance';
-        $class .= "\n\t".' * @param string $locale Localization identifier';
-        $class .= "\n\t".' */';
-        $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, QueryInterface $query = null, $locale = null)';
-        $class .= "\n\t".'{';
+        $class .= "\n\t" . ' */';
+        $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, QueryInterface $query = null)';
+        $class .= "\n\t" . '{';
         $class .= "\n\t\t" . '$this->renderer = $renderer;';
-        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $locale);';
-        $class .= "\n\t".'}';
+        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery());';
+        $class .= "\n\t" . '}';
 
         $this->generator->text($class);
     }
