@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api\query;
 
+use samsoncms\api\exception\WrongQueryConditionArgument;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
 use samsonframework\orm\ConditionInterface;
@@ -134,7 +135,7 @@ class Record
      *
      * @param string $value Field value
      *
-*@return $this Chaining
+     * @return $this Chaining
      * @see Material::where()
      */
     public function primary($value)
@@ -145,15 +146,21 @@ class Record
     /**
      * Add condition to current query.
      *
-     * @param string $fieldName  Entity field name
-     * @param string $fieldValue Value
+     * @param string $fieldName Entity field name
+     * @param mixed $fieldValue Value
      * @param string $fieldRelation
      *
-*@return $this Chaining
+     * @return $this Chaining
+     *
+     * @throws WrongQueryConditionArgument
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
-        $this->conditions->add($fieldName, $fieldValue, $fieldRelation);
+        if (!is_object($fieldValue)) {
+            $this->conditions->add($fieldName, $fieldValue, $fieldRelation);
+        } else {
+            throw new WrongQueryConditionArgument('Object is passed to condition');
+        }
 
         return $this;
     }

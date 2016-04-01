@@ -42,7 +42,23 @@ class RealAnalyzer extends GenericAnalyzer
             if (null === $metadata) {
                 $metadata = new $this->metadataClass;
                 $metadata->entity = $this->entityName($table);
+                $metadata->entityName = $table;
                 $metadata->entityClassName = $this->fullEntityName($metadata->entity);
+
+                // Get old AR collections of metadata
+                $arEntity = '\samson\activerecord\\'.$metadata->entity;
+                if (class_exists($arEntity)) {
+                    foreach ($arEntity::$_attributes as $attribute) {
+                        $metadata->arAttributes[$this->fieldName($attribute)] = $attribute;
+                    }
+                    $metadata->arSelect = $arEntity::$_sql_select;
+                    $metadata->arMap = $arEntity::$_map;
+                    $metadata->arFrom = $arEntity::$_sql_from;
+                    $metadata->arGroup = $arEntity::$_own_group;
+                    $metadata->arRelationAlias = $arEntity::$_relation_alias;
+                    $metadata->arRelationType = $arEntity::$_relation_type;
+                    $metadata->arRelations = $arEntity::$_relations;
+                }
             }
 
             // Generate correct PSR-2 field name
@@ -79,8 +95,10 @@ class RealAnalyzer extends GenericAnalyzer
               FROM `information_schema`.`TABLES` as `TABLES`
               LEFT JOIN `information_schema`.`COLUMNS` as `COLUMNS`
               ON `TABLES`.`TABLE_NAME`=`COLUMNS`.`TABLE_NAME`
-              WHERE `TABLES`.`TABLE_SCHEMA`="' . $this->database->database() . '" AND `COLUMNS`.`TABLE_SCHEMA`="' . $this->database->database() . '"'
-        );
+              WHERE `TABLES`.`TABLE_SCHEMA`="' . $this->database->database() . '"
+              AND `COLUMNS`.`TABLE_SCHEMA`="' . $this->database->database() . '"
+              AND `TABLES`.`TABLE_NAME` != "cms_version"
+         ');
     }
 
     /**

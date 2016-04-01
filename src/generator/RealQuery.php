@@ -29,7 +29,7 @@ class RealQuery extends Generic
     {
         parent::__construct($generator, $metadata);
 
-        $this->className .= 'Query';
+        $this->className = $metadata->entity.'Query';
         $this->parentClass = '\\' . \samsoncms\api\query\Record::class;
         $this->entityClass = '\samsoncms\api\generated\\' . $metadata->entity;
     }
@@ -99,7 +99,8 @@ class RealQuery extends Generic
             $code .= "\n\t" . ' */';
             $code .= "\n\t" . 'public function ' . $fieldName . '($value, $relation = ArgumentInterface::EQUAL)';
             $code .= "\n\t" . '{';
-            $code .= "\n\t\t" . 'return $this->where(\'' . $fieldName . '\', $value, $relation);';
+            $code .= "\n\t\t" . 'return $this->where(' . $metadata->entity.'::F_'.strtoupper($fieldName). ', $value, $relation);';
+
             $code .= "\n\t" . '}';
 
             $methods[] = $code;

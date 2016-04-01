@@ -19,7 +19,7 @@ class VirtualEntity extends RealEntity
     /**
      * Class uses generation part.
      *
-     * @param RealMetadata $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -106,7 +106,7 @@ class VirtualEntity extends RealEntity
             try {
                 // We need only gallery fields
                 if ($metadata->allFieldCmsTypes[$fieldID] === Field::TYPE_GALLERY) {
-                    $galleryName = rtrim($fieldName, 'Gallery') . 'Gallery';
+                    $galleryName = preg_replace('/Gallery$/i', '', $fieldName) . 'Gallery';
 
                     $code = "\n\t" . '/**';
                     $code .= "\n\t" . ' * Get ' . $fieldName . '(#' . $fieldID . ') gallery collection instance.';
@@ -114,9 +114,10 @@ class VirtualEntity extends RealEntity
                     $code .= "\n\t" . ' *';
                     $code .= "\n\t" . ' * @return GalleryCollection Gallery collection instance';
                     $code .= "\n\t" . ' */';
-                    $code .= "\n\t" . 'public function ' . lcfirst($galleryName) . '(ViewInterface $renderer)';
+                    $code .= "\n\t" . 'public function create' . ucfirst($galleryName) . '(ViewInterface $renderer)';
                     $code .= "\n\t" . '{';
-                    $code .= "\n\t\t" . 'return (new GalleryCollection($renderer, $this->query))->materialID($this->id)->materialFieldID(' . $fieldID . ');';
+                    $code .= "\n\t\t" . '$materialFieldID = (new MaterialFieldQuery($this->query))->materialID($this->id)->fieldID('.$fieldID.')->first();';
+                    $code .= "\n\t\t" . 'return (new GalleryCollection($renderer, $this->query))->materialID($this->id)->materialFieldID($materialFieldID->id);';
                     $code .= "\n\t" . '}';
 
                     $methods[] = $code;

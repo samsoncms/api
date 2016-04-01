@@ -27,9 +27,10 @@ class TableVirtualQuery extends VirtualQuery
     {
         parent::__construct($generator, $metadata);
 
-        $this->className = rtrim($this->metadata->entity, 'Table') . 'TableQuery';
+        $replaced = preg_replace('/Table$/i', '', $this->metadata->entity);
+        $this->className = $replaced . 'TableQuery';
         $this->parentClass = '\\' . \samsoncms\api\query\EntityTable::class;
-        $this->entityClass = '\samsoncms\api\generated\\' . rtrim($this->metadata->entity, 'Table') . 'TableEntity';
+        $this->entityClass = '\samsoncms\api\generated\\' . $replaced . 'TableEntity';
     }
 
     /**

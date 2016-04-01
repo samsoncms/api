@@ -27,7 +27,7 @@ class TableVirtualEntity extends VirtualEntity
     {
         parent::__construct($generator, $metadata);
 
-        $this->className = rtrim($this->className, 'Table') . 'TableEntity';
+        $this->className = preg_replace('/Table$/i', '', $this->className) . 'TableEntity';
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

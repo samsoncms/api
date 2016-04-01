@@ -69,7 +69,8 @@ class TableTrait extends Generic
         foreach (GenericMetadata::$instances as $metadataInstance) {
             if ($metadataInstance->type === VirtualMetadata::TYPE_TABLE) {
                 // Create table virtual entity with correct name ending
-                $tableEntity = rtrim($metadataInstance->entity, 'Table') . 'TableCollection';
+                $replaced = preg_replace('/Table$/i', '',$metadataInstance->entity);
+                $tableEntity = $replaced . 'TableCollection';
 
                 $code = "\n\t" . '/**';
                 $code .= "\n\t" . ' * Create virtual ' . $metadataInstance->entityRealName . ' table instance.';
@@ -78,7 +79,7 @@ class TableTrait extends Generic
                 $code .= "\n\t" . ' *';
                 $code .= "\n\t" . ' * @return ' . $tableEntity . ' Table instance';
                 $code .= "\n\t" . ' */';
-                $code .= "\n\t" . 'public function ' . lcfirst($tableEntity) . '(ViewInterface $renderer, $locale = null)';
+                $code .= "\n\t" . 'public function create' . lcfirst($tableEntity) . '(ViewInterface $renderer, $locale = null)';
                 $code .= "\n\t" . '{';
                 $code .= "\n\t\t" . 'return new ' . $tableEntity . '($renderer, $this->id, $this->query, $locale);';
                 $code .= "\n\t" . '}';
@@ -86,7 +87,7 @@ class TableTrait extends Generic
                 $methods[] = $code;
 
                 // Create table virtual entity with correct name ending
-                $tableEntity = rtrim($metadataInstance->entity, 'Table') . 'TableEntity';
+                $tableEntity = $replaced . 'TableEntity';
 
                 $code = "\n\t" . '/**';
                 $code .= "\n\t" . ' * Create virtual ' . $metadataInstance->entityRealName . ' table row instance.';
@@ -94,7 +95,7 @@ class TableTrait extends Generic
                 $code .= "\n\t" . ' *';
                 $code .= "\n\t" . ' * @return ' . $tableEntity . ' Table instance';
                 $code .= "\n\t" . ' */';
-                $code .= "\n\t" . 'public function add' . lcfirst($tableEntity) . 'Row($locale = null)';
+                $code .= "\n\t" . 'public function create' . $tableEntity . 'Row($locale = null)';
                 $code .= "\n\t" . '{';
                 $code .= "\n\t\t" . '$row = new ' . $tableEntity . '();';
                 $code .= "\n\t\t" . '$row->parent_id = $this->id;';
