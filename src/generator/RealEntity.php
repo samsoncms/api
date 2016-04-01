@@ -25,7 +25,7 @@ class RealEntity extends Generic
     {
         $this->generator
             ->multiComment(array('"' . $metadata->entity . '" database entity class'))
-            ->defClass($this->className, '\\' . Record::class);
+            ->defClass($this->className, '\samson\activerecord\\' . $metadata->entityName);
     }
 
     /**
@@ -47,6 +47,34 @@ class RealEntity extends Generic
                 ->commentVar('string', $fieldName . ' entity field')
                 ->defClassConst('F_' . $fieldName, $fieldName);
         }
+    }
+
+    /**
+     * Class static fields generation part.
+     *
+     * @param RealMetadata $metadata Entity metadata
+     */
+    protected function createStaticFields($metadata)
+    {
+        $this->generator
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_sql_select', 'public static ', $metadata->arSelect)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_attributes', 'public static ', $metadata->arAttributes)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_map', 'public static ', $metadata->arMap)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_sql_from', 'public static ', $metadata->arFrom)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_own_group', 'public static ', $metadata->arGroup)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_relation_alias', 'public static ', $metadata->arRelationAlias)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_relation_type', 'public static ', $metadata->arRelationType)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$fieldIDs', 'protected static ', $metadata->fields);
     }
 
     /**

@@ -27,9 +27,10 @@ class TableVirtualCollection extends VirtualCollection
     {
         parent::__construct($generator, $metadata);
 
-        $this->className = rtrim($this->metadata->entity, 'Table') . 'TableCollection';
-        $this->parentClass = rtrim($this->metadata->entity, 'Table') . 'TableQuery';
-        $this->entityClass = '\samsoncms\api\generated\\' . rtrim($this->metadata->entity, 'Table') . 'TableEntity';
+        $replaced = preg_replace('/Table$/i', '', $this->metadata->entity);
+        $this->className = $replaced . 'TableCollection';
+        $this->parentClass = $replaced . 'TableQuery';
+        $this->entityClass = '\samsoncms\api\generated\\' . $replaced . 'TableEntity';
     }
 
     /**
