@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api;
 
+use samson\activerecord\StructureMaterial;
 use samsonframework\orm\DatabaseInterface;
 use samsonframework\orm\QueryInterface;
 
@@ -103,7 +104,7 @@ class Entity extends Material
                     ->where(self::F_PRIMARY, $this->id)
                     ->count() === 0
             ) {
-                /** @var \samson\activerecord\structurematerial $structureMaterial */
+                /** @var StructureMaterial $structureMaterial */
                 $structureMaterial = new $relationEntity();
                 $structureMaterial->Active = 1;
                 $structureMaterial->MaterialID = $this->id;

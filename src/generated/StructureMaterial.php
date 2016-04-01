@@ -15,7 +15,7 @@ use samsonframework\orm\Record;
  * ORM module. This is needed for IDE and databaseless testing.
  */
 if (!class_exists('\samson\activerecord\structurematerial', false)) {
-    class NavigationMaterial extends Record
+    class StructureMaterial extends Record
     {
         /** @var integer Primary key */
         public $StructureMaterialID;
