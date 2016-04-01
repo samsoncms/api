@@ -6,7 +6,7 @@
  */
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\Virtual;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 
 /**
  * Virtual entity class generator.
@@ -18,7 +18,7 @@ class VirtualEntity extends Generic
     /**
      * Class definition generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
@@ -41,7 +41,7 @@ class VirtualEntity extends Generic
     /**
      * Class constants generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createConstants($metadata)
     {
@@ -68,7 +68,7 @@ class VirtualEntity extends Generic
     /**
      * Class fields generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createFields($metadata)
     {

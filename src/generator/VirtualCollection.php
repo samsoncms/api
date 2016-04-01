@@ -16,7 +16,7 @@ class VirtualCollection extends RealCollection
     /**
      * Class constructor generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {

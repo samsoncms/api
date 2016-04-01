@@ -6,7 +6,7 @@
  */
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\Virtual;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 use samsonphp\generator\Generator;
 
 /**
@@ -34,7 +34,7 @@ class VirtualQuery extends RealQuery
     /**
      * Class static fields generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createStaticFields($metadata)
     {

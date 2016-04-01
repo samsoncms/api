@@ -20,12 +20,12 @@ use samsoncms\api\Navigation;
 class Virtual extends GenericAnalyzer
 {
     /** @var string Metadata class */
-    protected $metadataClass = \samsoncms\api\generator\metadata\Virtual::class;
+    protected $metadataClass = \samsoncms\api\generator\metadata\VirtualMetadata::class;
 
     /**
      * Analyze virtual entities and gather their metadata.
      *
-     * @return \samsoncms\api\generator\metadata\Virtual[]
+     * @return \samsoncms\api\generator\metadata\VirtualMetadata[]
      * @throws ParentEntityNotFound
      */
     public function analyze()
@@ -42,7 +42,7 @@ class Virtual extends GenericAnalyzer
             // TODO: Add multiple parent and fetching their data in a loop
 
             // Set pointer to parent entity
-            if (null !== $metadata->parentID && (int)$structureRow[Navigation::F_TYPE] === \samsoncms\api\generator\metadata\Virtual::TYPE_STRUCTURE) {
+            if (null !== $metadata->parentID && (int)$structureRow[Navigation::F_TYPE] === \samsoncms\api\generator\metadata\VirtualMetadata::TYPE_STRUCTURE) {
                 if (array_key_exists($metadata->parentID, GenericMetadata::$instances)) {
                     $metadata->parent = $metadataCollection[$metadata->parentID];
                     // Add all parent metadata to current object
@@ -129,8 +129,8 @@ class Virtual extends GenericAnalyzer
     /**
      * Analyze entity.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata
-     * @param array                                     $structureRow Entity database row
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata
+     * @param array                                             $structureRow Entity database row
      */
     public function analyzeEntityRecord(&$metadata, array $structureRow)
     {
@@ -190,9 +190,9 @@ AND s.StructureID != "' . $entityID . '"
     /**
      * Virtual entity additional field analyzer.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Metadata instance for filling
-     * @param int                                       $fieldID  Additional field identifier
-     * @param array                                     $fieldRow Additional field database row
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata Metadata instance for filling
+     * @param int                                               $fieldID  Additional field identifier
+     * @param array                                             $fieldRow Additional field database row
      */
     public function analyzeFieldRecord(&$metadata, $fieldID, array $fieldRow)
     {

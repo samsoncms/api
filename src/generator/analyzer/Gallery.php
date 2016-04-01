@@ -20,7 +20,7 @@ class Gallery extends Virtual
     /**
      * Analyze virtual entities and gather their metadata.
      *
-     * @return \samsoncms\api\generator\metadata\Virtual[]
+     * @return \samsoncms\api\generator\metadata\VirtualMetadata[]
      * @throws ParentEntityNotFound
      */
     public function analyze()
@@ -30,7 +30,7 @@ class Gallery extends Virtual
         // Iterate all structures, parents first
         foreach ($this->getVirtualEntities() as $structureRow) {
             // Fill in entity metadata
-            $metadata = new \samsoncms\api\generator\metadata\Gallery();
+            $metadata = new \samsoncms\api\generator\metadata\GalleryMetadata();
             $navigationID = $structureRow[Navigation::F_PRIMARY];
 
             // Iterate entity fields

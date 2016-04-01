@@ -35,7 +35,7 @@ class TableVirtualQuery extends VirtualQuery
     /**
      * Class uses generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -48,7 +48,7 @@ class TableVirtualQuery extends VirtualQuery
     /**
      * Class constructor generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {

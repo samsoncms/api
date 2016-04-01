@@ -8,7 +8,7 @@
  */
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\Virtual;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 use samsonphp\generator\Generator;
 
 /**
@@ -35,7 +35,7 @@ class Table extends Generic
     /**
      * Class uses generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Gallery $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GalleryMetadata $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -49,7 +49,7 @@ class Table extends Generic
     /**
      * Class definition generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
@@ -66,7 +66,7 @@ class Table extends Generic
     /**
      * Class constants generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createConstants($metadata)
     {
@@ -82,7 +82,7 @@ class Table extends Generic
     /**
      * Class static fields generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createStaticFields($metadata)
     {
@@ -94,7 +94,7 @@ class Table extends Generic
     /**
      * Class methods generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createMethods($metadata)
     {
@@ -124,7 +124,7 @@ class Table extends Generic
     /**
      * Class constructor generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {

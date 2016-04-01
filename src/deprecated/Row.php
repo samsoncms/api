@@ -9,7 +9,7 @@
 
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\Virtual;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 use samsonphp\generator\Generator;
 
 /**
@@ -36,7 +36,7 @@ class Row extends VirtualEntity
     /**
      * Class definition generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {

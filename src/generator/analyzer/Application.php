@@ -11,13 +11,13 @@ use samsoncms\api\Field;
 class Application extends \samsoncms\api\generator\analyzer\Virtual
 {
     /** @var string Metadata class */
-    protected $metadataClass = \samsoncms\api\generator\metadata\Application::class;
+    protected $metadataClass = \samsoncms\api\generator\metadata\ApplicationMetadata::class;
 
     /**
      * Analyze entity.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata
-     * @param array $structureRow Entity database row
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata
+     * @param array                                             $structureRow Entity database row
      */
     public function analyzeEntityRecord(&$metadata, array $structureRow)
     {
@@ -36,9 +36,9 @@ class Application extends \samsoncms\api\generator\analyzer\Virtual
     /**
      * Virtual entity additional field analyzer.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Metadata instance for filling
-     * @param int      $fieldID Additional field identifier
-     * @param array $fieldRow Additional field database row
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata Metadata instance for filling
+     * @param int                                               $fieldID  Additional field identifier
+     * @param array                                             $fieldRow Additional field database row
      */
     public function analyzeFieldRecord(&$metadata, $fieldID, array $fieldRow)
     {

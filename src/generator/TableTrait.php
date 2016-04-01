@@ -7,7 +7,7 @@
 namespace samsoncms\api\generator;
 
 use samsoncms\api\generator\metadata\GenericMetadata;
-use samsoncms\api\generator\metadata\Virtual;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 use samsonphp\generator\Generator;
 
 /**
@@ -36,7 +36,7 @@ class TableTrait extends Generic
     /**
      * Class uses generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -48,7 +48,7 @@ class TableTrait extends Generic
     /**
      * Class definition generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
@@ -60,14 +60,14 @@ class TableTrait extends Generic
     /**
      * Class methods generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createMethods($metadata)
     {
         $methods = [];
-        /** @var Virtual $metadataInstance Iterate all metadata entities */
+        /** @var VirtualMetadata $metadataInstance Iterate all metadata entities */
         foreach (GenericMetadata::$instances as $metadataInstance) {
-            if ($metadataInstance->type === Virtual::TYPE_TABLE) {
+            if ($metadataInstance->type === VirtualMetadata::TYPE_TABLE) {
                 // Create table virtual entity with correct name ending
                 $tableEntity = rtrim($metadataInstance->entity, 'Table') . 'TableCollection';
 

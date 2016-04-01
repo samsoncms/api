@@ -37,76 +37,6 @@ class Application extends \samsoncms\api\generator\Generic
         $this->className .= 'Application';
     }
 
-    /**
-     * Class definition generation part.
-     *
-     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
-     */
-    protected function createDefinition($metadata)
-    {
-        $this->generator
-            ->multiComment(array('Class application for "'.$metadata->name.'"'))
-            ->defClass($this->className, '\\'.\samsoncms\app\material\Application::class)
-        ;
-    }
-
-    /**
-     * Class fields generation part.
-     *
-     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
-     */
-    protected function createFields($metadata)
-    {
-        $this->generator
-            ->commentVar('string', 'Application name')
-            ->defVar('public $name', $metadata->name)
-            ->commentVar('string', 'Application description')
-            ->defVar('public $description', $metadata->description)
-            ->commentVar('string', 'Identifier')
-            ->defVar('protected $id', $metadata->entity)
-            ->commentVar('string', 'Icon class')
-            ->defVar('public $icon', $metadata->iconApplication)
-            ->commentVar('bool', 'Flag for hiding Application icon in main menu')
-            ->defClassVar('$hide', 'public', !$metadata->showApplication ? 1 : 0)
-            ->commentVar('string', 'Path to rendering index view in main page')
-            ->defClassVar('$mainIndexView', 'public', self::MAIN_INDEX_VIEW)
-            ->commentVar('string', 'Path to rendering item view in main page')
-            ->defClassVar('$mainItemView', 'public', self::MAIN_ITEM_VIEW)
-            ->commentVar('array', 'Collection of structures related to entity')
-            ->defClassVar('$navigation', 'public static', (int)$metadata->identifier)
-            ->commentVar('array', 'All structures which have to have material at creation')
-            ->defClassVar('$structures', 'public static', array_merge(array($metadata->entityID), $metadata->childNavigationIDs))
-            ->commentVar('string', 'Collection class name for rendering entities collection')
-            ->defClassVar('$collectionClass', 'protected', $metadata->entityClassName.'Collection')
-        ;
-    }
-
-    /**
-     * Class constructor generation part.
-     *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Entity metadata
-     */
-    protected function createConstructor($metadata)
-    {
-        $constructorCode = <<<'EOD'
-    /**
-     * Render materials list with pager
-     *
-     * @param string $navigationId Structure identifier
-     * @param string $search Keywords to filter table
-     * @param int $page Current table page
-     * @return array Asynchronous response containing status and materials list with pager on success
-     * or just status on asynchronous controller failure
-     */
-    public function __async_collection($navigationId = '0', $search = '', $page = 1)
-    {
-        return parent::__async_collection(self::$navigation, $search, $page);
-    }
-EOD;
-
-        $this->generator->text($constructorCode);
-    }
-
     public function createSubMenuView(Metadata $metadata, $namespace = __NAMESPACE__)
     {
 
@@ -174,6 +104,74 @@ EOD;
 EOD;
 
         return str_replace(array('{{collection_name}}'), array($entityName), $code);
+    }
+
+    /**
+     * Class definition generation part.
+     *
+     * @param \samsoncms\api\generator\metadata\ApplicationMetadata $metadata Entity metadata
+     */
+    protected function createDefinition($metadata)
+    {
+        $this->generator
+            ->multiComment(array('Class application for "' . $metadata->name . '"'))
+            ->defClass($this->className, '\\' . \samsoncms\app\material\Application::class);
+    }
+
+    /**
+     * Class fields generation part.
+     *
+     * @param \samsoncms\api\generator\metadata\ApplicationMetadata $metadata Entity metadata
+     */
+    protected function createFields($metadata)
+    {
+        $this->generator
+            ->commentVar('string', 'Application name')
+            ->defVar('public $name', $metadata->name)
+            ->commentVar('string', 'Application description')
+            ->defVar('public $description', $metadata->description)
+            ->commentVar('string', 'Identifier')
+            ->defVar('protected $id', $metadata->entity)
+            ->commentVar('string', 'Icon class')
+            ->defVar('public $icon', $metadata->iconApplication)
+            ->commentVar('bool', 'Flag for hiding Application icon in main menu')
+            ->defClassVar('$hide', 'public', !$metadata->showApplication ? 1 : 0)
+            ->commentVar('string', 'Path to rendering index view in main page')
+            ->defClassVar('$mainIndexView', 'public', self::MAIN_INDEX_VIEW)
+            ->commentVar('string', 'Path to rendering item view in main page')
+            ->defClassVar('$mainItemView', 'public', self::MAIN_ITEM_VIEW)
+            ->commentVar('array', 'Collection of structures related to entity')
+            ->defClassVar('$navigation', 'public static', (int)$metadata->identifier)
+            ->commentVar('array', 'All structures which have to have material at creation')
+            ->defClassVar('$structures', 'public static', array_merge(array($metadata->entityID), $metadata->childNavigationIDs))
+            ->commentVar('string', 'Collection class name for rendering entities collection')
+            ->defClassVar('$collectionClass', 'protected', $metadata->entityClassName . 'Collection');
+    }
+
+    /**
+     * Class constructor generation part.
+     *
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata Entity metadata
+     */
+    protected function createConstructor($metadata)
+    {
+        $constructorCode = <<<'EOD'
+    /**
+     * Render materials list with pager
+     *
+     * @param string $navigationId Structure identifier
+     * @param string $search Keywords to filter table
+     * @param int $page Current table page
+     * @return array Asynchronous response containing status and materials list with pager on success
+     * or just status on asynchronous controller failure
+     */
+    public function __async_collection($navigationId = '0', $search = '', $page = 1)
+    {
+        return parent::__async_collection(self::$navigation, $search, $page);
+    }
+EOD;
+
+        $this->generator->text($constructorCode);
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

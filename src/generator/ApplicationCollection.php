@@ -62,7 +62,7 @@ class ApplicationCollection extends \samsoncms\api\generator\Generic
     /**
      * Class definition generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\ApplicationMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
@@ -74,7 +74,7 @@ class ApplicationCollection extends \samsoncms\api\generator\Generic
     /**
      * Class constructor generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\ApplicationMetadata $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {
