@@ -173,17 +173,28 @@ trait Renderable
         $collection = $this->find($this->pageNumber, $this->pageSize);
 
         if (count($collection)) {
-            // Render each entity view in collection
-            $html = '';
-            foreach ($collection as $row) {
-                $html .= $this->innerRender($row, $collection, 'itemView', 'renderItem');
-            }
-
-            // Render collection main view with items
-            return $this->innerRender($html, $collection, 'indexView', 'renderIndex');
+            return $this->renderer($collection);
         } else { // Render empty entity view
             return $this->innerRender('', $collection, 'emptyView', 'renderEmpty');
         }
+    }
+
+    /**
+     * Collection items renderer.
+     *
+     * @param mixed $collection Items collection for rendering
+     * @return string Rendered items
+     */
+    protected function renderer($collection)
+    {
+        // Render each entity view in collection
+        $html = '';
+        foreach ($collection as $row) {
+            $html .= $this->innerRender($row, $collection, 'itemView', 'renderItem');
+        }
+
+        // Render collection main view with items
+        return $this->innerRender($html, $collection, 'indexView', 'renderIndex');
     }
 
     /**

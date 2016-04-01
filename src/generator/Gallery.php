@@ -16,7 +16,7 @@ class Gallery extends Generic
     /**
      * Class uses generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Gallery $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GalleryMetadata $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -31,13 +31,14 @@ class Gallery extends Generic
     /**
      * Class definition generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Gallery $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GalleryMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array(
                 'Class for rendering "' . $metadata->realName . '" gallery',
+                '@deprecated Use entity *Gallery methods instead'
             ))
             ->defClass($metadata->entity, '\\'.\samsoncms\api\Gallery::class)
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')
@@ -47,7 +48,7 @@ class Gallery extends Generic
     /**
      * Class constructor generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Gallery $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GalleryMetadata $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {

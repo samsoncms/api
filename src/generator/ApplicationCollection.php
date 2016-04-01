@@ -62,13 +62,61 @@ class ApplicationCollection extends \samsoncms\api\generator\Generic
     /**
      * Class definition generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\ApplicationMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array('Collection for SamsonCMS application "'.$metadata->name.'"'))
             ->defClass($this->className, '\\'.\samsoncms\app\material\Collection::class);
+    }
+
+    /**
+     * Class constructor generation part.
+     *
+     * @param \samsoncms\api\generator\metadata\ApplicationMetadata $metadata Entity metadata
+     */
+    protected function createConstructor($metadata)
+    {
+        $constructorCode = <<<'EOD'
+    /**
+     * Generic SamsonCMS application collection constructor
+     *
+     * @param RenderInterface $renderer View render object
+     * @param QueryInterface $query Query object
+     */
+    public function __construct($renderer, $query = null, $pager = null)
+    {
+        parent::__construct($renderer, $query, $pager);
+
+        // Generic of fields
+        $this->fields = array({{fields}});
+    }
+EOD;
+        // Iterate all application fields and create generic constructor for them
+        $genericFields = [];
+        foreach ($metadata->showFieldsInList as $fieldID) {
+            // Create constructor for custom type or if it not exists then use cms defined type
+            $genericFields[] = $this->createCollectionField(
+                $metadata->customTypeFields[$fieldID],
+                $metadata->fields[$fieldID],
+                $metadata->fieldDescriptions[$fieldID],
+                $metadata->allFieldCmsTypes[$fieldID],
+                self::DEFAULT_CUSTOM_TYPE_CSS,
+                self::DEFAULT_CUSTOM_TYPE_EDITABLE,
+                self::DEFAULT_CUSTOM_TYPE_SORTABLE
+            );
+        }
+
+        $constructorCode = str_replace(
+            '{{fields}}',
+            implode(',', array_merge(
+                    $genericFields,
+                    array("\n\t\t\t" . 'new ' . self::DEFAULT_GENERIC_CONTROL_TYPE . '()' . "\n\t\t"))
+            ),
+            $constructorCode);
+
+        $this->generator->text($constructorCode);
     }
 
     /**
@@ -107,54 +155,6 @@ class ApplicationCollection extends \samsoncms\api\generator\Generic
 
 
         return "\n\t\t\tnew {$class}('$name', t('$description', true), $type, '$css', $editable, $sortable)";
-    }
-
-    /**
-     * Class constructor generation part.
-     *
-     * @param \samsoncms\api\generator\metadata\Application $metadata Entity metadata
-     */
-    protected function createConstructor($metadata)
-    {
-        $constructorCode = <<<'EOD'
-    /**
-     * Generic SamsonCMS application collection constructor
-     *
-     * @param RenderInterface $renderer View render object
-     * @param QueryInterface $query Query object
-     */
-    public function __construct($renderer, $query = null, $pager = null)
-    {
-        parent::__construct($renderer, $query, $pager);
-
-        // Generic of fields
-        $this->fields = array({{fields}});
-    }
-EOD;
-        // Iterate all application fields and create generic constructor for them
-        $genericFields = [];
-        foreach ($metadata->showFieldsInList as $fieldID) {
-            // Create constructor for custom type or if it not exists then use cms defined type
-            $genericFields[] = $this->createCollectionField(
-                $metadata->customTypeFields[$fieldID],
-                $metadata->allFieldIDs[$fieldID],
-                $metadata->fieldDescriptions[$fieldID],
-                $metadata->allFieldCmsTypes[$fieldID],
-                self::DEFAULT_CUSTOM_TYPE_CSS,
-                self::DEFAULT_CUSTOM_TYPE_EDITABLE,
-                self::DEFAULT_CUSTOM_TYPE_SORTABLE
-            );
-        }
-
-        $constructorCode = str_replace(
-            '{{fields}}',
-            implode(',', array_merge(
-                    $genericFields,
-                    array("\n\t\t\t" . 'new ' . self::DEFAULT_GENERIC_CONTROL_TYPE . '()' . "\n\t\t"))
-            ),
-            $constructorCode);
-
-        $this->generator->text($constructorCode);
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

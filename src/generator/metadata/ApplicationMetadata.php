@@ -6,7 +6,7 @@ namespace samsoncms\api\generator\metadata;
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 23.03.16 at 16:21
  */
-class Application extends \samsoncms\api\generator\metadata\Virtual
+class ApplicationMetadata extends \samsoncms\api\generator\metadata\VirtualMetadata
 {
     /** @var string Generate application from current entity */
     public $generateApplication;

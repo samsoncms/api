@@ -6,8 +6,13 @@ namespace samsoncms\api\generator\metadata;
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 22.03.16 at 19:15
  */
-class Virtual extends GenericMetadata
+class VirtualMetadata extends RealMetadata
 {
+    /** Virtual entity types */
+    const TYPE_STRUCTURE = 0;
+    const TYPE_TABLE = 2;
+    const TYPE_RELATED = 1;
+
     /** @var string Real database entity identifier */
     public $entityID;
 
@@ -17,6 +22,9 @@ class Virtual extends GenericMetadata
     /** @var int Parent entity identifier  */
     public $parentID;
 
+    /** @var int Virtual entity type */
+    public $type;
+
     /** @var self Metadata parent entity name */
     public $parent;
 
@@ -24,10 +32,13 @@ class Virtual extends GenericMetadata
     public $defaultValues = array();
 
     /** @var array Collection of entity additional field identifier to its name */
-    public $allFieldIDs = array();
+    public $fields = array();
 
     /** @var array Collection of entity additional field name to its identifier */
-    public $allFieldNames = array();
+    public $fieldNames = array();
+
+    /** @var array Collection of entity additional field id to its php type */
+    public $types = array();
 
     /** @var array Collection of entity additional field id to its value column name */
     public $allFieldValueColumns = array();
@@ -40,9 +51,6 @@ class Virtual extends GenericMetadata
 
     /** @var array Collection of entity additional field id to its real names */
     public $realNames = array();
-
-    /** @var array Collection of entity additional field id to its php type */
-    public $allFieldTypes = array();
 
     /** @var array Collection of entity additional field id to its SamsonCMS type identifier */
     public $allFieldCmsTypes = array();

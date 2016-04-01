@@ -9,15 +9,16 @@
 
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\Virtual;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 use samsonphp\generator\Generator;
 
 /**
  * Row class generator.
  *
  * @package samsoncms\api\generator
+ * @deprecated
  */
-class Row extends Entity
+class Row extends VirtualEntity
 {
     /**
      * Query constructor.
@@ -35,13 +36,14 @@ class Row extends Entity
     /**
      * Class definition generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array(
                 'Class for rendering "' . $metadata->entityRealName . '" row',
+                '@deprecated Use ' . $this->className . 'Entity instead'
             ))
             ->defClass($this->className, '\\'.\samsoncms\api\field\Row::class)
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')

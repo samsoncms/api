@@ -7,21 +7,30 @@
  */
 namespace samsoncms\api\query;
 
+use samsoncms\api\exception\WrongQueryConditionArgument;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
 use samsonframework\orm\ConditionInterface;
 use samsonframework\orm\QueryInterface;
 
+/**
+ * Generic real database entity query class.
+ *
+ * @package samsoncms\api\query
+ */
 class Record
 {
     /** @var string Table class name */
     protected static $identifier;
 
+    /** @var array Collection of all supported entity fields ids => names */
+    protected static $fieldIDs = array();
+
+    /** @var array Collection of all supported entity fields names => ids */
+    protected static $fieldNames = array();
+
     /** @var string Table primary field name */
     protected static $primaryFieldName;
-
-    /** @var array Collection of all entity fields */
-    protected static $parentFields = array();
 
     /** @var QueryInterface Database query instance */
     protected $query;
@@ -42,50 +51,36 @@ class Record
     protected $entityIDs = array();
 
     /**
-     * Convert date value to database format.
-     * TODO: Must implement at database layer
+     * Generic constructor.
      *
-     * @param string $date Date value for conversion
-     * @return string Converted date to correct format
+     * @param QueryInterface $query Database query instance
      */
-    protected function convertToDateTime($date)
+    public function __construct(QueryInterface $query)
     {
-        return date('Y-m-d H:i:s', strtotime($date));
+        $this->query = $query;
+        $this->conditions = new Condition();
     }
 
     /**
-     * Add sorting to entity identifiers.
+     * Select specified entity fields.
+     * If this method is called then only selected entity fields
+     * would be filled in entity instances.
      *
-     * @param array $entityIDs
-     * @param string $fieldName Additional field name for sorting
-     * @param string $order Sorting order(ASC|DESC)
-     * @return array Collection of entity identifiers ordered by additional field value
-     */
-    protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
-    {
-        if (array_key_exists($fieldName, static::$parentFields)) {
-            // Order by parent fields
-            return $this->query
-                ->entity(static::$identifier)
-                ->where(static::$primaryFieldName, $entityIDs)
-                ->orderBy($fieldName, $order)
-                ->fields(static::$primaryFieldName);
-        } else { // Nothing is changed
-            return $entityIDs;
-        }
-    }
-
-    /**
-     * Add condition to current query.
+     * @param mixed $fieldNames Entity field name or collection of names
      *
-     * @param string $fieldName Entity field name
-     * @param string $fieldValue Value
-     * @param string $fieldRelation
      * @return $this Chaining
      */
-    public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
+    public function select($fieldNames)
     {
-        $this->conditions->add($fieldName, $fieldValue, $fieldRelation);
+        // Convert argument to array and iterate
+        foreach ((!is_array($fieldNames) ? array($fieldNames) : $fieldNames) as $fieldName) {
+            // Try to find entity additional field
+            $pointer = &static::$fieldNames[$fieldName];
+            if (null !== $pointer) {
+                // Store selected additional field buy FieldID and Field name
+                $this->selectedFields[$pointer] = $fieldName;
+            }
+        }
 
         return $this;
     }
@@ -94,46 +89,17 @@ class Record
      * Set field for sorting.
      *
      * @param string $fieldName Additional field name
-     * @param string $order Sorting order
+     * @param string $order     Sorting order
+     *
      * @return $this Chaining
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
-        if (array_key_exists($fieldName, static::$parentFields)) {
+        if (array_key_exists($fieldName, static::$fieldIDs)) {
             $this->orderBy = array($fieldName, $order);
         }
 
         return $this;
-    }
-
-    /**
-     * Add primary field query condition.
-     *
-     * @param string $value Field value
-     * @return $this Chaining
-     * @see Material::where()
-     */
-    public function primary($value)
-    {
-        return $this->where(static::$primaryFieldName, $value);
-    }
-
-    /**
-     * Reorder elements in one array according to keys of another.
-     *
-     * @param array $array Source array
-     * @param array $orderArray Ideal array
-     * @return array Ordered array
-     */
-    protected function sortArrayByArray(array $array, array $orderArray) {
-        $ordered = array();
-        foreach($orderArray as $key) {
-            if(array_key_exists($key,$array)) {
-                $ordered[$key] = $array[$key];
-                unset($array[$key]);
-            }
-        }
-        return array_merge($ordered, $array);
     }
 
     /**
@@ -165,9 +131,64 @@ class Record
     }
 
     /**
+     * Add primary field query condition.
+     *
+     * @param string $value Field value
+     *
+     * @return $this Chaining
+     * @see Material::where()
+     */
+    public function primary($value)
+    {
+        return $this->where(static::$primaryFieldName, $value);
+    }
+
+    /**
+     * Add condition to current query.
+     *
+     * @param string $fieldName Entity field name
+     * @param mixed $fieldValue Value
+     * @param string $fieldRelation
+     *
+     * @return $this Chaining
+     *
+     * @throws WrongQueryConditionArgument
+     */
+    public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
+    {
+        if (!is_object($fieldValue)) {
+            $this->conditions->add($fieldName, $fieldValue, $fieldRelation);
+        } else {
+            throw new WrongQueryConditionArgument('Object is passed to condition');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Reorder elements in one array according to keys of another.
+     *
+     * @param array $array Source array
+     * @param array $orderArray Ideal array
+     * @return array Ordered array
+     */
+    protected function sortArrayByArray(array $array, array $orderArray)
+    {
+        $ordered = array();
+        foreach ($orderArray as $key) {
+            if (array_key_exists($key, $array)) {
+                $ordered[$key] = $array[$key];
+                unset($array[$key]);
+            }
+        }
+        return array_merge($ordered, $array);
+    }
+
+    /**
      * Perform SamsonCMS query and get collection of entities fields.
      *
      * @param string $fieldName Entity field name
+     *
      * @return array Collection of entity fields
      */
     public function fields($fieldName)
@@ -211,13 +232,38 @@ class Record
     }
 
     /**
-     * Generic constructor.
+     * Convert date value to database format.
+     * TODO: Must implement at database layer
      *
-     * @param QueryInterface $query Database query instance
+     * @param string $date Date value for conversion
+     *
+     * @return string Converted date to correct format
      */
-    public function __construct(QueryInterface $query)
+    protected function convertToDateTime($date)
     {
-        $this->query = $query;
-        $this->conditions = new Condition();
+        return date('Y-m-d H:i:s', strtotime($date));
+    }
+
+    /**
+     * Add sorting to entity identifiers.
+     *
+     * @param array  $entityIDs
+     * @param string $fieldName Additional field name for sorting
+     * @param string $order     Sorting order(ASC|DESC)
+     *
+     * @return array Collection of entity identifiers ordered by additional field value
+     */
+    protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
+    {
+        if (array_key_exists($fieldName, static::$fieldIDs)) {
+            // Order by parent fields
+            return $this->query
+                ->entity(static::$identifier)
+                ->where(static::$primaryFieldName, $entityIDs)
+                ->orderBy($fieldName, $order)
+                ->fields(static::$primaryFieldName);
+        } else { // Nothing is changed
+            return $entityIDs;
+        }
     }
 }

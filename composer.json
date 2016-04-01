@@ -15,7 +15,7 @@
   "require": {
     "samsonframework/base": "*",
     "samsonframework/collection": "*",
-    "samsonframework/orm": "*",
+    "samsonframework/orm": "dev-master",
     "samsonphp/generator":"*",
     "samsonos/php_activerecord":"*"
   },

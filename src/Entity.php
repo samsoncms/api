@@ -7,6 +7,10 @@
  */
 namespace samsoncms\api;
 
+use samson\activerecord\StructureMaterial;
+use samsonframework\orm\DatabaseInterface;
+use samsonframework\orm\QueryInterface;
+
 /**
  * SamsonCMS Entity that has relation to specific navigation
  * and though has additional fields.
@@ -24,6 +28,26 @@ class Entity extends Material
     /** @var array Collection of additional fields value column names */
     protected static $fieldValueColumns = array();
 
+    /** @var array Collection of localized additional fields identifiers */
+    protected static $localizedFieldIDs = array();
+
+    /** @var string Locale */
+    protected $locale;
+
+    /**
+     * Entity constructor.
+     *
+     * @param null|string            $locale Locale
+     * @param null|DatabaseInterface $database
+     * @param null|QueryInterface    $query
+     */
+    public function __construct($locale = null, $database = null, $query = null)
+    {
+        $this->locale = $locale;
+
+        parent::__construct($database, $query);
+    }
+
     /**
      * Override default entity saving
      */
@@ -40,24 +64,26 @@ class Entity extends Material
 
             // If material field relation exists use it or create new
             $materialField = null;
-            if ($this->query
+            if (!$this->query
                 ->entity($relationEntity)
                 ->where(Field::F_PRIMARY, $fieldID)
                 ->where(Material::F_PRIMARY, $this->id)
                 ->first($materialField)
             ) {
-                $materialField->$type = $this->$fieldName;
-                $materialField->save();
-            } else {
-
-                /** @var \samson\activerecord\materialfield $materialfield */
+                /** @var Field $materialfield */
                 $materialField = new $relationEntity();
                 $materialField->Active = 1;
                 $materialField->MaterialID = $this->id;
                 $materialField->FieldID = $fieldID;
-                $materialField->$type = $this->$fieldName;
-                $materialField->save();
             }
+
+            // Set locale only if this field is localized
+            if (array_key_exists($fieldID, static::$localizedFieldIDs)) {
+                $materialField->locale = $this->locale;
+            }
+
+            $materialField->$type = $this->$fieldName;
+            $materialField->save();
         }
         $this->attachTo(static::$navigationIDs);
     }
@@ -78,7 +104,7 @@ class Entity extends Material
                     ->where(self::F_PRIMARY, $this->id)
                     ->count() === 0
             ) {
-                /** @var \samson\activerecord\structurematerial $structureMaterial */
+                /** @var StructureMaterial $structureMaterial */
                 $structureMaterial = new $relationEntity();
                 $structureMaterial->Active = 1;
                 $structureMaterial->MaterialID = $this->id;

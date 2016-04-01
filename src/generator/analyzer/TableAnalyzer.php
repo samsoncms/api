@@ -13,7 +13,7 @@ namespace samsoncms\api\generator\analyzer;
  *
  * @package samsoncms\api\analyzer
  */
-class Table extends Virtual
+class TableAnalyzer extends VirtualAnalyzer
 {
     /**
      * Get virtual table entities from database by their type.

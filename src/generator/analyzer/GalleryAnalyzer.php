@@ -8,6 +8,7 @@ namespace samsoncms\api\generator\analyzer;
 
 use samsoncms\api\Field;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 use samsoncms\api\Navigation;
 
 /**
@@ -15,22 +16,23 @@ use samsoncms\api\Navigation;
  *
  * @package samsoncms\api\analyzer
  */
-class Gallery extends Virtual
+class GalleryAnalyzer extends VirtualAnalyzer
 {
     /**
      * Analyze virtual entities and gather their metadata.
      *
-     * @return \samsoncms\api\generator\metadata\Virtual[]
+     * @return \samsoncms\api\generator\metadata\VirtualMetadata[]
      * @throws ParentEntityNotFound
      */
     public function analyze()
     {
+        /** @var VirtualMetadata[] $metadataCollection Set pointer to global metadata collection */
         $metadataCollection = [];
 
         // Iterate all structures, parents first
         foreach ($this->getVirtualEntities() as $structureRow) {
             // Fill in entity metadata
-            $metadata = new \samsoncms\api\generator\metadata\Gallery();
+            $metadata = new \samsoncms\api\generator\metadata\GalleryMetadata();
             $navigationID = $structureRow[Navigation::F_PRIMARY];
 
             // Iterate entity fields
@@ -51,9 +53,6 @@ class Gallery extends Virtual
 
                     // Store metadata by entity identifier
                     $metadataCollection[$navigationID] = $metadata;
-
-                    // Store global collection
-                    self::$metadata[$navigationID] = $metadata;
                 }
             }
         }

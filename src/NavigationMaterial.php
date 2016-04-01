@@ -5,7 +5,7 @@ namespace samsoncms\api;
  * SamsonCMS Material to navigation relation entity
  * @package samson\cms
  */
-class NavigationMaterial extends \samson\activerecord\structurematerial
+class NavigationMaterial extends \samson\activerecord\StructureMaterial
 {
     /** Store entity name */
     const ENTITY = __CLASS__;

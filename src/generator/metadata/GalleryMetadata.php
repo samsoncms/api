@@ -6,7 +6,7 @@ namespace samsoncms\api\generator\metadata;
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 22.03.16 at 19:15
  */
-class Gallery extends GenericMetadata
+class GalleryMetadata extends GenericMetadata
 {
     /** @var string Real database gallery field name */
     public $realName;

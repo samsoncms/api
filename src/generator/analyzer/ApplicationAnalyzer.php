@@ -8,16 +8,16 @@ use samsoncms\api\Field;
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 23.03.16 at 16:21
  */
-class Application extends \samsoncms\api\generator\analyzer\Virtual
+class ApplicationAnalyzer extends \samsoncms\api\generator\analyzer\VirtualAnalyzer
 {
     /** @var string Metadata class */
-    protected $metadataClass = \samsoncms\api\generator\metadata\Application::class;
+    protected $metadataClass = \samsoncms\api\generator\metadata\ApplicationMetadata::class;
 
     /**
      * Analyze entity.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata
-     * @param array $structureRow Entity database row
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata
+     * @param array                                             $structureRow Entity database row
      */
     public function analyzeEntityRecord(&$metadata, array $structureRow)
     {
@@ -36,9 +36,9 @@ class Application extends \samsoncms\api\generator\analyzer\Virtual
     /**
      * Virtual entity additional field analyzer.
      *
-     * @param \samsoncms\api\generator\metadata\Virtual $metadata Metadata instance for filling
-     * @param int      $fieldID Additional field identifier
-     * @param array $fieldRow Additional field database row
+     * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata Metadata instance for filling
+     * @param int                                               $fieldID  Additional field identifier
+     * @param array                                             $fieldRow Additional field database row
      */
     public function analyzeFieldRecord(&$metadata, $fieldID, array $fieldRow)
     {
@@ -49,10 +49,10 @@ class Application extends \samsoncms\api\generator\analyzer\Virtual
 
         // Store field metadata
         $metadata->realNames[$fieldRow['Name']] = $fieldName;
-        $metadata->allFieldIDs[$fieldID] = $fieldName;
-        $metadata->allFieldNames[$fieldName] = $fieldID;
+        $metadata->fields[$fieldID] = $fieldName;
+        $metadata->fieldNames[$fieldName] = $fieldID;
         $metadata->allFieldValueColumns[$fieldID] = Field::valueColumn($fieldRow[Field::F_TYPE]);
-        $metadata->allFieldTypes[$fieldID] = Field::phpType($fieldRow['Type']);
+        $metadata->types[$fieldID] = Field::phpType($fieldRow['Type']);
         $metadata->allFieldCmsTypes[$fieldID] = (int)$fieldRow['Type'];
         $metadata->fieldDescriptions[$fieldID] = $fieldRow['Description'] . ', ' . $fieldRow['Name'] . '#' . $fieldID;
         $metadata->fieldRawDescriptions[$fieldID] = $fieldRow['Description'];

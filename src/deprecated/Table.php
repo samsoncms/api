@@ -8,13 +8,14 @@
  */
 namespace samsoncms\api\generator;
 
-use samsoncms\api\generator\metadata\Virtual;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 use samsonphp\generator\Generator;
 
 /**
  * Table class generator.
  *
  * @package samsoncms\api\generator
+ * @deprecated
  */
 class Table extends Generic
 {
@@ -34,7 +35,7 @@ class Table extends Generic
     /**
      * Class uses generation part.
      *
-     * @param \samsoncms\api\generator\metadata\Gallery $metadata Entity metadata
+     * @param \samsoncms\api\generator\metadata\GalleryMetadata $metadata Entity metadata
      */
     protected function createUses($metadata)
     {
@@ -48,13 +49,14 @@ class Table extends Generic
     /**
      * Class definition generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createDefinition($metadata)
     {
         $this->generator
             ->multiComment(array(
                 'Class for rendering "' . $metadata->entityRealName . '" table',
+                '@deprecated Use ' . $this->className . 'Collection instead'
             ))
             ->defClass($this->className, '\\'.\samsoncms\api\field\Table::class)
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')
@@ -64,7 +66,7 @@ class Table extends Generic
     /**
      * Class constants generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createConstants($metadata)
     {
@@ -80,7 +82,7 @@ class Table extends Generic
     /**
      * Class static fields generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createStaticFields($metadata)
     {
@@ -90,9 +92,39 @@ class Table extends Generic
     }
 
     /**
+     * Class methods generation part.
+     *
+     * @param VirtualMetadata $metadata Entity metadata
+     */
+    protected function createMethods($metadata)
+    {
+        $methods = [];
+        // TODO: Add different method generation depending on their field type
+        // Generate Query::where() analog for specific field.
+        foreach ($metadata->fields as $fieldID => $fieldName) {
+            $code = "\n\t" . '/**';
+            $code .= "\n\t" . ' * Get collection of ' . $fieldName . '(#' . $fieldID . ') table column values.';
+            $code .= "\n\t" . ' * @see \samsoncms\api\field\Table::values($fieldID)';
+            $code .= "\n\t" . ' * @param string $relation Field to value condition relation';
+            $code .= "\n\t" . ' *';
+            $code .= "\n\t" . ' * @return ' . $metadata->types[$fieldID] . '[] ' . $fieldName . ' values collection';
+            $code .= "\n\t" . ' */';
+            $code .= "\n\t" . 'public function ' . $fieldName . '()';
+            $code .= "\n\t" . '{';
+            $code .= "\n\t\t" . 'return $this->values(' . $fieldID . ');';
+            $code .= "\n\t" . '}';
+
+            $methods[] = $code;
+        }
+
+        // Add method text to generator
+        $this->generator->text(implode("\n", $methods));
+    }
+
+    /**
      * Class constructor generation part.
      *
-     * @param Virtual $metadata Entity metadata
+     * @param VirtualMetadata $metadata Entity metadata
      */
     protected function createConstructor($metadata)
     {
@@ -101,6 +133,7 @@ class Table extends Generic
         $class .= "\n\t" . ' * @param int $materialID material identifier';
         $class .= "\n\t" . ' * @param QueryInterface $query Database query instance';
         $class .= "\n\t" . ' * @param string $locale locale';
+        $class .= "\n\t" . ' * @deprecated Use ' . $this->className . 'Collection instead';
         $class .= "\n\t" . ' */';
         $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, $materialID, QueryInterface $query = null, $locale = null)';
         $class .= "\n\t" . '{';
