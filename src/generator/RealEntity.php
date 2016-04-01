@@ -62,17 +62,5 @@ class RealEntity extends Generic
                 ->defClassVar('$' . $fieldName, 'public');
         }
     }
-
-    /**
-     * Class static fields generation part.
-     *
-     * @param RealMetadata $metadata Entity metadata
-     */
-    protected function createStaticFields($metadata)
-    {
-        $this->generator
-            ->commentVar('array', 'Collection of all entity fields')
-            ->defClassVar('$fieldIDs', 'protected static', $metadata->fields);
-    }
 }
 //[PHPCOMPRESSOR(remove,end)]
