@@ -10,6 +10,7 @@ use samson\activerecord\dbMySQLConnector;
 use samsoncms\api\Field;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
 use samsoncms\api\generator\metadata\GenericMetadata;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 use samsoncms\api\Navigation;
 
 /**
@@ -30,11 +31,12 @@ class VirtualAnalyzer extends GenericAnalyzer
      */
     public function analyze()
     {
+        /** @var RealMetadata[] $metadataCollection Set pointer to global metadata collection */
         $metadataCollection = [];
 
         // Iterate all structures, parents first
         foreach ($this->getVirtualEntities() as $structureRow) {
-            // Fill in entity metadata
+            /** @var VirtualMetadata $metadata Fill in entity metadata */
             $metadata = new $this->metadataClass;
 
             $this->analyzeEntityRecord($metadata, $structureRow);
@@ -43,7 +45,7 @@ class VirtualAnalyzer extends GenericAnalyzer
 
             // Set pointer to parent entity
             if (null !== $metadata->parentID && (int)$structureRow[Navigation::F_TYPE] === \samsoncms\api\generator\metadata\VirtualMetadata::TYPE_STRUCTURE) {
-                if (array_key_exists($metadata->parentID, GenericMetadata::$instances)) {
+                if (array_key_exists($metadata->parentID, $metadataCollection)) {
                     $metadata->parent = $metadataCollection[$metadata->parentID];
                     // Add all parent metadata to current object
                     $metadata->defaultValues = $metadata->parent->defaultValues;
@@ -52,6 +54,7 @@ class VirtualAnalyzer extends GenericAnalyzer
                     $metadata->fieldNames = $metadata->parent->fieldNames;
                     $metadata->types = $metadata->parent->types;
                     $metadata->allFieldValueColumns = $metadata->parent->allFieldValueColumns;
+                    $metadata->allFieldCmsTypes = $metadata->parent->allFieldCmsTypes;
                     $metadata->fieldDescriptions = $metadata->parent->fieldDescriptions;
                     $metadata->localizedFieldIDs = $metadata->parent->localizedFieldIDs;
                     $metadata->notLocalizedFieldIDs = $metadata->parent->notLocalizedFieldIDs;
@@ -102,10 +105,9 @@ class VirtualAnalyzer extends GenericAnalyzer
 
             // Store metadata by entity identifier
             $metadataCollection[(int)$structureRow[Navigation::F_PRIMARY]] = $metadata;
-            // Store global collection
+            // Store virtual metadata
             GenericMetadata::$instances[(int)$structureRow[Navigation::F_PRIMARY]] = $metadata;
         }
-
 
         return $metadataCollection;
     }

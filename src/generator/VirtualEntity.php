@@ -6,6 +6,7 @@
  */
 namespace samsoncms\api\generator;
 
+use samsoncms\api\Field;
 use samsoncms\api\generator\metadata\VirtualMetadata;
 
 /**
@@ -15,6 +16,19 @@ use samsoncms\api\generator\metadata\VirtualMetadata;
  */
 class VirtualEntity extends RealEntity
 {
+    /**
+     * Class uses generation part.
+     *
+     * @param RealMetadata $metadata Entity metadata
+     */
+    protected function createUses($metadata)
+    {
+        $this->generator
+            ->newLine('use samsonframework\core\ViewInterface;')
+            ->newLine('use samsonframework\orm\QueryInterface;')
+            ->newLine();
+    }
+
     /**
      * Class definition generation part.
      *
@@ -77,6 +91,43 @@ class VirtualEntity extends RealEntity
                 ->commentVar($metadata->types[$fieldID], $metadata->fieldDescriptions[$fieldID])
                 ->defClassVar('$' . $fieldName, 'public');
         }
+    }
+
+    /**
+     * Class methods generation part.
+     *
+     * @param VirtualMetadata $metadata Entity metadata
+     */
+    protected function createMethods($metadata)
+    {
+        $methods = [];
+        // Generate Query::where() analog for specific field.
+        foreach ($metadata->fields as $fieldID => $fieldName) {
+            try {
+                // We need only gallery fields
+                if ($metadata->allFieldCmsTypes[$fieldID] === Field::TYPE_GALLERY) {
+                    $galleryName = rtrim($fieldName, 'Gallery') . 'Gallery';
+
+                    $code = "\n\t" . '/**';
+                    $code .= "\n\t" . ' * Get ' . $fieldName . '(#' . $fieldID . ') gallery collection instance.';
+                    $code .= "\n\t" . ' * @param ViewInterface $renderer Render instance';
+                    $code .= "\n\t" . ' *';
+                    $code .= "\n\t" . ' * @return GalleryCollection Gallery collection instance';
+                    $code .= "\n\t" . ' */';
+                    $code .= "\n\t" . 'public function ' . lcfirst($galleryName) . '(ViewInterface $renderer)';
+                    $code .= "\n\t" . '{';
+                    $code .= "\n\t\t" . 'return (new GalleryCollection($renderer, $this->query))->materialID($this->id)->materialFieldID(' . $fieldID . ');';
+                    $code .= "\n\t" . '}';
+
+                    $methods[] = $code;
+                }
+            } catch (\Exception $e) {
+                throw new \Exception($metadata->entity . ' cms field type for [' . $fieldName . '] not found');
+            }
+        }
+
+        // Add method text to generator
+        $this->generator->text(implode("\n", $methods));
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

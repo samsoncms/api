@@ -8,6 +8,7 @@ namespace samsoncms\api\generator\analyzer;
 
 use samsoncms\api\Field;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
+use samsoncms\api\generator\metadata\VirtualMetadata;
 use samsoncms\api\Navigation;
 
 /**
@@ -25,6 +26,7 @@ class GalleryAnalyzer extends VirtualAnalyzer
      */
     public function analyze()
     {
+        /** @var VirtualMetadata[] $metadataCollection Set pointer to global metadata collection */
         $metadataCollection = [];
 
         // Iterate all structures, parents first
@@ -51,9 +53,6 @@ class GalleryAnalyzer extends VirtualAnalyzer
 
                     // Store metadata by entity identifier
                     $metadataCollection[$navigationID] = $metadata;
-
-                    // Store global collection
-                    self::$metadata[$navigationID] = $metadata;
                 }
             }
         }

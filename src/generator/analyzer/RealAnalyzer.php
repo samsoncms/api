@@ -29,7 +29,7 @@ class RealAnalyzer extends GenericAnalyzer
     public function analyze()
     {
         /** @var RealMetadata[] $metadataCollection Set pointer to global metadata collection */
-        $metadataCollection = &self::$metadata;
+        $metadataCollection = [];
 
         // Iterate all structures, parents first
         foreach ($this->getEntities() as $columnRow) {

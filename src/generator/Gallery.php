@@ -38,6 +38,7 @@ class Gallery extends Generic
         $this->generator
             ->multiComment(array(
                 'Class for rendering "' . $metadata->realName . '" gallery',
+                '@deprecated Use entity *Gallery methods instead'
             ))
             ->defClass($metadata->entity, '\\'.\samsoncms\api\Gallery::class)
             ->newLine('use \\'.\samsoncms\api\Renderable::class.';')

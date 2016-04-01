@@ -26,7 +26,6 @@ class VirtualQuery extends RealQuery
     {
         parent::__construct($generator, $metadata);
 
-        $this->className .= 'Query';
         $this->parentClass = '\\' . \samsoncms\api\query\Entity::class;
         $this->entityClass = '\samsoncms\api\generated\\' . $metadata->entity;
     }
