@@ -15,7 +15,7 @@ use samsonphp\generator\Generator;
  *
  * @package samsoncms\api\generator
  */
-class TableEntity extends Entity
+class TableVirtualEntity extends VirtualEntity
 {
     /**
      * Query constructor.

@@ -16,8 +16,9 @@ use samsonphp\generator\Generator;
  * Row class generator.
  *
  * @package samsoncms\api\generator
+ * @deprecated
  */
-class Row extends Entity
+class Row extends VirtualEntity
 {
     /**
      * Query constructor.

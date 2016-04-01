@@ -9,24 +9,12 @@ namespace samsoncms\api\generator;
 use samsoncms\api\generator\metadata\Virtual;
 
 /**
- * Entity class generator.
+ * Virtual entity class generator.
  *
  * @package samsoncms\api\generator
  */
-class Entity extends Generic
+class VirtualEntity extends Generic
 {
-    /**
-     * Class uses generation part.
-     *
-     * @param Virtual $metadata Entity metadata
-     */
-    protected function createUses($metadata)
-    {
-        $this->generator
-            ->newLine('use samsonframework\core\ViewInterface;')
-            ->newLine();
-    }
-
     /**
      * Class definition generation part.
      *

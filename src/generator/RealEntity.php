@@ -14,7 +14,7 @@ use samsoncms\api\Record;
  *
  * @package samsoncms\api\generator
  */
-class Real extends Generic
+class RealEntity extends Generic
 {
     /**
      * Class definition generation part.

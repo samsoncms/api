@@ -15,6 +15,7 @@ use samsonphp\generator\Generator;
  * Table class generator.
  *
  * @package samsoncms\api\generator
+ * @deprecated
  */
 class Table extends Generic
 {

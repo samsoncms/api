@@ -10,15 +10,12 @@ use samsoncms\api\generator\metadata\Virtual;
 use samsonphp\generator\Generator;
 
 /**
- * Entity Query class generator.
+ * Virtual entity query class generator.
  *
  * @package samsoncms\api\generator
  */
-class Query extends Generic
+class VirtualQuery extends RealQuery
 {
-    /** @var string Query returned entity class name */
-    protected $entityClass;
-
     /**
      * Query constructor.
      *
@@ -32,34 +29,6 @@ class Query extends Generic
         $this->className .= 'Query';
         $this->parentClass = '\\' . \samsoncms\api\query\Entity::class;
         $this->entityClass = '\samsoncms\api\generated\\' . $metadata->entity;
-    }
-
-    /**
-     * Class uses generation part.
-     *
-     * @param Virtual $metadata Entity metadata
-     */
-    protected function createUses($metadata)
-    {
-        $this->generator
-            ->newLine('use samsonframework\orm\ArgumentInterface;')
-            ->newLine();
-    }
-
-    /**
-     * Class definition generation part.
-     *
-     * @param Virtual $metadata Entity metadata
-     */
-    protected function createDefinition($metadata)
-    {
-        $this->generator
-            ->multiComment(array(
-                'Class for querying and fetching "' . $metadata->entityRealName . '" instances from database',
-                '@method ' . $this->entityClass . ' first();',
-                '@method ' . $this->entityClass . '[] find();',
-            ))
-            ->defClass($this->className, $this->parentClass);
     }
 
     /**
