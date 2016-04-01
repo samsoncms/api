@@ -27,6 +27,9 @@ class Entity extends Material
     /** @var array Collection of additional fields value column names */
     protected static $fieldValueColumns = array();
 
+    /** @var array Collection of localized additional fields identifiers */
+    protected static $localizedFieldIDs = array();
+
     /** @var string Locale */
     protected $locale;
 
@@ -73,8 +76,12 @@ class Entity extends Material
                 $materialField->FieldID = $fieldID;
             }
 
+            // Set locale only if this field is localizable
+            if (array_key_exists($fieldID, static::$localizedFieldIDs)) {
+                $materialField->locale = $this->locale;
+            }
+
             $materialField->$type = $this->$fieldName;
-            $materialField->locale = $this->locale;
             $materialField->save();
         }
         $this->attachTo(static::$navigationIDs);
