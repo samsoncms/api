@@ -15,7 +15,7 @@ use samsoncms\api\generator\metadata\RealMetadata;
  *
  * @package samsoncms\api\analyzer
  */
-class Real extends GenericAnalyzer
+class RealAnalyzer extends GenericAnalyzer
 {
     /** @var string Metadata class */
     protected $metadataClass = RealMetadata::class;

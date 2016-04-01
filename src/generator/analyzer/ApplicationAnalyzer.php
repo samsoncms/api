@@ -8,7 +8,7 @@ use samsoncms\api\Field;
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 23.03.16 at 16:21
  */
-class Application extends \samsoncms\api\generator\analyzer\Virtual
+class ApplicationAnalyzer extends \samsoncms\api\generator\analyzer\VirtualAnalyzer
 {
     /** @var string Metadata class */
     protected $metadataClass = \samsoncms\api\generator\metadata\ApplicationMetadata::class;

@@ -167,23 +167,23 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             new Generator(),
             __NAMESPACE__ . '\\generated',
             [
-                \samsoncms\api\generator\analyzer\Real::class => [
+                \samsoncms\api\generator\analyzer\RealAnalyzer::class => [
                     \samsoncms\api\generator\RealEntity::class,
                     \samsoncms\api\generator\RealQuery::class,
                     \samsoncms\api\generator\RealCollection::class,
                 ],
-                \samsoncms\api\generator\analyzer\TableTrait::class => [
+                \samsoncms\api\generator\analyzer\TableTraitAnalyzer::class => [
                     \samsoncms\api\generator\TableTrait::class
                 ],
-                \samsoncms\api\generator\analyzer\Virtual::class => [
+                \samsoncms\api\generator\analyzer\VirtualAnalyzer::class => [
                     \samsoncms\api\generator\VirtualEntity::class,
                     \samsoncms\api\generator\VirtualQuery::class,
                     \samsoncms\api\generator\VirtualCollection::class,
                 ],
-                \samsoncms\api\generator\analyzer\Gallery::class => [
+                \samsoncms\api\generator\analyzer\GalleryAnalyzer::class => [
                     \samsoncms\api\generator\Gallery::class,
                 ],
-                \samsoncms\api\generator\analyzer\Table::class => [
+                \samsoncms\api\generator\analyzer\TableAnalyzer::class => [
                     \samsoncms\api\generator\TableVirtualEntity::class,
                     \samsoncms\api\generator\TableVirtualQuery::class,
                     \samsoncms\api\generator\TableVirtualCollection::class,

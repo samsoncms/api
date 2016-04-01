@@ -17,7 +17,7 @@ use samsoncms\api\Navigation;
  *
  * @package samsoncms\api\analyzer
  */
-class Virtual extends GenericAnalyzer
+class VirtualAnalyzer extends GenericAnalyzer
 {
     /** @var string Metadata class */
     protected $metadataClass = \samsoncms\api\generator\metadata\VirtualMetadata::class;

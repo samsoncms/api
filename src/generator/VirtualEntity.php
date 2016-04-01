@@ -13,7 +13,7 @@ use samsoncms\api\generator\metadata\VirtualMetadata;
  *
  * @package samsoncms\api\generator
  */
-class VirtualEntity extends Generic
+class VirtualEntity extends RealEntity
 {
     /**
      * Class definition generation part.

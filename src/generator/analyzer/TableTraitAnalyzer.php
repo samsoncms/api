@@ -15,7 +15,7 @@ use samsoncms\api\generator\metadata\GenericMetadata;
  *
  * @package samsoncms\api\analyzer
  */
-class TableTrait extends GenericAnalyzer
+class TableTraitAnalyzer extends GenericAnalyzer
 {
     /**
      * @return \samsoncms\api\generator\metadata\GenericMetadata[]

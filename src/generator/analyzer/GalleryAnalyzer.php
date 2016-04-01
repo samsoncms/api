@@ -15,7 +15,7 @@ use samsoncms\api\Navigation;
  *
  * @package samsoncms\api\analyzer
  */
-class Gallery extends Virtual
+class GalleryAnalyzer extends VirtualAnalyzer
 {
     /**
      * Analyze virtual entities and gather their metadata.
