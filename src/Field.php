@@ -37,7 +37,7 @@ class Field extends \samson\activerecord\field
     const TYPE_NUMERIC = 7;
     /** Additional field storing long text value */
     const TYPE_LONGTEXT = 8;
-	    /** Additional field storing gallery value */
+    /** Additional field storing gallery value */
     const TYPE_GALLERY = 9;
     /** Additional field storing datetime value */
     const TYPE_DATETIME = 10;
@@ -63,16 +63,6 @@ class Field extends \samson\activerecord\field
         self::TYPE_NAVIGATION => 'int',
 		self::TYPE_EXTERNALPICTURE => 'string'
     );
-    /** @var string Additional field value type */
-    public $Type;
-    /** @var string Additional field name */
-    public $Name;
-    /** @var string Default field value */
-    public $Value;
-    /** @var bool Flag is localized */
-    public $local;
-    /** @var bool Internal existence flag */
-    public $Active;
 
     /**
      * Get additional field type in form of Field constant name

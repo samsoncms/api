@@ -17,7 +17,20 @@ use samsonframework\orm\Record;
 if (!class_exists('\samson\activerecord\field', false)) {
     class Field extends Record
     {
+        /** @var string Additional field value type */
+        public $Type;
 
+        /** @var string Additional field name */
+        public $Name;
+
+        /** @var string Default field value */
+        public $Value;
+
+        /** @var bool Flag is localized */
+        public $local;
+
+        /** @var bool Internal existence flag */
+        public $Active;
     }
 }
 //[PHPCOMPRESSOR(remove,end)]
