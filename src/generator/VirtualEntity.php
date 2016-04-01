@@ -80,6 +80,38 @@ class VirtualEntity extends RealEntity
     }
 
     /**
+     * Class static fields generation part.
+     *
+     * @param VirtualMetadata $metadata Entity metadata
+     */
+    protected function createStaticFields($metadata)
+    {
+        $this->generator
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_sql_select', 'public static ', $metadata->arSelect)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_attributes', 'public static ', $metadata->arAttributes)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_map', 'public static ', $metadata->arMap)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_sql_from', 'public static ', $metadata->arFrom)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_own_group', 'public static ', $metadata->arGroup)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_relation_alias', 'public static ', $metadata->arRelationAlias)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_relation_type', 'public static ', $metadata->arRelationType)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
+            ->commentVar('array', 'Collection of navigation identifiers')
+            ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
+            ->defClassVar('$fieldIDs', 'protected static', $metadata->fields)
+            ->commentVar('array', 'Collection of additional fields value column names')
+            ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns)
+        ;
+    }
+
+    /**
      * Class fields generation part.
      *
      * @param VirtualMetadata $metadata Entity metadata
