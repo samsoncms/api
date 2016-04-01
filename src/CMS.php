@@ -168,7 +168,8 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             __NAMESPACE__ . '\\generated',
             [
                 \samsoncms\api\generator\analyzer\Real::class => [
-                    \samsoncms\api\generator\Real::class
+                    \samsoncms\api\generator\Real::class,
+                    \samsoncms\api\generator\RealQuery::class,
                 ],
                 \samsoncms\api\generator\analyzer\TableTrait::class => [
                     \samsoncms\api\generator\TableTrait::class
