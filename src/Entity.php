@@ -76,7 +76,7 @@ class Entity extends Material
                 $materialField->FieldID = $fieldID;
             }
 
-            // Set locale only if this field is localizable
+            // Set locale only if this field is localized
             if (array_key_exists($fieldID, static::$localizedFieldIDs)) {
                 $materialField->locale = $this->locale;
             }
