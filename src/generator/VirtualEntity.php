@@ -48,8 +48,8 @@ class VirtualEntity extends RealEntity
         $this->generator
             ->multiComment(array('"' . $metadata->entityRealName . '" database entity class'))
             ->defClass($this->className, $parentClass)
-            ->newLine('use TableTrait;')
-            ->newLine();;
+            ->newLine('use \samsoncms\api\generated\TableTrait;')
+            ->newLine();
     }
 
     /**
