@@ -80,6 +80,9 @@ class VirtualAnalyzer extends GenericAnalyzer
             ON ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
             $metadata->arGroup[] = dbMySQLConnector::$prefix . 'material.MaterialID';
 
+            // Add material table real fields
+
+
             // Iterate entity fields
             foreach ($this->getEntityFields($structureRow[Navigation::F_PRIMARY]) as $fieldID => $fieldRow) {
                 $this->analyzeFieldRecord($metadata, $fieldID, $fieldRow);
