@@ -148,8 +148,7 @@ class Entity extends Generic
     {
         $return = array();
         if (count($this->entityIDs = $this->findEntityIDs())) {
-            $additionalFields = $this->findAdditionalFields($this->entityIDs);
-
+            // Apply search filter
             if (count($this->searchFilter)) {
                 $this->entityIDs = $this->applySearch($this->entityIDs);
 
@@ -166,8 +165,12 @@ class Entity extends Generic
 
             // Perform parent find() only if we have entity identifiers
             if (count($this->entityIDs)) {
+                // Get entity additional field records
+                $additionalFields = $this->findAdditionalFields($this->entityIDs);
+
                 /** @var \samsoncms\api\Entity $item Find entity instances */
                 foreach (parent::find() as $item) {
+                    // Fill entity with additional fields
                     $item = $this->fillEntityFields($item, $additionalFields);
 
                     // Store entity by identifier
@@ -473,8 +476,8 @@ class Entity extends Generic
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
         // Try to find entity additional field
-        $pointer = &static::$fieldNames[$fieldName];
-        if (isset($pointer)) {
+        if (array_key_exists($fieldName, static::$fieldNames)) {
+            $pointer = static::$fieldNames[$fieldName];
             // Store additional field filter value
             $this->fieldFilter[$pointer] = (new Condition())->add(static::$fieldValueColumns[$pointer], $fieldValue, $fieldRelation);
         } else {

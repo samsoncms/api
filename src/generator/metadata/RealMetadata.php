@@ -14,6 +14,9 @@ class RealMetadata extends GenericMetadata
     /** @var array Collection of real entity field names to generated */
     public $fieldNames = array();
 
+    /** @var string Entity primary field name */
+    public $primaryField;
+
     /** @var array Collection of entity field types by names */
     public $types = array();
 

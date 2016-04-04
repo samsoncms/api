@@ -70,6 +70,8 @@ class RealQuery extends Generic
     protected function createStaticFields($metadata)
     {
         $this->generator
+            ->commentVar('string', 'Entity table primary field name')
+            ->defClassVar('$primaryFieldName', 'protected static', $metadata->primaryField)
             ->commentVar('string', 'Entity full class name')
             ->defClassVar('$identifier', 'protected static', $this->entityClass)
             ->commentVar('array', 'Collection of localized additional fields identifiers')

@@ -52,12 +52,14 @@ class Generic extends Record
      * Add primary field query condition.
      *
      * @param string $value Field value
+     * @param string $fieldRelation
+     *
      * @return $this Chaining
      * @see Material::where()
      */
-    public function primary($value)
+    public function primary($value, $fieldRelation = ArgumentInterface::EQUAL)
     {
-        return $this->where(Material::F_PRIMARY, $value);
+        return $this->where(Material::F_PRIMARY, $value, $fieldRelation);
     }
 
     /**

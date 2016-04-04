@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api\query;
 
+use samson\activerecord\dbQuery;
 use samsoncms\api\exception\WrongQueryConditionArgument;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
@@ -55,9 +56,9 @@ class Record
      *
      * @param QueryInterface $query Database query instance
      */
-    public function __construct(QueryInterface $query)
+    public function __construct(QueryInterface $query = null)
     {
-        $this->query = $query;
+        $this->query = null === $query ? new dbQuery() : $query;
         $this->conditions = new Condition();
     }
 
@@ -134,13 +135,14 @@ class Record
      * Add primary field query condition.
      *
      * @param string $value Field value
+     * @param string $fieldRelation
      *
      * @return $this Chaining
      * @see Material::where()
      */
-    public function primary($value)
+    public function primary($value, $fieldRelation = ArgumentInterface::EQUAL)
     {
-        return $this->where(static::$primaryFieldName, $value);
+        return $this->where(static::$primaryFieldName, $value, $fieldRelation);
     }
 
     /**
@@ -156,7 +158,12 @@ class Record
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
+        // Ignore objects
         if (!is_object($fieldValue)) {
+            // Get real table field name
+            if (array_key_exists($fieldName, static::$fieldNames)) {
+                $fieldName = static::$fieldNames[$fieldName];
+            }
             $this->conditions->add($fieldName, $fieldValue, $fieldRelation);
         } else {
             throw new WrongQueryConditionArgument('Object is passed to condition');
