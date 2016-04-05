@@ -189,6 +189,7 @@ class Entity extends Generic
      */
     protected function findEntityIDs(array $entityIDs = array())
     {
+        // TODO: Possible performance issue - from generated queries we are passing Active true and get all materials from DB
         if ($this->conditions) {
             $entityIDs = $this->query
                 ->entity(Material::ENTITY)
