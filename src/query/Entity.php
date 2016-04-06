@@ -240,7 +240,7 @@ class Entity extends Generic
         /** @var Condition $fieldCondition Iterate all additional fields needed for filter condition */
         foreach ($additionalFields as $fieldID => $fieldCondition) {
             // Get collection of entity identifiers passing already found identifiers
-            $entityIDs = (new MaterialField($entityIDs))->idsByRelationID($fieldID, $fieldCondition, array());
+            $entityIDs = (new MaterialField($entityIDs))->idsByRelationID($fieldID, $fieldCondition, array(), $this->locale);
 
             // Stop execution if we have no entities found at this step
             if (!count($entityIDs)) {
