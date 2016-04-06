@@ -52,50 +52,56 @@ class Generic extends Record
      * Add primary field query condition.
      *
      * @param string $value Field value
-     * @param string $fieldRelation
+     * @param string $relation @see ArgumentInterface types
      *
      * @return $this Chaining
      * @see Material::where()
      */
-    public function primary($value, $fieldRelation = ArgumentInterface::EQUAL)
+    public function primary($value, $relation = ArgumentInterface::EQUAL)
     {
-        return $this->where(Material::F_PRIMARY, $value, $fieldRelation);
+        return $this->where(Material::F_PRIMARY, $value, $relation);
     }
 
     /**
      * Add identifier field query condition.
      *
      * @param string $value Field value
+     * @param string $relation @see ArgumentInterface types
+     *
      * @return $this Chaining
      * @see Material::where()
      */
-    public function identifier($value)
+    public function identifier($value, $relation = ArgumentInterface::EQUAL)
     {
-        return $this->where(Material::F_IDENTIFIER, $value);
+        return $this->where(Material::F_IDENTIFIER, $value, $relation);
     }
 
     /**
      * Add active flag condition.
      *
      * @param bool $value Field value
+     * @param string $relation @see ArgumentInterface types
+     *
      * @return $this Chaining
      * @see Material::where()
      */
-    public function active($value)
+    public function active($value, $relation = ArgumentInterface::EQUAL)
     {
-        return $this->where(Material::F_DELETION, $value);
+        return $this->where(Material::F_DELETION, $value, $relation);
     }
 
     /**
      * Add entity published field query condition.
      *
      * @param string $value Field value
+     * @param string $relation @see ArgumentInterface types
+     *
      * @return $this Chaining
      * @see Material::where()
      */
-    public function published($value)
+    public function published($value, $relation = ArgumentInterface::EQUAL)
     {
-        return $this->where(Material::F_PUBLISHED, $value);
+        return $this->where(Material::F_PUBLISHED, $value, $relation);
     }
 
     /**
@@ -103,6 +109,7 @@ class Generic extends Record
      *
      * @param string $value Field value
      * @param string $relation @see ArgumentInterface types
+     *
      * @return $this Chaining
      * @see Material::where()
      */
