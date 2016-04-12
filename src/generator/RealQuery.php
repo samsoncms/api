@@ -101,7 +101,7 @@ class RealQuery extends Generic
             $code .= "\n\t" . ' */';
             $code .= "\n\t" . 'public function ' . $fieldName . '($value, $relation = ArgumentInterface::EQUAL)';
             $code .= "\n\t" . '{';
-            $code .= "\n\t\t" . 'return $this->where(' . $metadata->entity.'::F_'.strtoupper($fieldName). ', $value, $relation);';
+            $code .= "\n\t\t" . 'return $this->where(' . $this->entityClass.'::F_'.strtoupper($fieldName). ', $value, $relation);';
 
             $code .= "\n\t" . '}';
 
