@@ -30,7 +30,7 @@ class Row extends VirtualEntity
     {
         parent::__construct($generator, $metadata);
 
-        $this->className = rtrim($this->className, 'Table').'TableRow';
+        $this->className = preg_replace('/Table$/i', '', $this->className) . 'TableRow';
     }
 
     /**

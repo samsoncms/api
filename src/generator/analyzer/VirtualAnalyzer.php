@@ -124,11 +124,41 @@ class VirtualAnalyzer extends GenericAnalyzer
      */
     protected function getVirtualEntities($type = 0)
     {
-        return $this->database->fetch('
+        $navigations = $this->database->fetch('
         SELECT * FROM `structure`
         WHERE `Active` = "1" AND `Type` = "' . $type . '"
         ORDER BY `ParentID` ASC
         ');
+
+        // Store navigation elements by identifiers
+        $navigationsIDs = [];
+        foreach ($navigations as $navigation) {
+            $navigationsIDs[$navigation['StructureID']] = $navigation;
+        }
+
+        $tree = [];
+        foreach ($navigationsIDs as $navigationID => $navigation) {
+            $arrayDefinition = [];
+            $parentPointer = $navigation;
+            do {
+                $arrayDefinition[] = '['.$parentPointer['StructureID'].']';
+                $parentPointer = array_key_exists($parentPointer['ParentID'], $navigationsIDs) ? $navigationsIDs[$parentPointer['ParentID']] : null;
+            } while (null !== $parentPointer);
+
+            // Create multi-dimensional array
+            eval('$tree'.implode('', array_reverse($arrayDefinition)).'[$navigationID] = $navigationID;');
+        }
+
+
+        // Walk recursive array and using array keys fill flat array in correct order to preserve parent/child relations
+        $output = [];
+        array_walk_recursive($tree, function($value, $key) use (&$output, &$navigationsIDs) {
+            $output[$key] = $navigationsIDs[$key];
+        });
+
+        //trace($output, 1);die;
+        //trace(array_reverse($output), 1);
+        return array_reverse($output);
     }
 
     /**

@@ -29,7 +29,7 @@ class Table extends Generic
     {
         parent::__construct($generator, $metadata);
 
-        $this->className = rtrim($this->className, 'Table').'Table';
+        $this->className = preg_replace('/Table$/i', '', $this->className) . 'Table';
     }
 
     /**
