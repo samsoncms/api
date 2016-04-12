@@ -43,6 +43,7 @@ class TableVirtualQuery extends VirtualQuery
         $this->generator
             ->newLine('use samsonframework\orm\QueryInterface;')
             ->newLine('use samson\activerecord\dbQuery;')
+            ->newLine('use samsonframework\orm\ArgumentInterface;')
             ->newLine();
     }
 
