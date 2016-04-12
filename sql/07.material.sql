@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `@prefixmaterial` (
   `Created` datetime DEFAULT CURRENT_TIMESTAMP,
   `Modyfied` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `UserID` int(11) DEFAULT NULL,
+  `structure_id` int(11) DEFAULT NULL,
   `Draft` int(11) NOT NULL,
   `type` int(1) NOT NULL DEFAULT '0',
   `Published` int(1) unsigned DEFAULT NULL,

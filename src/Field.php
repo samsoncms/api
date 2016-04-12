@@ -17,6 +17,7 @@ class Field extends \samson\activerecord\field
     /** Entity field names constants for using in code */
     const F_PRIMARY = 'FieldID';
     const F_IDENTIFIER = 'Name';
+    const F_DESCRIPTION = 'Description';
     const F_TYPE = 'Type';
     const F_DELETION = 'Active';
     const F_DEFAULT = 'Value';
@@ -36,7 +37,7 @@ class Field extends \samson\activerecord\field
     const TYPE_NUMERIC = 7;
     /** Additional field storing long text value */
     const TYPE_LONGTEXT = 8;
-	    /** Additional field storing gallery value */
+    /** Additional field storing gallery value */
     const TYPE_GALLERY = 9;
     /** Additional field storing datetime value */
     const TYPE_DATETIME = 10;
@@ -68,12 +69,13 @@ class Field extends \samson\activerecord\field
      * by database additional field type identifier.
      *
      * @param integer $fieldType Additional field type identifier
+     *
      * @return string Additional field type constant
      * @throws AdditionalFieldTypeNotFound
      */
     public static function phpType($fieldType)
     {
-        $pointer = & static::$phpTYPE[$fieldType];
+        $pointer = &static::$phpTYPE[$fieldType];
         if (isset($pointer)) {
             return $pointer;
         } else {
@@ -81,55 +83,42 @@ class Field extends \samson\activerecord\field
         }
     }
 
-    /** @return string Get additional field value field name depending on its type */
-    public static function valueColumn($type)
+    /**
+     * Get internal field type in form of Field constant name
+     * by php originial type.
+     *
+     * @param string $fieldType PHP type
+     *
+     * @return string Additional field type constant
+     * @throws AdditionalFieldTypeNotFound
+     */
+    public static function internalType($fieldType)
     {
-        switch ($type) {
-            case self::TYPE_DATETIME:
-            case self::TYPE_DATE:
-            case self::TYPE_NUMERIC:
-                return MaterialField::F_NUMERIC;
-            case self::TYPE_ENTITYID:
-            case self::TYPE_NAVIGATION:
-                return MaterialField::F_KEY;
-            default:
-                return MaterialField::F_VALUE;
+        $types = array_flip(static::$phpTYPE);
+        if (array_key_exists($fieldType, $types)) {
+            return $types[$fieldType];
+        } else {
+            throw new AdditionalFieldTypeNotFound($fieldType);
         }
     }
 
-    /** @var string Additional field value type */
-    public $Type;
-
-    /** @var string Additional field name */
-    public $Name;
-
-    /** @var string Default field value */
-    public $Value;
-
-    /** @var bool Flag is localized */
-    public $local;
-
-    /** @var bool Internal existence flag */
-    public $Active;
-
     /**
-     * Get current entity instances collection by their identifiers.
-     * Method can accept different query executors.
+     * Get current entity instances collection by navigation identifier.
      *
-     * @param QueryInterface $query Database query
-     * @param string|array $fieldIDs Field identifier or their colleciton
-     * @param self[]|array|null $return Variable where request result would be returned
-     * @param string $executor Method name for query execution
-     * @return bool|self[] True if material entities has been found and $return is passed
+     * @param QueryInterface    $query        Database query
+     * @param string            $navigationID Navigation identifier
+     * @param self[]|array|null $return       Variable where request result would be returned
+     *
+     * @return bool|self[] True if field entities has been found and $return is passed
      *                      or self[] if only two parameters is passed.
      */
-    public static function byIDs(QueryInterface $query, $fieldIDs, &$return = array(), $executor = 'exec')
+    public static function byNavigationID(QueryInterface $query, $navigationID, &$return = array())
     {
-        $return = $query->entity(get_called_class())
-            ->where('FieldID', $fieldIDs)
-            ->where('Active', 1)
-            ->orderBy('priority')
-            ->$executor();
+        /** @var array $fieldIDs Collection of entity identifiers filtered by additional field */
+        $fieldIDs = null;
+        if (static::idsByNavigationID($query, $navigationID, $fieldIDs)) {
+            static::byIDs($query, $fieldIDs, $return);
+        }
 
         // If only one argument is passed - return null, otherwise bool
         return func_num_args() > 2 ? sizeof($return) : $return;
@@ -139,9 +128,10 @@ class Field extends \samson\activerecord\field
      * Get current entity identifiers collection by navigation identifier.
      *
      * @param QueryInterface $query Database query
-     * @param string $navigationID Navigation identifier
-     * @param array $return Variable where request result would be returned
-     * @param array $materialIDs Collection of material identifiers for filtering query
+     * @param string         $navigationID Navigation identifier
+     * @param array          $return Variable where request result would be returned
+     * @param array          $materialIDs Collection of material identifiers for filtering query
+     *
      * @return bool|array True if field entities has been found and $return is passed
      *                      or collection of identifiers if only two parameters is passed.
      */
@@ -150,7 +140,8 @@ class Field extends \samson\activerecord\field
         $navigationID,
         &$return = array(),
         $materialIDs = null
-    ) {
+    )
+    {
         // Prepare query
         $query->entity(CMS::FIELD_NAVIGATION_RELATION_ENTITY)
             ->where('StructureID', $navigationID)
@@ -169,21 +160,24 @@ class Field extends \samson\activerecord\field
     }
 
     /**
-     * Get current entity instances collection by navigation identifier.
+     * Get current entity instances collection by their identifiers.
+     * Method can accept different query executors.
      *
      * @param QueryInterface $query Database query
-     * @param string $navigationID Navigation identifier
+     * @param string|array   $fieldIDs Field identifier or their colleciton
      * @param self[]|array|null $return Variable where request result would be returned
-     * @return bool|self[] True if field entities has been found and $return is passed
+     * @param string $executor Method name for query execution
+     *
+     * @return bool|self[] True if material entities has been found and $return is passed
      *                      or self[] if only two parameters is passed.
      */
-    public static function byNavigationID(QueryInterface $query, $navigationID, &$return = array())
+    public static function byIDs(QueryInterface $query, $fieldIDs, &$return = array(), $executor = 'exec')
     {
-        /** @var array $fieldIDs Collection of entity identifiers filtered by additional field */
-        $fieldIDs = null;
-        if (static::idsByNavigationID($query, $navigationID, $fieldIDs)) {
-            static::byIDs($query, $fieldIDs, $return);
-        }
+        $return = $query->entity(get_called_class())
+            ->where('FieldID', $fieldIDs)
+            ->where('Active', 1)
+            ->orderBy('priority')
+            ->$executor();
 
         // If only one argument is passed - return null, otherwise bool
         return func_num_args() > 2 ? sizeof($return) : $return;
@@ -194,9 +188,10 @@ class Field extends \samson\activerecord\field
      * This is generic method that should be used in nested classes to find its
      * records by some its primary key value.
      *
-     * @param QueryInterface $query Query object instance
-     * @param string $name Additional field name
-     * @param self $return Variable to return found database record
+     * @param QueryInterface $query  Query object instance
+     * @param string         $name   Additional field name
+     * @param self           $return Variable to return found database record
+     *
      * @return bool|null|self  Field instance or null if 3rd parameter not passed
      */
     public static function byName(QueryInterface $query, $name, self & $return = null)
@@ -214,9 +209,10 @@ class Field extends \samson\activerecord\field
      * records by some its primary key value.
      *
      * @param QueryInterface $query Query object instance
-     * @param string $nameOrID Additional field name or identifier
+     * @param string         $nameOrID Additional field name or identifier
      * @param self $return Variable to return found database record
-     * @return bool|null|self  Field instance or null if 3rd parameter not passed
+     *
+*@return bool|null|self  Field instance or null if 3rd parameter not passed
      */
     public static function byNameOrID(QueryInterface $query, $nameOrID, self & $return = null)
     {
@@ -255,6 +251,22 @@ class Field extends \samson\activerecord\field
     public function valueFieldName()
     {
         return self::valueColumn($this->Type);
+    }
+
+    /** @return string Get additional field value field name depending on its type */
+    public static function valueColumn($type)
+    {
+        switch ($type) {
+            case self::TYPE_DATETIME:
+            case self::TYPE_DATE:
+            case self::TYPE_NUMERIC:
+                return MaterialField::F_NUMERIC;
+            case self::TYPE_ENTITYID:
+            case self::TYPE_NAVIGATION:
+                return MaterialField::F_KEY;
+            default:
+                return MaterialField::F_VALUE;
+        }
     }
 
     /** @return bool True if field is localized */

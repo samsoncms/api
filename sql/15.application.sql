@@ -1,3 +1,4 @@
+ALTER TABLE `structure` ADD `hidden` INT(1) NOT NULL DEFAULT '0' FIRST;
 ALTER TABLE `structure` ADD `applicationGenerate` INT(1) NOT NULL DEFAULT '0' AFTER `hidden`;
 ALTER TABLE `structure` ADD `applicationOutput` INT(1) NOT NULL DEFAULT '0' AFTER `applicationGenerate`;
 ALTER TABLE `structure` ADD `applicationIcon` varchar(100) NOT NULL DEFAULT 'users' AFTER `applicationOutput`;

@@ -8,12 +8,13 @@ require('generated/MaterialField.php');
 require('generated/Structure.php');
 require('generated/StructureField.php');
 
-use samsoncms\application\GeneratorApplication;
-use samsonframework\core\ResourcesInterface;
-use samsonframework\core\SystemInterface;
+use samson\activerecord\dbMySQLConnector;
 use samson\activerecord\TableRelation;
 use samson\core\CompressableService;
-use samson\activerecord\dbMySQLConnector;
+use samsoncms\api\generator\GenericWriter;
+use samsonframework\core\ResourcesInterface;
+use samsonframework\core\SystemInterface;
+use samsonphp\generator\Generator;
 
 /**
  * SamsonCMS API
@@ -29,18 +30,14 @@ class CMS extends CompressableService
     const FIELD_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurefield';
     /** Database entity name for relations between material and additional fields values */
     const MATERIAL_FIELD_RELATION_ENTITY = MaterialField::class;
-
-    /** Identifier */
-    protected $id = 'cmsapi2';
-
-    /** @var \samsonframework\orm\DatabaseInterface */
-    protected $database;
-
-    /** @var array[string] Collection of generated queries */
-    protected $queries;
-
     /** @var string Database table names prefix */
     public $tablePrefix = '';
+    /** Identifier */
+    protected $id = 'cmsapi2';
+    /** @var \samsonframework\orm\DatabaseInterface */
+    protected $database;
+    /** @var array[string] Collection of generated queries */
+    protected $queries;
 
     /**
      * CMS constructor.
@@ -68,6 +65,20 @@ class CMS extends CompressableService
         $this->rewriteEntityLocale();
     }
 
+    /**
+     * Entity additional fields localization support.
+     */
+    protected function rewriteEntityLocale()
+    {
+        // Iterate all generated entity classes
+        foreach (get_declared_classes() as $entityClass) {
+            if (is_subclass_of($entityClass, '\samsoncms\api\Entity')) {
+                // Insert current application locale
+                str_replace('@locale', locale(), $entityClass::$_sql_select);
+            }
+        }
+    }
+
     public function beforeCompress(& $obj = null, array & $code = null)
     {
 
@@ -86,58 +97,29 @@ class CMS extends CompressableService
         }
     }
 
-    /**
-     * Entity additional fields localization support.
-     */
-    protected function rewriteEntityLocale()
-    {
-        // Iterate all generated entity classes
-        foreach (get_declared_classes() as $entityClass) {
-            if (is_subclass_of($entityClass, '\samsoncms\api\Entity')) {
-                // Insert current application locale
-                str_replace('@locale', locale(), $entityClass::$_sql_select);
-            }
-        }
-    }
-
     //[PHPCOMPRESSOR(remove,start)]
-    /**
-     * Read SQL file with variables placeholders pasting
-     * @param string $filePath SQL file for reading
-     * @param string $prefix Prefix for addition
-     * @return string SQL command text
-     */
-    public function readSQL($filePath, $prefix = '')
-    {
-        $sql = '';
-
-        // Build path to SQL folder
-        if (file_exists($filePath)) {
-            // Replace prefix
-            $sql = str_replace('@prefix', $prefix, file_get_contents($filePath));
-        }
-
-        return $sql;
-    }
 
     /**
      * @see ModuleConnector::prepare()
      */
     public function prepare()
     {
-        // Update table to new structure
-        db()->execute('ALTER TABLE `material` CHANGE `parent_id` `parent_id` INT(11) NULL DEFAULT NULL;');
-        db()->execute('UPDATE `material` SET `parent_id` = NULL WHERE `parent_id` = 0;');
-
-        db()->execute('ALTER TABLE `materialfield` CHANGE COLUMN `locale` `locale` VARCHAR(10) NULL DEFAULT NULL;');
-        db()->execute("UPDATE `materialfield` SET `locale` = NULL WHERE `locale` = '';");
+        // Create cms_version
+        $this->database->execute('
+CREATE TABLE IF NOT EXISTS `cms_version`  (
+  `version` varchar(15) NOT NULL DEFAULT \'30\'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
+        );
 
         // Perform this migration and execute only once
         if ($this->migrator() != 40) {
             // Perform SQL table creation
             $path = __DIR__ . '/../sql/';
             foreach (array_slice(scandir($path), 2) as $file) {
-                $this->database->execute($this->readSQL($path . $file, $this->tablePrefix));
+                trace('Performing database script [' . $file . ']');
+                foreach ($this->readSQL($path . $file, $this->tablePrefix) as $sql) {
+                    $this->database->execute($sql);
+                }
             }
             $this->migrator(40);
         }
@@ -145,7 +127,7 @@ class CMS extends CompressableService
         // Initiate migration mechanism
         $this->database->migration(get_class($this), array($this, 'migrator'));
 
-                // Define permanent table relations
+        // Define permanent table relations
         new TableRelation('material', 'user', 'UserID', 0, 'user_id');
         new TableRelation('material', 'gallery', 'MaterialID', TableRelation::T_ONE_TO_MANY);
         new TableRelation('material', 'materialfield', 'MaterialID', TableRelation::T_ONE_TO_MANY);
@@ -163,8 +145,8 @@ class CMS extends CompressableService
         new TableRelation('structure', 'user', 'UserID', 0, 'user_id');
         new TableRelation('structure', 'materialfield', 'material.MaterialID', TableRelation::T_ONE_TO_MANY, 'MaterialID', '_mf');
         new TableRelation('structure', 'structurematerial', 'StructureID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('related_materials', 'material', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
-        new TableRelation('related_materials', 'materialfield', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
+        //new TableRelation('related_materials', 'material', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
+        //new TableRelation('related_materials', 'materialfield', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
         new TableRelation('field', 'structurefield', 'FieldID');
         new TableRelation('field', 'structure', 'structurefield.StructureID');
         new TableRelation('structurefield', 'field', 'FieldID');
@@ -180,24 +162,48 @@ class CMS extends CompressableService
         // TODO: Should be removed
         m('activerecord')->relations();
 
-        // Generate entities classes file
-        $generatorApi = new GeneratorApi($this->database);
+        $classWriter = new GenericWriter(
+            $this->database,
+            new Generator(),
+            __NAMESPACE__ . '\\generated',
+            [
+                \samsoncms\api\generator\analyzer\RealAnalyzer::class => [
+                    \samsoncms\api\generator\RealEntity::class,
+                    \samsoncms\api\generator\RealQuery::class,
+                    \samsoncms\api\generator\RealCollection::class,
+                ],
+                \samsoncms\api\generator\analyzer\TableTraitAnalyzer::class => [
+                    \samsoncms\api\generator\TableTrait::class
+                ],
+                \samsoncms\api\generator\analyzer\VirtualAnalyzer::class => [
+                    \samsoncms\api\generator\VirtualEntity::class,
+                    \samsoncms\api\generator\VirtualQuery::class,
+                    \samsoncms\api\generator\VirtualCollection::class,
+                ],
+                \samsoncms\api\generator\analyzer\GalleryAnalyzer::class => [
+                    \samsoncms\api\generator\Gallery::class,
+                ],
+                \samsoncms\api\generator\analyzer\TableAnalyzer::class => [
+                    \samsoncms\api\generator\TableVirtualEntity::class,
+                    \samsoncms\api\generator\TableVirtualQuery::class,
+                    \samsoncms\api\generator\TableVirtualCollection::class,
+                    \samsoncms\api\generator\Table::class,
+                    \samsoncms\api\generator\Row::class
+                ]
+            ],
+            $this->cache_path
+        );
 
-        // Create cache file
-        $file = md5($generatorApi->entityHash()).'.php';
-        if ($this->cache_refresh($file)) {
-            file_put_contents($file, '<?php ' . $generatorApi->createEntityClasses());
-        }
-
-        // Include entities file
-        require($file);
+        $classWriter->write();
 
         return parent::prepare();
     }
 
     /**
      * Handler for CMSAPI database version manipulating
+     *
      * @param string $toVersion Version to switch to
+     *
      * @return string Current database version
      */
     public function migrator($toVersion = null)
@@ -219,6 +225,31 @@ class CMS extends CompressableService
                 return 0;
             }
         }
+    }
+
+    /**
+     * Read SQL file with variables placeholders pasting
+     *
+     * @param string $filePath SQL file for reading
+     * @param string $prefix   Prefix for addition
+     *
+     * @return array Collection of SQL command texts
+     */
+    public function readSQL($filePath, $prefix = '')
+    {
+        $sql = '';
+
+        // Build path to SQL folder
+        if (file_exists($filePath)) {
+            // Replace prefix
+            $sql = str_replace('@prefix', $prefix, file_get_contents($filePath));
+        }
+
+        // Split queries
+        $sqlCommands = explode(';', str_replace("\n", '', $sql));
+
+        // Always return array
+        return array_filter(is_array($sqlCommands) ? $sqlCommands : array($sqlCommands));
     }
     //[PHPCOMPRESSOR(remove,end)]
 }

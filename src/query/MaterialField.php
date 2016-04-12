@@ -44,9 +44,10 @@ class MaterialField extends Relational
      * @param string $relationID Relation entity identifier
      * @param mixed|Condition $relationValue Relation entity value or relation condition
      * @param array $filteringIDs Collection of entity identifiers for filtering query
+     * @param string $locale Locale for requests
      * @return array Collection of entity identifiers filtered by navigation identifier.
      */
-    public function idsByRelationID($relationID, $relationValue = null, array $filteringIDs = array())
+    public function idsByRelationID($relationID, $relationValue = null, array $filteringIDs = array(), $locale = null)
     {
         $return = array();
 
@@ -65,8 +66,14 @@ class MaterialField extends Relational
             }
 
             // Add material identifier filter if passed
-            if (sizeof($filteringIDs)) {
+            if (count($filteringIDs)) {
                 $this->query->where($this->primaryField, $filteringIDs);
+            }
+
+            // If field is localized
+            if ((int)$fieldRecord->local === 1) {
+                // Add localization filter
+                $this->query->where(\samsoncms\api\MaterialField::F_LOCALE, $locale);
             }
 
             // Perform database query and get only material identifiers collection
