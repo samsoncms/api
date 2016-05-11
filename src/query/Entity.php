@@ -349,7 +349,7 @@ class Entity extends Generic
 
             // Check if we have this additional field in this entity query
             if (null === $valueField || null === $fieldName) {
-                throw new EntityFieldNotFound($fieldID);
+//                throw new EntityFieldNotFound($fieldID);
             } else { // Add field value to result
                 $fieldValue = $additionalField[$valueField];
                 // Gather additional fields values by entity identifiers and field name
@@ -475,6 +475,8 @@ class Entity extends Generic
      */
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
+        // TODO #1
+        unset(static::$fieldNames['MaterialID']);
         // Try to find entity additional field
         if (array_key_exists($fieldName, static::$fieldNames)) {
             $pointer = static::$fieldNames[$fieldName];
