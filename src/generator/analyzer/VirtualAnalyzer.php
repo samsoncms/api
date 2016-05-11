@@ -155,7 +155,6 @@ class VirtualAnalyzer extends GenericAnalyzer
         array_walk_recursive($tree, function($value, $key) use (&$output, &$navigationsIDs) {
             $output[$key] = $navigationsIDs[$key];
         });
-
         // TODO: This function still works wrong when child has earlier id than parent
         return $output;
     }
