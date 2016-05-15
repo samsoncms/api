@@ -148,8 +148,11 @@ class VirtualEntity extends RealEntity
                     $code .= "\n\t" . ' */';
                     $code .= "\n\t" . 'public function create' . ucfirst($galleryName) . '(ViewInterface $renderer)';
                     $code .= "\n\t" . '{';
-                    $code .= "\n\t\t" . '$materialFieldID = (new MaterialFieldQuery($this->query))->materialID($this->id)->fieldID('.$fieldID.')->first();';
-                    $code .= "\n\t\t" . 'return (new GalleryCollection($renderer, $this->query))->materialID($this->id)->materialFieldID($materialFieldID->id);';
+                    $code .= "\n\t\t" . '$gallery = (new GalleryCollection($renderer, $this->query))->materialID($this->id);';
+                    $code .= "\n\t\t" . 'if(null !== ($materialFieldID = (new MaterialFieldQuery($this->query))->materialID($this->id)->fieldID('.$fieldID.')->first())) {';
+                    $code .= "\n\t\t\t" . '$gallery->materialFieldID($materialFieldID->id);';
+                    $code .= "\n\t\t" . '}';
+                    $code .= "\n\t\t" . 'return $gallery;';
                     $code .= "\n\t" . '}';
 
                     $methods[] = $code;
