@@ -156,10 +156,8 @@ class VirtualAnalyzer extends GenericAnalyzer
             $output[$key] = $navigationsIDs[$key];
         });
 
-        //trace($output, 1);die;
-        //trace(array_reverse($output), 1);
+        // TODO: This function still works wrong when child has earlier id than parent
         return $output;
-        return array_reverse($output);
     }
 
     /**

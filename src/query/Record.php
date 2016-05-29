@@ -96,7 +96,7 @@ class Record
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
-        if (array_key_exists($fieldName, static::$fieldIDs)) {
+        if (in_array($fieldName, static::$fieldIDs)) {
             $this->orderBy = array($fieldName, $order);
         }
 
