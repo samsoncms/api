@@ -158,6 +158,7 @@ class VirtualAnalyzer extends GenericAnalyzer
 
         //trace($output, 1);die;
         //trace(array_reverse($output), 1);
+        return $output;
         return array_reverse($output);
     }
 

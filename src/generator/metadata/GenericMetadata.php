@@ -24,6 +24,8 @@ class GenericMetadata
     public $arSelect = array();
     public $arMap = array();
     public $arAttributes = array();
+    public $arTableAttributes = array();
+    public $arTypes = array();
     public $arFrom = array();
     public $arGroup = array();
     public $arRelationAlias = array();
