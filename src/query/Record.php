@@ -73,6 +73,8 @@ class Record
      */
     public function select($fieldNames)
     {
+        // TODO: Query has no implementation for selecting needed fields
+
         // Convert argument to array and iterate
         foreach ((!is_array($fieldNames) ? array($fieldNames) : $fieldNames) as $fieldName) {
             // Try to find entity additional field
@@ -104,11 +106,24 @@ class Record
     }
 
     /**
-     * Perform SamsonCMS query and get entities collection.
+     * Set query results limitation.
      *
-     * @return \samsoncms\api\Entity[] Collection of found entities
+     * @param int $count Amount of entities to receive
+     * @param int $offset Entities starting number
+     *
+     * @return $this Chaining
      */
-    public function find()
+    public function limit($count, $offset = 0)
+    {
+        $this->limit = array($offset, $count);
+
+        return $this;
+    }
+
+    /**
+     * Perform internal query preparation.
+     */
+    protected function prepareQuery()
     {
         $this->query->entity(static::$identifier);
 
@@ -117,10 +132,27 @@ class Record
             $this->primary($this->entityIDs);
         }
 
-        // Add query sorter for showed page
+        // Add query sorting
         if (count($this->orderBy) === 2) {
             $this->query->orderBy($this->orderBy[0], $this->orderBy[1]);
         }
+
+        // Add query limitation
+        if (count($this->limit) === 2) {
+            $this->query->limit($this->limit[0], $this->limit[1]);
+        }
+
+        // TODO: Add grouping
+    }
+
+    /**
+     * Perform SamsonCMS query and get entities collection.
+     *
+     * @return \samsoncms\api\Entity[] Collection of found entities
+     */
+    public function find()
+    {
+        $this->prepareQuery();
 
         // Proxy to regular database query
         $return = $this->query
@@ -200,9 +232,10 @@ class Record
      */
     public function fields($fieldName)
     {
+        $this->prepareQuery();
+
         // Proxy to regular database query
         return $this->query
-            ->entity(static::$identifier)
             ->whereCondition($this->conditions)
             ->fields($fieldName);
     }
@@ -214,9 +247,10 @@ class Record
      */
     public function first()
     {
+        $this->prepareQuery();
+
         // Proxy to regular database query
         $return = $this->query
-            ->entity(static::$identifier)
             ->limit(1)
             ->whereCondition($this->conditions)
             ->exec();

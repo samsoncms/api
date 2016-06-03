@@ -55,7 +55,7 @@ class RealAnalyzer extends GenericAnalyzer
                         $metadata->arTableAttributes[$this->fieldName($attribute)] = $attribute;
                     }
                     foreach ($arEntity::$_types as $attribute => $oldType) {
-                        $metadata->arTypes[$this->fieldName($attribute)] = $oldType;
+                        $metadata->arTypes[$attribute] = $oldType;
                     }
                     $metadata->arSelect = $arEntity::$_sql_select;
                     $metadata->arMap = $arEntity::$_map;
