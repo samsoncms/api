@@ -192,19 +192,21 @@ class Entity extends Generic
      */
     protected function findEntityIDs(array $entityIDs = array())
     {
-        // TODO: Possible performance issue - from generated queries we are passing Active true and get all materials from DB
-        if ($this->conditions) {
-            $entityIDs = $this->query
-                ->entity(Material::ENTITY)
-                ->whereCondition($this->conditions)
-                ->fields(Material::F_PRIMARY);
-        }
-
         // TODO: Find and describe approach with maximum generic performance
+        // TODO: Split into two parts
         $entityIDs = $this->findByAdditionalFields(
             $this->fieldFilter,
             $this->findByNavigationIDs($entityIDs)
         );
+
+        // TODO: Possible performance issue - from generated queries we are passing Active true and get all materials from DB
+        if ($this->conditions) {
+            $entityIDs = $this->query
+                ->entity(Material::ENTITY)
+                ->where(Material::F_PRIMARY, $entityIDs)
+                ->whereCondition($this->conditions)
+                ->fields(Material::F_PRIMARY);
+        }
 
         // Perform sorting if necessary
         if (count($this->entityOrderBy) === 2) {
