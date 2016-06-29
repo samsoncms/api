@@ -78,7 +78,7 @@ class RealEntity extends Generic
             ->commentVar('array', '@deprecated Old ActiveRecord data')
             ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
             ->commentVar('array', '@deprecated Old ActiveRecord data')
-            ->defClassVar('$fieldIDs', 'protected static ', $metadata->fields);
+            ->defClassVar('$fieldIDs', 'public static ', $metadata->fields);
     }
 
     /**
