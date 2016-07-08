@@ -85,14 +85,18 @@ class GenericWriter
             foreach ($this->metadata[$analyzerClass] as $metadata) {
                 // Iterate all generators for analyzer
                 foreach ($this->generators[$analyzerClass] as $generator) {
+                    // TODO: Optimize generators creation by searching for existing files
                     /** @var Generic $generator Create class generator */
                     $generator = new $generator($this->codeGenerator->defNamespace($this->namespace), $metadata);
 
                     // Create entity generated class names
                     $file = $this->path . $generator->className . '.php';
 
-                    // Create entity query class files
-                    file_put_contents($file, '<?php' . $generator->generate());
+                    // Do not generate file if its already there
+                    if (!file_exists($file)) {
+                        // Create entity query class files
+                        file_put_contents($file, '<?php' . $generator->generate());
+                    }
 
                     // Require files
                     require($file);
