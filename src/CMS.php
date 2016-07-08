@@ -162,8 +162,6 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         // TODO: Should be removed
         m('activerecord')->relations();
 
-        elapsed('start');
-
         $classWriter = new GenericWriter(
             $this->database,
             new Generator(),
@@ -195,10 +193,8 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             ],
             $this->cache_path
         );
-        elapsed('gather');
 
         $classWriter->write();
-        elapsed('end');
 
         return parent::prepare();
     }
