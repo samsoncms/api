@@ -117,8 +117,12 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
             $path = __DIR__ . '/../sql/';
             foreach (array_slice(scandir($path), 2) as $file) {
                 trace('Performing database script [' . $file . ']');
-                foreach ($this->readSQL($path . $file, $this->tablePrefix) as $sql) {
-                    $this->database->execute($sql);
+                try {
+                    foreach ($this->readSQL($path . $file, $this->tablePrefix) as $sql) {
+                        $this->database->execute($sql);
+                    }
+                } catch(\Exception $e) {
+                    throw new \Exception('Canot execute file: "'.$file.'"'."\n".$e->getMessage());
                 }
             }
             $this->migrator(40);
