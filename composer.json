@@ -13,7 +13,7 @@
   ],
   "require": {
     "samsonframework/collection": "*",
-    "samsonframework/orm": "*",
+    "samsonos/php_activerecord": "*",
     "samsonphp/generator":"*",
     "samsonphp/view":"*"
   },
