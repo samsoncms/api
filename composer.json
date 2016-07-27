@@ -11,17 +11,14 @@
       "email": "kotenko@samsonos.com"
     }
   ],
-  "minimum-stability": "dev",
   "require": {
-    "samsonframework/base": "*",
     "samsonframework/collection": "*",
     "samsonframework/orm": "dev-master",
     "samsonphp/generator":"*",
-    "samsonos/php_activerecord":"*",
     "samsonphp/view":"*"
   },
   "require-dev": {
-    "phpunit/phpunit": "4.*"
+    "phpunit/phpunit": "5.*"
   },
   "license": "Open Software License (OSL) v 3.0",
   "homepage": "http://samsonos.com/",
