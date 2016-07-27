@@ -13,7 +13,7 @@
   ],
   "require": {
     "samsonframework/collection": "*",
-    "samsonframework/orm": "dev-master",
+    "samsonframework/orm": "*",
     "samsonphp/generator":"*",
     "samsonphp/view":"*"
   },
