@@ -2,11 +2,11 @@
 namespace samsoncms\api;
 
 // Backward compatibility
-require('generated/Material.php');
-require('generated/Field.php');
-require('generated/MaterialField.php');
-require('generated/Structure.php');
-require('generated/StructureField.php');
+//require('generated/Material.php');
+//require('generated/Field.php');
+//require('generated/MaterialField.php');
+//require('generated/Structure.php');
+//require('generated/StructureField.php');
 
 use samson\activerecord\dbMySQLConnector;
 use samson\activerecord\TableRelation;
