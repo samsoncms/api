@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         new TableRelation('groupright', 'right', 'RightID', TableRelation::T_ONE_TO_MANY);
 
         // TODO: Should be removed
-        m('activerecord')->relations();
+        $this->system->module('activerecord')->relations();
 
         $classWriter = new GenericWriter(
             $this->database,
