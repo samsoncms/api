@@ -15,12 +15,13 @@ use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samsonframework\core\CompressInterface;
 use samsonphp\generator\Generator;
+use samson\core\CompressableExternalModule;
 
 /**
  * SamsonCMS API
  * @package samsoncms\api
  */
-class CMS implements CompressInterface
+class CMS extends CompressableExternalModule implements CompressInterface
 {
     /** Database entity name for relations between material and navigation */
     const MATERIAL_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurematerial';
