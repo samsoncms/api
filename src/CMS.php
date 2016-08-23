@@ -10,17 +10,17 @@ namespace samsoncms\api;
 
 use samson\activerecord\dbMySQLConnector;
 use samson\activerecord\TableRelation;
-use samson\core\CompressableService;
 use samsoncms\api\generator\GenericWriter;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
+use samsonframework\core\CompressInterface;
 use samsonphp\generator\Generator;
 
 /**
  * SamsonCMS API
  * @package samsoncms\api
  */
-class CMS extends CompressableService
+class CMS implements CompressInterface
 {
     /** Database entity name for relations between material and navigation */
     const MATERIAL_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurematerial';
