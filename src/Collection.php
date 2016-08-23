@@ -7,6 +7,7 @@
  */
 namespace samsoncms\api;
 
+use samsoncms\api\query\Generic;
 use samsonframework\orm\Condition;
 use samsonframework\collection\Paged;
 use samsonframework\orm\Relation;
@@ -23,7 +24,7 @@ use samsonframework\orm\QueryInterface;
 class Collection extends Paged
 {
     /** @var string Entity manager instance */
-    protected $managerEntity = '\samsoncms\api\query\Generic';
+    protected $managerEntity = Generic::class;
 
     /** @var array Collection for current filtered material identifiers */
     protected $materialIDs = array();
@@ -44,7 +45,7 @@ class Collection extends Paged
     protected $baseEntityHandlers = array();
 
     /** @var string Collection entities class name */
-    protected $entityName = 'samson\cms\CMSMaterial';
+    protected $entityName = Material::class;
 
     /**
      * Generic collection constructor

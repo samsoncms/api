@@ -23,7 +23,7 @@ class MaterialNavigation extends Relational
      * @param array $filteringIDs Collection of entity identifiers for filtering
      * @param string $identifier Entity identifier
      */
-    public function __construct($filteringIDs = array(), $identifier = '\samson\cms\CMSMaterial')
+    public function __construct($filteringIDs = array(), $identifier = Material::class)
     {
         parent::__construct(
             new dbQuery(),
