@@ -229,7 +229,7 @@ class Material extends \samson\activerecord\Material
      *
      * @param mixed $clone Material for cloning
      * @param array $excludedFields Additional fields identifiers not copied
-     * @returns self New copied instance
+     * @return self New copied instance
      */
     public function &copy(&$clone = null, $excludedFields = array())
     {
