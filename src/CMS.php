@@ -1,13 +1,6 @@
 <?php
 namespace samsoncms\api;
 
-// Backward compatibility
-//require('generated/Material.php');
-//require('generated/Field.php');
-//require('generated/MaterialField.php');
-//require('generated/Structure.php');
-//require('generated/StructureField.php');
-
 use samson\activerecord\dbMySQLConnector;
 use samson\activerecord\TableRelation;
 use samsoncms\api\generator\GenericWriter;
@@ -131,41 +124,6 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
 
         // Initiate migration mechanism
         //$this->database->migration(get_class($this), array($this, 'migrator'));
-
-        // Define permanent table relations
-        new TableRelation('material', 'user', 'UserID', 0, 'user_id');
-        new TableRelation('material', 'gallery', 'MaterialID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('material', 'materialfield', 'MaterialID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('material', 'field', 'materialfield.FieldID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('material', 'structurematerial', 'MaterialID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('material', 'structure', 'structurematerial.StructureID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('materialfield', 'field', 'FieldID');
-        new TableRelation('materialfield', 'material', 'MaterialID');
-        new TableRelation('structurematerial', 'structure', 'StructureID');
-        new TableRelation('structurematerial', 'materialfield', 'MaterialID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('structurematerial', 'material', 'MaterialID', TableRelation::T_ONE_TO_MANY);
-        new TableRelation('structure', 'material', 'structurematerial.MaterialID', TableRelation::T_ONE_TO_MANY, null, 'manymaterials');
-        new TableRelation('structure', 'gallery', 'structurematerial.MaterialID', TableRelation::T_ONE_TO_MANY, null, 'manymaterials');
-        /*new TableRelation( 'structure', 'material', 'MaterialID' );*/
-        new TableRelation('structure', 'user', 'UserID', 0, 'user_id');
-        new TableRelation('structure', 'materialfield', 'material.MaterialID', TableRelation::T_ONE_TO_MANY, 'MaterialID', '_mf');
-        new TableRelation('structure', 'structurematerial', 'StructureID', TableRelation::T_ONE_TO_MANY);
-        //new TableRelation('related_materials', 'material', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
-        //new TableRelation('related_materials', 'materialfield', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
-        new TableRelation('field', 'structurefield', 'FieldID');
-        new TableRelation('field', 'structure', 'structurefield.StructureID');
-        new TableRelation('structurefield', 'field', 'FieldID');
-        new TableRelation('structurefield', 'materialfield', 'FieldID');
-        new TableRelation('structurefield', 'material', 'materialfield.MaterialID');
-        new TableRelation('structure', 'structure_relation', 'StructureID', TableRelation::T_ONE_TO_MANY, 'parent_id', 'children_relations');
-        new TableRelation('structure', 'structure', 'children_relations.child_id', TableRelation::T_ONE_TO_MANY, 'StructureID', 'children');
-        new TableRelation('structure', 'structure_relation', 'StructureID', TableRelation::T_ONE_TO_MANY, 'child_id', 'parents_relations');
-        new TableRelation('structure', 'structure', 'parents_relations.parent_id', TableRelation::T_ONE_TO_MANY, 'StructureID', 'parents');
-        new TableRelation('structurematerial', 'structure_relation', 'StructureID', TableRelation::T_ONE_TO_MANY, 'parent_id');
-        new TableRelation('groupright', 'right', 'RightID', TableRelation::T_ONE_TO_MANY);
-
-        // TODO: Should be removed
-        $this->system->module('activerecord')->relations();
 
         $classWriter = new GenericWriter(
             $this->database,
