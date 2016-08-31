@@ -25,7 +25,7 @@ class RealEntity extends Generic
     {
         $this->generator
             ->multiComment(array('"' . $metadata->entity . '" database entity class'))
-            ->defClass($this->className, '\samson\activerecord\\' . $metadata->entityName);
+            ->defClass($this->className, '\\'.\samsonframework\orm\Record::class);
     }
 
     /**

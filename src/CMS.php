@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         }
 
         // Initiate migration mechanism
-        $this->database->migration(get_class($this), array($this, 'migrator'));
+        //$this->database->migration(get_class($this), array($this, 'migrator'));
 
         // Define permanent table relations
         new TableRelation('material', 'user', 'UserID', 0, 'user_id');
