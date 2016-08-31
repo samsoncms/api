@@ -1,11 +1,13 @@
 <?php
 namespace samsoncms\api;
 
+use samson\activerecord\Gallery;
+
 /**
  * SamsonCMS additional field value table entity class
  * @package samson\cms
  */
-class GalleryField extends \samson\activerecord\gallery
+class GalleryField extends Gallery
 {
     /** Entity field names constants for using in code */
     const F_PRIMARY = 'PhotoID';

@@ -5,10 +5,9 @@
  */
 namespace samsoncms\api;
 
-use samson\activerecord\dbQuery;
-use samson\activerecord\structurematerial;
+use samson\activerecord\StructureMaterial;
 use samsoncms\api\field\Row;
-use \samsonframework\orm\QueryInterface;
+use samsonframework\orm\QueryInterface;
 
 /**
  * SamsonCMS Material database record object.

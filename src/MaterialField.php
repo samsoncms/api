@@ -7,7 +7,7 @@ use samsonframework\orm\QueryInterface;
  * SamsonCMS additional field value table entity class
  * @package samson\cms
  */
-class MaterialField extends \samson\activerecord\materialfield
+class MaterialField extends \samson\activerecord\MaterialField
 {
     /** Store entity name */
     const ENTITY = __CLASS__;
