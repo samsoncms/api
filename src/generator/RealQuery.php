@@ -80,6 +80,12 @@ class RealQuery extends Generic
             ->defClassVar('$fieldTypes', 'public static', $metadata->types)
             ->commentVar('array', 'Collection of entity field names to field aliases')
             ->defClassVar('$fieldIDs', 'public static', $metadata->fields)
+            ->commentVar('array', 'Collection of entity field database types')
+            ->defClassVar('$fieldDataTypes', 'public static', $metadata->internalTypes)
+            ->commentVar('array', 'Collection of entity field database default values')
+            ->defClassVar('$fieldDefaults', 'public static', $metadata->defaults)
+            ->commentVar('array', 'Collection of entity field database is nullable values')
+            ->defClassVar('$fieldDefaults', 'public static', $metadata->nullable)
             ->commentVar('array', 'Collection of entity field aliases to field names')
             ->defClassVar('$fieldNames', 'public static', $metadata->fieldNames);
     }

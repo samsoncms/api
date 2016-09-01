@@ -75,6 +75,7 @@ class RealAnalyzer extends GenericAnalyzer
                 $metadata->types[$columnRow['Field']] = $this->databaseTypeToPHP($columnRow['Type']);
                 $metadata->internalTypes[$columnRow['Field']] = $columnRow['Type'];
                 $metadata->defaults[$columnRow['Field']] = $columnRow['Default'];
+                $metadata->defaults[$columnRow['Field']] = $columnRow['Null'];
 
                 // Store entity primary field
                 if (strtolower($columnRow['Key']) === 'pri') {
