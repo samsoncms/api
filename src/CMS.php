@@ -56,7 +56,7 @@ class CMS extends CompressableExternalModule implements CompressInterface
      */
     public function init(array $params = array())
     {
-        $this->rewriteEntityLocale();
+        //$this->rewriteEntityLocale();
     }
 
     /**
