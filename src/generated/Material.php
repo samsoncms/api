@@ -17,6 +17,12 @@ use samsonframework\orm\Record;
 if (!class_exists('\samson\activerecord\material', false)) {
     class Material extends Record
     {
+        /**
+         * @var string Table primary field
+         * @deprecated
+         */
+        public static $_primary = 'MaterialID';
+
         /** @var string Name of material */
         public $Name;
 
