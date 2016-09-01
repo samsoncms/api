@@ -56,7 +56,7 @@ class RealEntity extends Generic
      */
     protected function createStaticFields($metadata)
     {
-//        $this->generator
+        $this->generator
 //            ->commentVar('array', '@deprecated Old ActiveRecord data')
 //            ->defClassVar('$_sql_select', 'public static ', $metadata->arSelect)
 //            ->commentVar('array', '@deprecated Old ActiveRecord data')
@@ -77,8 +77,12 @@ class RealEntity extends Generic
 //            ->defClassVar('$_relation_type', 'public static ', $metadata->arRelationType)
 //            ->commentVar('array', '@deprecated Old ActiveRecord data')
 //            ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
-//            ->commentVar('array', '@deprecated Old ActiveRecord data')
-//            ->defClassVar('$fieldIDs', 'public static ', $metadata->fields);
+            ->commentVar('string', '@deprecated Entity table primary field name')
+            ->defClassVar('$_primary', 'public static', $metadata->primaryField)
+            ->commentVar('array', '@deprecated Entity fields and aliases')
+            ->defClassVar('$_attributes', 'public static', $metadata->fields)
+            ->commentVar('array', '@deprecated Old ActiveRecord data')
+            ->defClassVar('$fieldIDs', 'public static ', $metadata->fields);
     }
 
     /**
