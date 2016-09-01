@@ -46,25 +46,25 @@ class RealAnalyzer extends GenericAnalyzer
                 $metadata->entityClassName = $this->fullEntityName($metadata->entity);
 
                 // Get old AR collections of metadata
-                $arEntity = '\samson\activerecord\\'.$metadata->entity;
-                if (class_exists($arEntity)) {
-                    foreach ($arEntity::$_attributes as $attribute) {
-                        $metadata->arAttributes[$this->fieldName($attribute)] = $attribute;
-                    }
-                    foreach ($arEntity::$_table_attributes as $attribute) {
-                        $metadata->arTableAttributes[$this->fieldName($attribute)] = $attribute;
-                    }
-                    foreach ($arEntity::$_types as $attribute => $oldType) {
-                        $metadata->arTypes[$attribute] = $oldType;
-                    }
-                    $metadata->arSelect = $arEntity::$_sql_select;
-                    $metadata->arMap = $arEntity::$_map;
-                    $metadata->arFrom = $arEntity::$_sql_from;
-                    $metadata->arGroup = $arEntity::$_own_group;
-                    $metadata->arRelationAlias = $arEntity::$_relation_alias;
-                    $metadata->arRelationType = $arEntity::$_relation_type;
-                    $metadata->arRelations = $arEntity::$_relations;
-                }
+//                $arEntity = '\samson\activerecord\\'.$metadata->entity;
+//                if (class_exists($arEntity)) {
+//                    foreach ($arEntity::$_attributes as $attribute) {
+//                        $metadata->arAttributes[$this->fieldName($attribute)] = $attribute;
+//                    }
+//                    foreach ($arEntity::$_table_attributes as $attribute) {
+//                        $metadata->arTableAttributes[$this->fieldName($attribute)] = $attribute;
+//                    }
+//                    foreach ($arEntity::$_types as $attribute => $oldType) {
+//                        $metadata->arTypes[$attribute] = $oldType;
+//                    }
+//                    $metadata->arSelect = $arEntity::$_sql_select;
+//                    $metadata->arMap = $arEntity::$_map;
+//                    $metadata->arFrom = $arEntity::$_sql_from;
+//                    $metadata->arGroup = $arEntity::$_own_group;
+//                    $metadata->arRelationAlias = $arEntity::$_relation_alias;
+//                    $metadata->arRelationType = $arEntity::$_relation_type;
+//                    $metadata->arRelations = $arEntity::$_relations;
+//                }
             }
 
             // Generate correct PSR-2 field name
