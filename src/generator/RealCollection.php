@@ -76,8 +76,10 @@ class RealCollection extends Generic
         $class .= "\n\t" . ' */';
         $class .= "\n\t" . 'public function __construct(ViewInterface $renderer, QueryInterface $query = null)';
         $class .= "\n\t" . '{';
+        $class .= "\n\t\t" . '// TODO: This should be removed!';
         $class .= "\n\t\t" . '$this->renderer = $renderer;';
-        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery());';
+        $class .= "\n\t\t" . '$container = $GLOBALS[\'__core\']->getContainer();';
+        $class .= "\n\t\t" . 'parent::__construct($query ?? $container->getQuery());';
         $class .= "\n\t" . '}';
 
         $this->generator->text($class);

@@ -26,7 +26,7 @@ class VirtualQuery extends RealQuery
         $this->generator
             ->newLine('use samsonframework\orm\QueryInterface;')
             ->newLine('use samsonframework\orm\ArgumentInterface;')
-            ->newLine('use samson\activerecord\dbQuery;')
+            ->newLine('use samsonframework\orm\Query;')
             ->newLine();
     }
 
@@ -84,7 +84,9 @@ class VirtualQuery extends RealQuery
         $class .= "\n\t" . ' */';
         $class .= "\n\t" . 'public function __construct($locale = null, QueryInterface $query = null)';
         $class .= "\n\t" . '{';
-        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $locale);';
+        $class .= "\n\t\t" . '// TODO: This should be removed!';
+        $class .= "\n\t\t" . '$container = $GLOBALS[\'__core\']->getContainer();';
+        $class .= "\n\t\t" . 'parent::__construct($query ?? $container->getQuery(), $locale);';
         $class .= "\n\t" . '}';
 
         $this->generator->text($class);
