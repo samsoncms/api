@@ -14,6 +14,9 @@ class GenericMetadata
     /** @var string Transliterated and CapsCase database entity name */
     public $entity;
 
+    /** @var string Table name */
+    public $tableName;
+
     /** @var string Real entity name */
     public $entityName;
 

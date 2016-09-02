@@ -42,6 +42,7 @@ class RealAnalyzer extends GenericAnalyzer
             if (null === $metadata) {
                 $metadata = new $this->metadataClass;
                 $metadata->entity = $this->entityName($table);
+                $metadata->tableName = $table;
                 $metadata->entityName = $table;
                 $metadata->entityClassName = $this->fullEntityName($metadata->entity);
 

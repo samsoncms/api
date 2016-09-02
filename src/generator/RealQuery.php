@@ -75,7 +75,7 @@ class RealQuery extends Generic
             ->commentVar('string', 'Entity full class name')
             ->defClassVar('$identifier', 'public static', $this->entityClass)
             ->commentVar('string', 'Entity table name')
-            ->defClassVar('$tableName', 'public static', $metadata->entity)
+            ->defClassVar('$tableName', 'public static', $metadata->tableName)
             ->commentVar('array', 'Collection of entity field types')
             ->defClassVar('$fieldTypes', 'public static', $metadata->types)
             ->commentVar('array', 'Collection of entity field names to field aliases')
