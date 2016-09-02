@@ -38,6 +38,10 @@ class RealEntity extends Generic
         $this->generator
             ->commentVar('string', 'Entity full class name, use ::class instead')
             ->defClassConst('ENTITY', $metadata->entityClassName)
+            ->commentVar('string', 'Entity primary field name')
+            ->defClassConst('F_PRIMARY', $metadata->primaryField)
+            ->commentVar('string', 'Entity deleted flag field name')
+            ->defClassConst('F_DELETION', 'Active')
             ->commentVar('string', 'Entity manager full class name')
             ->defClassConst('MANAGER', $metadata->entityClassName . 'Query');
 
