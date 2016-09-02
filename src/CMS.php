@@ -1,18 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 namespace samsoncms\api;
 
-use samson\activerecord\dbMySQLConnector;
-use samson\activerecord\TableRelation;
 use samsoncms\api\generator\GenericWriter;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samsonframework\core\CompressInterface;
+use samsonframework\orm\DatabaseInterface;
+use samsonphp\event\Event;
 use samsonphp\generator\Generator;
 use samson\core\CompressableExternalModule;
 
 /**
  * SamsonCMS API
  * @package samsoncms\api
+ * @\samsonframework\containerannotation\Service("cmsapi2")
  */
 class CMS extends CompressableExternalModule implements CompressInterface
 {
@@ -39,13 +40,16 @@ class CMS extends CompressableExternalModule implements CompressInterface
      * @param string $path
      * @param ResourcesInterface $resources
      * @param SystemInterface $system
+     *
+     * @\samsonframework\containerannotation\InjectArgument(resources="\samsonframework\core\ResourcesInterface")
+     * @\samsonframework\containerannotation\InjectArgument(system="\samsonframework\core\SystemInterface")
+     * @\samsonframework\containerannotation\InjectArgument(database="\samsonframework\orm\DatabaseInterface")
      */
-    public function  __construct($path, ResourcesInterface $resources, SystemInterface $system)
+    public function  __construct(ResourcesInterface $resources, SystemInterface $system, DatabaseInterface $database)
     {
-        // TODO: This should changed to normal DI
-        $this->database = db();
+        $this->database = $database;
 
-        parent::__construct($path, $resources, $system);
+        parent::__construct(realpath(__DIR__.'/../'), $resources, $system);
     }
 
     /**
@@ -175,13 +179,13 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         if (func_num_args()) {
             // Save current version to special db table
             $this->database->execute(
-                "ALTER TABLE  `" . dbMySQLConnector::$prefix . "cms_version`
+                "ALTER TABLE  `" . $this->database::$prefix . "cms_version`
                 CHANGE  `version`  `version` VARCHAR( 15 ) CHARACTER SET utf8
                 COLLATE utf8_general_ci NOT NULL DEFAULT  '" . $toVersion . "';"
             );
             die('Database successfully migrated to [' . $toVersion . ']');
         } else { // Return current database version
-            $version_row = $this->database->fetch('SHOW COLUMNS FROM `' . dbMySQLConnector::$prefix . 'cms_version`');
+            $version_row = $this->database->fetch('SHOW COLUMNS FROM `' . $this->database::$prefix . 'cms_version`');
             if (isset($version_row[0]['Default'])) {
                 return $version_row[0]['Default'];
             } else {
