@@ -1,12 +1,15 @@
 <?php declare(strict_types=1);
 namespace samsoncms\api;
 
+use samsoncms\api\generated\Structurefield;
+use samsoncms\api\generated\Structurematerial;
+use samsoncms\api\generated\Materialfield;
+use samsoncms\api\generated\Gallery;
 use samsoncms\api\generator\GenericWriter;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samsonframework\core\CompressInterface;
 use samsonframework\orm\DatabaseInterface;
-use samsonphp\event\Event;
 use samsonphp\generator\Generator;
 use samson\core\CompressableExternalModule;
 
@@ -18,13 +21,13 @@ use samson\core\CompressableExternalModule;
 class CMS extends CompressableExternalModule implements CompressInterface
 {
     /** Database entity name for relations between material and navigation */
-    const MATERIAL_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurematerial';
+    const MATERIAL_NAVIGATION_RELATION_ENTITY = Structurematerial::class;
     /** Database entity name for relations between material and images */
-    const MATERIAL_IMAGES_RELATION_ENTITY = GalleryField::class;
+    const MATERIAL_IMAGES_RELATION_ENTITY = Gallery::class;
     /** Database entity name for relations between additional fields and navigation */
-    const FIELD_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurefield';
+    const FIELD_NAVIGATION_RELATION_ENTITY = Structurefield::class;
     /** Database entity name for relations between material and additional fields values */
-    const MATERIAL_FIELD_RELATION_ENTITY = MaterialField::class;
+    const MATERIAL_FIELD_RELATION_ENTITY = Materialfield::class;
     /** @var string Database table names prefix */
     public $tablePrefix = '';
     /** Identifier */
