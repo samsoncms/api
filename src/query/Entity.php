@@ -28,16 +28,16 @@ class Entity extends Generic
     public static $fieldNames = array();
 
     /** @var array Collection of localized additional fields identifiers */
-    protected static $localizedFieldIDs = array();
+    public static $localizedFieldIDs = array();
 
     /** @var array Collection of NOT localized additional fields identifiers */
-    protected static $notLocalizedFieldIDs = array();
+    public static $notLocalizedFieldIDs = array();
 
     /** @var array Collection of all additional fields identifiers */
-    protected static $fieldIDs = array();
+    public static $fieldIDs = array();
 
     /** @var  @var array Collection of additional fields value column names */
-    protected static $fieldValueColumns = array();
+    public static $fieldValueColumns = array();
 
     /** @var Condition Collection of entity field filter */
     protected $fieldFilter = array();

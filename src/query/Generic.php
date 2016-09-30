@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: VITALYIEGOROV
@@ -7,7 +7,7 @@
  */
 namespace samsoncms\api\query;
 
-use samsoncms\api\Material;
+use samsoncms\api\generated\Material;
 use samsonframework\orm\ArgumentInterface;
 
 /**
@@ -25,37 +25,112 @@ use samsonframework\orm\ArgumentInterface;
 class Generic extends Record
 {
     /** @var string Table class name */
-    protected static $identifier = Material::class;
+    public static $identifier = Material::class;
+
+    /** @var string Database table name */
+    public static $tableName = 'material';
 
     /** @var string Table primary field name */
-    protected static $primaryFieldName = Material::F_PRIMARY;
+    public static $primaryFieldName = Material::F_PRIMARY;
 
        /** @var array Collection of all supported entity fields */
-    protected static $fieldIDs = array(
+    public static $fieldIDs = array(
         Material::F_PRIMARY=> Material::F_PRIMARY,
         Material::F_PRIORITY => Material::F_PRIORITY,
-        Material::F_IDENTIFIER => Material::F_IDENTIFIER,
+        Material::F_URL => Material::F_URL,
         Material::F_DELETION => Material::F_DELETION,
         Material::F_PUBLISHED => Material::F_PUBLISHED,
-        Material::F_PARENT => Material::F_PARENT,
+        Material::F_PARENTID => Material::F_PARENTID,
         Material::F_CREATED => Material::F_CREATED,
-        Material::F_MODIFIED => Material::F_MODIFIED,
+        Material::F_MODYFIED => Material::F_MODYFIED,
     );
 
     /** @var array Collection of all supported entity fields */
-    protected static $fieldNames = array(
+    public static $fieldNames = array(
         Material::F_PRIMARY => Material::F_PRIMARY,
         Material::F_PRIORITY => Material::F_PRIORITY,
-        Material::F_IDENTIFIER => Material::F_IDENTIFIER,
+        Material::F_URL => Material::F_URL,
         Material::F_DELETION => Material::F_DELETION,
         Material::F_PUBLISHED => Material::F_PUBLISHED,
-        Material::F_PARENT => Material::F_PARENT,
+        Material::F_PARENTID => Material::F_PARENTID,
         Material::F_CREATED => Material::F_CREATED,
-        Material::F_MODIFIED => Material::F_MODIFIED
+        Material::F_MODYFIED => Material::F_MODYFIED
     );
 
+    /** @var array Collection of entity field types */
+    public static $fieldTypes = [
+        'MaterialID' => 'int',
+        'parent_id' => 'int',
+        'priority' => 'int',
+        'Name' => 'string',
+        'Url' => 'string',
+        'Created' => 'int',
+        'Modyfied' => 'int',
+        'UserID' => 'int',
+        'Draft' => 'int',
+        'type' => 'int',
+        'Published' => 'int',
+        'Active' => 'int',
+        'system' => 'int',
+        'remains' => 'float',
+    ];
+
+    /** @var array Collection of entity field database types */
+    public static $fieldDataTypes = [
+        'MaterialID' => 'int',
+        'parent_id' => 'int',
+        'priority' => 'int',
+        'Name' => 'varchar',
+        'Url' => 'varchar',
+        'Created' => 'datetime',
+        'Modyfied' => 'timestamp',
+        'UserID' => 'int',
+        'Draft' => 'int',
+        'type' => 'int',
+        'Published' => 'int',
+        'Active' => 'int',
+        'system' => 'int',
+        'remains' => 'float',
+    ];
+
+    /** @var array Collection of entity field database default values */
+    public static $fieldDefaults = [
+        'MaterialID' => '',
+        'parent_id' => '',
+        'priority' => 0,
+        'Name' => '',
+        'Url' => '',
+        'Created' => '',
+        'Modyfied' => 'CURRENT_TIMESTAMP',
+        'UserID' => '',
+        'Draft' => 0,
+        'type' => 0,
+        'Published' => '',
+        'Active' => '',
+        'system' => 0,
+        'remains' => 0,
+    ];
+
+    /** @var array Collection of entity field database is nullable values */
+    public static $fieldNullable = [
+        'MaterialID' => 'NO',
+        'parent_id' => 'YES',
+        'priority' => 'NO',
+        'Name' => 'NO',
+        'Url' => 'NO',
+        'Created' => 'YES',
+        'Modyfied' => 'NO',
+        'UserID' => 'YES',
+        'Draft' => 'NO',
+        'type' => 'NO',
+        'Published' => 'YES',
+        'Active' => 'YES',
+        'system' => 'NO',
+        'remains' => 'NO',
+    ];
+
     /** @var string Entity navigation identifiers */
-    protected static $navigationIDs = array();
+    public static $navigationIDs = array();
 
     /**
      * Add primary field query condition.
