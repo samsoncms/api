@@ -7,6 +7,7 @@
 namespace samsoncms\api\generator;
 
 use samsoncms\api\generator\metadata\VirtualMetadata;
+use samsoncms\api\query\Entity;
 use samsonphp\generator\Generator;
 
 /**
@@ -34,13 +35,13 @@ class VirtualQuery extends RealQuery
      * Query constructor.
      *
      * @param Generator $generator
-     * @param           $metadata
+     * @param VirtualMetadata $metadata
      */
     public function __construct(Generator $generator, $metadata)
     {
         parent::__construct($generator, $metadata);
 
-        $this->parentClass = '\\' . \samsoncms\api\query\Entity::class;
+        $this->parentClass = '\\'.Entity::class;
         $this->entityClass = '\samsoncms\api\generated\\' . $metadata->entity;
     }
 
@@ -52,10 +53,22 @@ class VirtualQuery extends RealQuery
     protected function createStaticFields($metadata)
     {
         $this->generator
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$virtualFieldIDs', 'public static', $metadata->fields)
+            ->commentVar('array', 'Collection of additional fields value column names')
+            ->defClassVar('$virtualFieldValueColumns', 'public static', $metadata->allFieldValueColumns)
             ->commentVar('array', 'Collection of real additional field names')
-            ->defClassVar('$fieldRealNames', 'public static', $metadata->realNames)
+            ->defClassVar('$virtualFieldRealNames', 'public static', $metadata->realNames)
             ->commentVar('array', 'Collection of additional field names')
-            ->defClassVar('$fieldNames', 'public static', $metadata->fieldNames)
+            ->defClassVar('$virtualFieldNames', 'public static', $metadata->fieldNames)
+            ->commentVar('array', 'Collection of additional field names')
+            ->defClassVar('$virtualRealFieldNames', 'public static', $metadata->fieldNames)
+
+            ->commentVar('array', 'Collection of localized additional fields identifiers')
+            ->defClassVar('$fieldIDs', 'public static', $metadata->parent->fields)
+            ->commentVar('array', 'Collection of additional field names')
+            ->defClassVar('$fieldNames', 'public static', $metadata->parent->fieldNames)
+
             // TODO: two above fields should be protected
             ->commentVar('array', 'Collection of navigation identifiers')
             ->defClassVar('$navigationIDs', 'public static', array($metadata->entityID))
@@ -65,10 +78,7 @@ class VirtualQuery extends RealQuery
             ->defClassVar('$localizedFieldIDs', 'public static', $metadata->localizedFieldIDs)
             ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
             ->defClassVar('$notLocalizedFieldIDs', 'public static', $metadata->notLocalizedFieldIDs)
-            ->commentVar('array', 'Collection of localized additional fields identifiers')
-            ->defClassVar('$fieldIDs', 'public static', $metadata->fields)
-            ->commentVar('array', 'Collection of additional fields value column names')
-            ->defClassVar('$fieldValueColumns', 'public static', $metadata->allFieldValueColumns);
+        ;
     }
 
     /**
@@ -84,7 +94,9 @@ class VirtualQuery extends RealQuery
         $class .= "\n\t" . ' */';
         $class .= "\n\t" . 'public function __construct($locale = null, QueryInterface $query = null)';
         $class .= "\n\t" . '{';
-        $class .= "\n\t\t" . 'parent::__construct(isset($query) ? $query : new dbQuery(), $locale);';
+        $class .= "\n\t\t" . '// TODO: This should be removed!';
+        $class .= "\n\t\t" . '$container = $GLOBALS[\'__core\']->getContainer();';
+        $class .= "\n\t\t" . 'parent::__construct($query ?? $container->get("query"), $locale);';
         $class .= "\n\t" . '}';
 
         $this->generator->text($class);

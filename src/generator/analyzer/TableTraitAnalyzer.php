@@ -22,7 +22,7 @@ class TableTraitAnalyzer extends GenericAnalyzer
      */
     public function analyze()
     {
-        return [new GenericMetadata()];
+        return [new GenericMetadata('')];
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

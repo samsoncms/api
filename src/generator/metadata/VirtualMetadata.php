@@ -2,6 +2,8 @@
 //[PHPCOMPRESSOR(remove,start)]
 namespace samsoncms\api\generator\metadata;
 
+use samsoncms\api\Navigation;
+
 /**
  * Created by Vitaly Iegorov <egorov@samsonos.com>.
  * on 22.03.16 at 19:15

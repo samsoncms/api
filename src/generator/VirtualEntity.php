@@ -6,6 +6,7 @@
  */
 namespace samsoncms\api\generator;
 
+use samsoncms\api\Entity;
 use samsoncms\api\Field;
 use samsoncms\api\generator\metadata\VirtualMetadata;
 
@@ -105,9 +106,9 @@ class VirtualEntity extends RealEntity
             ->defClassVar('$_relations', 'public static ', $metadata->arRelations)
             ->commentVar('array', 'Collection of navigation identifiers')
             ->defClassVar('$navigationIDs', 'protected static', array($metadata->entityID))
-            ->defClassVar('$fieldIDs', 'protected static', $metadata->fields)
+            ->defClassVar('$fieldIDs', 'public static', $metadata->fields)
             ->commentVar('array', 'Collection of additional fields value column names')
-            ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns)
+            ->defClassVar('$fieldValueColumns', 'public static', $metadata->allFieldValueColumns)
         ;
     }
 

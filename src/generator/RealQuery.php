@@ -71,13 +71,24 @@ class RealQuery extends Generic
     {
         $this->generator
             ->commentVar('string', 'Entity table primary field name')
-            ->defClassVar('$primaryFieldName', 'protected static', $metadata->primaryField)
+            ->defClassVar('$primaryFieldName', 'public static', $metadata->primaryField)
             ->commentVar('string', 'Entity full class name')
-            ->defClassVar('$identifier', 'protected static', $this->entityClass)
+            ->defClassVar('$identifier', 'public static', $this->entityClass)
             ->commentVar('array', 'Collection of localized additional fields identifiers')
-            ->defClassVar('$fieldIDs', 'protected static', $metadata->fields)
+            ->defClassVar('$fieldIDs', 'public static', $metadata->fields)
+
+            ->commentVar('array', 'Collection of data types')
+            ->defClassVar('$fieldDataTypes', 'public static', $metadata->internalTypes)
+            ->commentVar('string', 'Table name')
+            ->defClassVar('$tableName', 'public static', $metadata->entityName)
+            ->commentVar('array', 'Collection of default')
+            ->defClassVar('$fieldDefaults', 'public static', $metadata->defaults)
+
+            ->commentVar('array', 'Collection of nullable fields')
+            ->defClassVar('$fieldNullable', 'public static', $metadata->nullable)
+
             ->commentVar('array', 'Collection of additional field names')
-            ->defClassVar('$fieldNames', 'protected static', $metadata->fieldNames);
+            ->defClassVar('$fieldNames', 'public static', $metadata->fieldNames);
     }
 
     /**

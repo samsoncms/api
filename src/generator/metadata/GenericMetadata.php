@@ -21,15 +21,31 @@ class GenericMetadata
     public $entityClassName;
 
     /** Old ActiveRecord fields */
+    /** @deprecated */
     public $arSelect = array();
+    /** @deprecated */
     public $arMap = array();
+    /** @deprecated */
     public $arAttributes = array();
+    /** @deprecated */
     public $arTableAttributes = array();
+    /** @deprecated */
     public $arTypes = array();
+    /** @deprecated */
     public $arFrom = array();
+    /** @deprecated */
     public $arGroup = array();
+    /** @deprecated */
     public $arRelationAlias = array();
+    /** @deprecated */
     public $arRelationType = array();
+    /** @deprecated */
     public $arRelations = array();
+
+    public function __construct(string $className)
+    {
+        self::$instances[ltrim($className, '\\')] = $this;
+        $this->entityClassName = $className;
+    }
 }
 //[PHPCOMPRESSOR(remove,end)]

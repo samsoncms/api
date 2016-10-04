@@ -31,22 +31,26 @@ class GalleryAnalyzer extends VirtualAnalyzer
 
         // Iterate all structures, parents first
         foreach ($this->getVirtualEntities() as $structureRow) {
-            // Fill in entity metadata
-            $metadata = new \samsoncms\api\generator\metadata\GalleryMetadata();
             $navigationID = $structureRow[Navigation::F_PRIMARY];
 
             // Iterate entity fields
             foreach ($this->getEntityFields($navigationID) as $fieldID => $fieldRow) {
                 // We need only gallery fields
                 if ((int)$fieldRow[Field::F_TYPE] === Field::TYPE_GALLERY) {
+
+                    // Avoid GalleryGallery
+                    $entity = ucfirst($this->fieldName($fieldRow[Field::F_IDENTIFIER]));
+                    // Avoid GalleryGallery
+                    $entity = $entity !== 'Gallery' ? $entity . 'Gallery' : $entity;
+                    $className = $this->fullEntityName($entity);
+
+                    // Fill in entity metadata
+                    $metadata = new \samsoncms\api\generator\metadata\GalleryMetadata($className);
+
                     $metadata->parentClassName = $this->entityName($structureRow[Navigation::F_NAME]);
-                    // Avoid GalleryGallery
-                    $metadata->entity = ucfirst($this->fieldName($fieldRow[Field::F_IDENTIFIER]));
-                    // Avoid GalleryGallery
-                    $metadata->entity = $metadata->entity !== 'Gallery' ? $metadata->entity . 'Gallery' : $metadata->entity;
+                    $metadata->entity = $entity;
                     // Prepend Entity name
-                    $metadata->entity = $metadata->parentClassName.$metadata->entity;
-                    $metadata->entityClassName = $this->fullEntityName($metadata->entity);
+                    $metadata->entity = $metadata->parentClassName . $metadata->entity;
                     $metadata->realName = $fieldRow[Field::F_IDENTIFIER];
                     $metadata->fieldID = $fieldID;
                     $metadata->parentID = $navigationID;

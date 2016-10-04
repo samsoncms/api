@@ -67,7 +67,7 @@ class TableTrait extends Generic
         $methods = [];
         /** @var VirtualMetadata $metadataInstance Iterate all metadata entities */
         foreach (GenericMetadata::$instances as $metadataInstance) {
-            if ($metadataInstance->type === VirtualMetadata::TYPE_TABLE) {
+            if ($metadataInstance instanceof VirtualMetadata && $metadataInstance->type === VirtualMetadata::TYPE_TABLE) {
                 // Create table virtual entity with correct name ending
                 $replaced = preg_replace('/Table$/i', '',$metadataInstance->entity);
                 $tableEntity = $replaced . 'TableCollection';

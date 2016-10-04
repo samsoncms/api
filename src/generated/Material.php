@@ -46,6 +46,103 @@ if (!class_exists('\samson\activerecord\material', false)) {
 
         /** @var mixed Identifier of user */
         public $UserID;
+
+        public static $_attributes = [
+            "MaterialID"=>"MaterialID",
+            "parent_id"=>"parent_id",
+            "priority"=>"priority",
+            "Name"=>"Name",
+            "Url"=>"Url",
+            "Created"=>"Created",
+            "Modyfied"=>"Modyfied",
+            "UserID"=>"UserID",
+            "Draft"=>"Draft",
+            "type"=>"type",
+            "Published"=>"Published",
+            "Active"=>"Active",
+            "system"=>"system",
+            "remains"=>"remains",
+        ];
+
+        public static $_table_attributes = [
+            "MaterialID"=>"MaterialID",
+            "parent_id"=>"parent_id",
+            "priority"=>"priority",
+            "Name"=>"Name",
+            "Url"=>"Url",
+            "Created"=>"Created",
+            "Modyfied"=>"Modyfied",
+            "UserID"=>"UserID",
+            "Draft"=>"Draft",
+            "type"=>"type",
+            "Published"=>"Published",
+            "Active"=>"Active",
+            "system"=>"system",
+            "remains"=>"remains",
+        ];
+
+        public static $_types = [
+            "MaterialID"=>"int",
+            "parent_id"=>"int",
+            "priority"=>"int",
+            "Name"=>"varchar",
+            "Url"=>"varchar",
+            "Created"=>"datetime",
+            "Modyfied"=>"timestamp",
+            "UserID"=>"int",
+            "Draft"=>"int",
+            "type"=>"int",
+            "Published"=>"int",
+            "Active"=>"int",
+            "system"=>"int",
+            "remains"=>"float",
+        ];
+
+        public static $_sql_select = [
+            "this" => "material.MaterialID,
+material.parent_id,
+material.priority,
+material.Name,
+material.Url,
+material.Created,
+material.Modyfied,
+material.UserID,
+material.Draft,
+material.type,
+material.Published,
+material.Active,
+material.system,
+material.remains",
+        ];
+
+        public static $_map = [
+            "MaterialID"=>"material.MaterialID",
+            "parent_id"=>"material.parent_id",
+            "priority"=>"material.priority",
+            "Name"=>"material.Name",
+            "Url"=>"material.Url",
+            "Created"=>"material.Created",
+            "Modyfied"=>"material.Modyfied",
+            "UserID"=>"material.UserID",
+            "Draft"=>"material.Draft",
+            "type"=>"material.type",
+            "Published"=>"material.Published",
+            "Active"=>"material.Active",
+            "system"=>"material.system",
+            "remains"=>"material.remains",
+        ];
+
+        public static $_sql_from = [
+            "this" => "material",
+        ];
+
+        public static $_own_group = [];
+
+        public static $_relation_alias = [];
+
+        public static $_relation_type = [];
+
+        public static $_relations = [];
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

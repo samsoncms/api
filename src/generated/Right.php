@@ -28,6 +28,53 @@ if (!class_exists('\samson\activerecord\right', false)) {
 
         /** @var bool Internal existence flag */
         public $Active;
+
+        public static $_attributes = [
+            "RightID"=>"RightID",
+            "Name"=>"Name",
+            "Active"=>"Active",
+            "Description"=>"Description",
+        ];
+
+        public static $_table_attributes = [
+            "RightID"=>"RightID",
+            "Name"=>"Name",
+            "Active"=>"Active",
+            "Description"=>"Description",
+        ];
+
+        public static $_sql_from = [
+            "this" => "right",
+        ];
+
+        public static $_relation_alias = [];
+
+        public static $_relation_type = [];
+
+        public static $_relations = [];
+
+        public static $_own_group = [];
+
+        public static $_map = [
+            "RightID"=>"right.RightID",
+            "Name"=>"right.Name",
+            "Active"=>"right.Active",
+            "Description"=>"right.Description",
+        ];
+
+        public static $_sql_select = [
+            "this" => "right.RightID,
+right.Name,
+right.Active,
+right.Description",
+        ];
+
+        public static $_types = [
+            "RightID"=>"int",
+            "Name"=>"varchar",
+            "Active"=>"int",
+            "Description"=>"varchar",
+        ];
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

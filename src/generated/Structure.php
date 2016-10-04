@@ -37,6 +37,123 @@ if (!class_exists('\samson\activerecord\structure', false)) {
 
         /** @var mixed Last material modification timestamp */
         public $Modyfied;
+
+        public static $_attributes = [
+            "hidden"=>"hidden",
+            "applicationGenerate"=>"applicationGenerate",
+            "applicationOutput"=>"applicationOutput",
+            "applicationIcon"=>"applicationIcon",
+            "applicationRenderMain"=>"applicationRenderMain",
+            "applicationOutputStructure"=>"applicationOutputStructure",
+            "StructureID"=>"StructureID",
+            "ParentID"=>"ParentID",
+            "Name"=>"Name",
+            "Created"=>"Created",
+            "UserID"=>"UserID",
+            "Modyfied"=>"Modyfied",
+            "Url"=>"Url",
+            "MaterialID"=>"MaterialID",
+            "PriorityNumber"=>"PriorityNumber",
+            "type"=>"type",
+            "Active"=>"Active",
+            "system"=>"system",
+        ];
+
+        public static $_table_attributes = [
+            "hidden"=>"hidden",
+            "applicationGenerate"=>"applicationGenerate",
+            "applicationOutput"=>"applicationOutput",
+            "applicationIcon"=>"applicationIcon",
+            "applicationRenderMain"=>"applicationRenderMain",
+            "applicationOutputStructure"=>"applicationOutputStructure",
+            "StructureID"=>"StructureID",
+            "ParentID"=>"ParentID",
+            "Name"=>"Name",
+            "Created"=>"Created",
+            "UserID"=>"UserID",
+            "Modyfied"=>"Modyfied",
+            "Url"=>"Url",
+            "MaterialID"=>"MaterialID",
+            "PriorityNumber"=>"PriorityNumber",
+            "type"=>"type",
+            "Active"=>"Active",
+            "system"=>"system",
+        ];
+
+        public static $_sql_from = [
+            "this" => "structure",
+        ];
+
+        public static $_relations = [];
+
+        public static $_relation_alias = [];
+
+        public static $_relation_type = [];
+
+        public static $_sql_select = [
+            "this" => "structure.hidden,
+structure.applicationGenerate,
+structure.applicationOutput,
+structure.applicationIcon,
+structure.applicationRenderMain,
+structure.applicationOutputStructure,
+structure.StructureID,
+structure.ParentID,
+structure.Name,
+structure.Created,
+structure.UserID,
+structure.Modyfied,
+structure.Url,
+structure.MaterialID,
+structure.PriorityNumber,
+structure.type,
+structure.Active,
+structure.system",
+        ];
+
+        public static $_types = [
+            "hidden"=>"int",
+            "applicationGenerate"=>"int",
+            "applicationOutput"=>"int",
+            "applicationIcon"=>"varchar",
+            "applicationRenderMain"=>"int",
+            "applicationOutputStructure"=>"int",
+            "StructureID"=>"int",
+            "ParentID"=>"int",
+            "Name"=>"varchar",
+            "Created"=>"datetime",
+            "UserID"=>"int",
+            "Modyfied"=>"timestamp",
+            "Url"=>"varchar",
+            "MaterialID"=>"int",
+            "PriorityNumber"=>"int",
+            "type"=>"int",
+            "Active"=>"int",
+            "system"=>"int",
+        ];
+
+        public static $_map = [
+            "hidden"=>"structure.hidden",
+            "applicationGenerate"=>"structure.applicationGenerate",
+            "applicationOutput"=>"structure.applicationOutput",
+            "applicationIcon"=>"structure.applicationIcon",
+            "applicationRenderMain"=>"structure.applicationRenderMain",
+            "applicationOutputStructure"=>"structure.applicationOutputStructure",
+            "StructureID"=>"structure.StructureID",
+            "ParentID"=>"structure.ParentID",
+            "Name"=>"structure.Name",
+            "Created"=>"structure.Created",
+            "UserID"=>"structure.UserID",
+            "Modyfied"=>"structure.Modyfied",
+            "Url"=>"structure.Url",
+            "MaterialID"=>"structure.MaterialID",
+            "PriorityNumber"=>"structure.PriorityNumber",
+            "type"=>"structure.type",
+            "Active"=>"structure.Active",
+            "system"=>"structure.system",
+        ];
+
+        public static $_own_group = [];
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

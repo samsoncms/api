@@ -26,7 +26,7 @@ class MaterialNavigation extends Relational
     public function __construct($filteringIDs = array(), $identifier = Material::class)
     {
         parent::__construct(
-            new dbQuery(),
+            $GLOBALS['__core']->getContainer()->get('query'),
             $identifier,
             Material::F_PRIMARY,
             Navigation::F_PRIMARY,

@@ -25,7 +25,7 @@ class FieldNavigation extends Relational
     public function __construct($filteringIDs = array())
     {
         parent::__construct(
-            new dbQuery(),
+            $GLOBALS['__core']->getContainer()->get('query'),
             Field::ENTITY,
             Field::F_PRIMARY,
             Navigation::F_PRIMARY,

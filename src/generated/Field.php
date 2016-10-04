@@ -31,6 +31,113 @@ if (!class_exists('\samson\activerecord\field', false)) {
 
         /** @var bool Internal existence flag */
         public $Active;
+
+        public static $_attributes = [
+            "FieldID"=>"FieldID",
+            "UserID"=>"UserID",
+            "priority"=>"priority",
+            "Name"=>"Name",
+            "Type"=>"Type",
+            "local"=>"local",
+            "filtered"=>"filtered",
+            "Value"=>"Value",
+            "Description"=>"Description",
+            "Created"=>"Created",
+            "Modyfied"=>"Modyfied",
+            "Active"=>"Active",
+            "system"=>"system",
+            "showInList"=>"showInList",
+            "showInForm"=>"showInForm",
+            "customTypeName"=>"customTypeName",
+        ];
+
+        public static $_table_attributes = [
+            "FieldID"=>"FieldID",
+            "UserID"=>"UserID",
+            "priority"=>"priority",
+            "Name"=>"Name",
+            "Type"=>"Type",
+            "local"=>"local",
+            "filtered"=>"filtered",
+            "Value"=>"Value",
+            "Description"=>"Description",
+            "Created"=>"Created",
+            "Modyfied"=>"Modyfied",
+            "Active"=>"Active",
+            "system"=>"system",
+            "showInList"=>"showInList",
+            "showInForm"=>"showInForm",
+            "customTypeName"=>"customTypeName",
+        ];
+
+        public static $_types = [
+            "FieldID"=>"int",
+            "UserID"=>"int",
+            "priority"=>"int",
+            "Name"=>"varchar",
+            "Type"=>"int",
+            "local"=>"int",
+            "filtered"=>"int",
+            "Value"=>"text",
+            "Description"=>"text",
+            "Created"=>"datetime",
+            "Modyfied"=>"timestamp",
+            "Active"=>"int",
+            "system"=>"int",
+            "showInList"=>"int",
+            "showInForm"=>"int",
+            "customTypeName"=>"varchar",
+        ];
+
+        public static $_sql_select = [
+            "this" => "field.FieldID,
+field.UserID,
+field.priority,
+field.Name,
+field.Type,
+field.local,
+field.filtered,
+field.Value,
+field.Description,
+field.Created,
+field.Modyfied,
+field.Active,
+field.system,
+field.showInList,
+field.showInForm,
+field.customTypeName",
+        ];
+
+        public static $_map = [
+            "FieldID"=>"field.FieldID",
+            "UserID"=>"field.UserID",
+            "priority"=>"field.priority",
+            "Name"=>"field.Name",
+            "Type"=>"field.Type",
+            "local"=>"field.local",
+            "filtered"=>"field.filtered",
+            "Value"=>"field.Value",
+            "Description"=>"field.Description",
+            "Created"=>"field.Created",
+            "Modyfied"=>"field.Modyfied",
+            "Active"=>"field.Active",
+            "system"=>"field.system",
+            "showInList"=>"field.showInList",
+            "showInForm"=>"field.showInForm",
+            "customTypeName"=>"field.customTypeName",
+        ];
+
+        public static $_sql_from = [
+            "this" => "field",
+        ];
+
+        public static $_own_group = [];
+
+        public static $_relation_alias = [];
+
+        public static $_relation_type = [];
+
+        public static $_relations = [];
     }
 }
 //[PHPCOMPRESSOR(remove,end)]

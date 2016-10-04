@@ -93,10 +93,10 @@ class GenericWriter
                     $file = $this->path . $generator->className . '.php';
 
                     // Do not generate file if its already there
-                    if (!file_exists($file)) {
+                    //if (!file_exists($file)) {
                         // Create entity query class files
                         file_put_contents($file, '<?php' . $generator->generate());
-                    }
+                    //}
 
                     // Require files
                     require($file);

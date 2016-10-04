@@ -10,8 +10,8 @@ namespace samsoncms\api\query;
 use samson\activerecord\dbQuery;
 use samsoncms\api\CMS;
 use samsoncms\api\exception\EntityFieldNotFound;
-use samsoncms\api\Field;
-use samsoncms\api\Material;
+use samsoncms\api\generated\Field;
+use samsoncms\api\generated\Material;
 use samsonframework\orm\Argument;
 use samsonframework\orm\ArgumentInterface;
 use samsonframework\orm\Condition;
@@ -81,7 +81,7 @@ class Entity extends Generic
         // Convert argument to array and iterate
         foreach ((!is_array($fieldNames) ? array($fieldNames) : $fieldNames) as $fieldName) {
             // Try to find entity additional field
-            $pointer = &static::$fieldNames[$fieldName];
+            $pointer = &static::$virtualFieldNames[$fieldName];
             if (null !== $pointer) {
                 // Store selected additional field buy FieldID and Field name
                 $this->selectedFields[$pointer] = $fieldName;
@@ -100,7 +100,7 @@ class Entity extends Generic
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
-        if (array_key_exists($fieldName, static::$fieldNames)) {
+        if (array_key_exists($fieldName, static::$virtualFieldNames)) {
             $this->entityOrderBy = array($fieldName, $order);
         } else {
             parent::orderBy($fieldName, $order);
@@ -352,12 +352,12 @@ class Entity extends Generic
             // Get needed metadata
             $fieldID = $additionalField[Field::F_PRIMARY];
             $materialID = $additionalField[Material::F_PRIMARY];
-            $valueField = &static::$fieldValueColumns[$fieldID];
-            $fieldName = &static::$fieldIDs[$fieldID];
+            $valueField = &static::$virtualFieldValueColumns[$fieldID];
+            $fieldName = &static::$virtualFieldIDs[$fieldID];
 
             // Check if we have this additional field in this entity query
             if (null === $valueField || null === $fieldName) {
-//                throw new EntityFieldNotFound($fieldID);
+                throw new EntityFieldNotFound($fieldID);
             } else { // Add field value to result
                 $fieldValue = $additionalField[$valueField];
                 // Gather additional fields values by entity identifiers and field name
@@ -399,10 +399,10 @@ class Entity extends Generic
      * @param array $additionalFields Collection of additional field values
      * @return Entity With filled additional field values
      */
-    protected function fillEntityFields(\samsoncms\api\Entity $entity, array $additionalFields)
+    protected function fillEntityFields($entity, array $additionalFields)
     {
         // If we have list of additional fields that we need
-        $fieldIDs = count($this->selectedFields) ? $this->selectedFields : static::$fieldIDs;
+        $fieldIDs = count($this->selectedFields) ? $this->selectedFields : static::$virtualFieldIDs;
 
         // Iterate all entity additional fields
         foreach ($fieldIDs as $variable) {
@@ -455,7 +455,7 @@ class Entity extends Generic
                     ->where(Material::F_PRIMARY, $entityIDs)
                     ->where(Field::F_PRIMARY, $fieldID)
                     ->where(\samsoncms\api\MaterialField::F_DELETION, true)
-                    ->fields(static::$fieldValueColumns[$fieldID]);
+                    ->fields(static::$virtualFieldValueColumns[$fieldID]);
             } elseif (property_exists(static::$identifier, $fieldName)) {
                 // TODO: Generalize real and virtual entity fields and manipulations with them
                 // Set filtered entity identifiers
@@ -484,12 +484,12 @@ class Entity extends Generic
     public function where($fieldName, $fieldValue = null, $fieldRelation = ArgumentInterface::EQUAL)
     {
         // TODO #1
-        unset(static::$fieldNames['MaterialID']);
+//        unset(static::$virtualFieldNames['MaterialID']);
         // Try to find entity additional field
-        if (array_key_exists($fieldName, static::$fieldNames)) {
-            $pointer = static::$fieldNames[$fieldName];
+        if (array_key_exists($fieldName, static::$virtualFieldNames)) {
+            $pointer = static::$virtualFieldNames[$fieldName];
             // Store additional field filter value
-            $this->fieldFilter[$pointer] = (new Condition())->add(static::$fieldValueColumns[$pointer], $fieldValue, $fieldRelation);
+            $this->fieldFilter[$pointer] = (new Condition())->add(static::$virtualFieldValueColumns[$pointer], $fieldValue, $fieldRelation);
         } else {
             parent::where($fieldName, $fieldValue, $fieldRelation);
         }

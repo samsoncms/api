@@ -25,7 +25,7 @@ class RealEntity extends Generic
     {
         $this->generator
             ->multiComment(array('"' . $metadata->entity . '" database entity class'))
-            ->defClass($this->className, '\samson\activerecord\\' . $metadata->entityName);
+            ->defClass($this->className, '\\' . \samsonframework\orm\Record::class);
     }
 
     /**
@@ -39,12 +39,18 @@ class RealEntity extends Generic
             ->commentVar('string', 'Entity full class name, use ::class instead')
             ->defClassConst('ENTITY', $metadata->entityClassName)
             ->commentVar('string', 'Entity manager full class name')
-            ->defClassConst('MANAGER', $metadata->entityClassName . 'Query');
+            ->defClassConst('MANAGER', $metadata->entityClassName . 'Query')
+            // FIXME: Only related to cms api tables
+            ->commentVar('string', 'Primary field name')
+            ->defClassConst('F_PRIMARY', $metadata->primaryField)
+            ->commentVar('string', 'Deletion field name')
+            ->defClassConst('F_DELETION', 'Active')
+        ;
 
         // Create all entity fields constants storing each additional field metadata
         foreach ($metadata->fields as $fieldID => $fieldName) {
             $this->generator
-                ->commentVar('string', $fieldName . ' entity field')
+                ->commentVar('string', $fieldName . ' entity field name')
                 ->defClassConst('F_' . $fieldName, $fieldName);
         }
     }

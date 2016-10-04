@@ -8,6 +8,7 @@ namespace samsoncms\api\generator\analyzer;
 
 use samson\activerecord\dbMySQLConnector;
 use samsoncms\api\Field;
+use samsoncms\api\generated\Material;
 use samsoncms\api\generator\exception\ParentEntityNotFound;
 use samsoncms\api\generator\metadata\GenericMetadata;
 use samsoncms\api\generator\metadata\VirtualMetadata;
@@ -36,10 +37,12 @@ class VirtualAnalyzer extends GenericAnalyzer
 
         // Iterate all structures, parents first
         foreach ($this->getVirtualEntities() as $structureRow) {
-            /** @var VirtualMetadata $metadata Fill in entity metadata */
-            $metadata = new $this->metadataClass;
+            $entity = $this->entityName($structureRow[Navigation::F_NAME]);
 
-            $this->analyzeEntityRecord($metadata, $structureRow);
+            /** @var VirtualMetadata $metadata Fill in entity metadata */
+            $metadata = new $this->metadataClass($this->fullEntityName($entity));
+
+            $this->analyzeEntityRecord($metadata, $entity, $structureRow);
 
             // TODO: Add multiple parent and fetching their data in a loop
 
@@ -61,24 +64,26 @@ class VirtualAnalyzer extends GenericAnalyzer
                 } else {
                     throw new ParentEntityNotFound($metadata->parentID);
                 }
+            } else {
+                $metadata->parent = GenericMetadata::$instances[Material::class];
             }
 
-            // Get old AR collections of metadata
-            $metadata->arSelect = \samson\activerecord\material::$_sql_select;
-            $metadata->arAttributes = \samson\activerecord\material::$_attributes;
-            $metadata->arMap = \samson\activerecord\material::$_map;
-            $metadata->arFrom = \samson\activerecord\material::$_sql_from;
-            $metadata->arGroup = \samson\activerecord\material::$_own_group;
-            $metadata->arRelationAlias = \samson\activerecord\material::$_relation_alias;
-            $metadata->arRelationType = \samson\activerecord\material::$_relation_type;
-            $metadata->arRelations = \samson\activerecord\material::$_relations;
+//            // Get old AR collections of metadata
+//            $metadata->arSelect = \samson\activerecord\material::$_sql_select;
+//            $metadata->arAttributes = \samson\activerecord\material::$_attributes;
+//            $metadata->arMap = \samson\activerecord\material::$_map;
+//            $metadata->arFrom = \samson\activerecord\material::$_sql_from;
+//            $metadata->arGroup = \samson\activerecord\material::$_own_group;
+//            $metadata->arRelationAlias = \samson\activerecord\material::$_relation_alias;
+//            $metadata->arRelationType = \samson\activerecord\material::$_relation_type;
+//            $metadata->arRelations = \samson\activerecord\material::$_relations;
 
-            // Add SamsonCMS material needed data
-            $metadata->arSelect['this'] = ' STRAIGHT_JOIN ' . $metadata->arSelect['this'];
-            $metadata->arFrom['this'] .= "\n" .
-                'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf
-            ON ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
-            $metadata->arGroup[] = dbMySQLConnector::$prefix . 'material.MaterialID';
+//            // Add SamsonCMS material needed data
+//            $metadata->arSelect['this'] = ' STRAIGHT_JOIN ' . $metadata->arSelect['this'];
+//            $metadata->arFrom['this'] .= "\n" .
+//                'LEFT JOIN ' . $this->database::$prefix . 'materialfield as _mf
+//            ON ' . $this->database::$prefix . 'material.MaterialID = _mf.MaterialID';
+//            $metadata->arGroup[] = $this->database::$prefix . 'material.MaterialID';
 
             // Add material table real fields
 
@@ -96,14 +101,14 @@ class VirtualAnalyzer extends GenericAnalyzer
                 } else {
                     $metadata->notLocalizedFieldIDs[$fieldID] = $fieldName;
                 }
+//
+//                // Set old AR collections of metadata
+//                $metadata->arAttributes[$fieldName] = $fieldName;
+//                $metadata->arMap[$fieldName] = $this->database::$prefix . 'material.' . $fieldName;
 
-                // Set old AR collections of metadata
-                $metadata->arAttributes[$fieldName] = $fieldName;
-                $metadata->arMap[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
-
-                // Add additional field column to entity query
-                $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
-                $metadata->arSelect['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
+//                // Add additional field column to entity query
+//                $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
+//                $metadata->arSelect['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
             }
 
             // Store metadata by entity identifier
@@ -164,15 +169,15 @@ class VirtualAnalyzer extends GenericAnalyzer
      * Analyze entity.
      *
      * @param \samsoncms\api\generator\metadata\VirtualMetadata $metadata
-     * @param array                                             $structureRow Entity database row
+     * @param string $entity
+     * @param array $structureRow Entity database row
      */
-    public function analyzeEntityRecord(&$metadata, array $structureRow)
+    public function analyzeEntityRecord(VirtualMetadata $metadata, string $entity, array $structureRow)
     {
         $metadata->structureRow = $structureRow;
 
         // Get CapsCase and transliterated entity name
-        $metadata->entity = $this->entityName($structureRow[Navigation::F_NAME]);
-        $metadata->entityClassName = $this->fullEntityName($metadata->entity);
+        $metadata->entity = $entity;
         $metadata->entityRealName = $structureRow[Navigation::F_NAME];
         $metadata->entityID = $structureRow[Navigation::F_PRIMARY];
         $metadata->type = (int)$structureRow[Navigation::F_TYPE];
