@@ -7,8 +7,6 @@
  */
 namespace samsoncms\api;
 
-use samson\activerecord\StructureMaterial;
-use samsoncms\api\generated\Structurefield;
 use samsoncms\api\query\Generic;
 use samsonframework\orm\Condition;
 use samsonframework\collection\Paged;
@@ -303,10 +301,10 @@ class Collection extends Paged
         // Iterate all applied navigation filters
         foreach ($this->navigation as $navigation) {
             // Create navigation-material query
-            $this->query->entity(StructureMaterial::class)
+            $this->query->entity('\samson\activerecord\structurematerial')
                 ->where('StructureID', $navigation)
                 ->where('Active', 1)
-                ->groupBy('structurematerial', 'MaterialID');
+                ->groupBy('MaterialID');
 
             if (null !== $filteredIds) {
                 $this->query->where('MaterialID', $filteredIds);
@@ -336,10 +334,10 @@ class Collection extends Paged
         // Iterate all applied field filters
         foreach ($this->field as $field) {
             // Create material-field query
-            $this->query->entity(MaterialField::class)
+            $this->query->entity('\samson\activerecord\materialfield')
                 ->where('FieldID', $field[0]->id)
                 ->whereCondition($field[1])
-                ->groupBy('materialfield', 'MaterialID');
+                ->groupBy('MaterialID');
 
             if (null !== $filteredIds) {
                 $this->query->where('MaterialID', $filteredIds);
@@ -384,20 +382,20 @@ class Collection extends Paged
             }
 
             // Get all related fields
-            $this->query->entity(Structurefield::class)
+            $this->query->entity('\samson\activerecord\structurefield')
                 ->where('StructureID', $navigationArray)
-                ->groupBy('structurefield', 'FieldID')
+                ->groupBy('FieldID')
                 ->fields('FieldID', $fields);
 
             // Iterate over search strings
             foreach ($this->search as $searchString) {
                 // Try to find search value in materialfield table
-                $this->query->entity(MaterialField::class)
+                $this->query->entity('\samson\activerecord\materialfield')
                     ->where('FieldID', $fields)
                     ->where('MaterialID', $filteredIds)
                     ->where('Value', '%' . $searchString . '%', Relation::LIKE)
                     ->where('Active', 1)
-                    ->groupBy('materialfield', 'MaterialID')
+                    ->groupBy('MaterialID')
                     ->fields('MaterialID', $fieldFilter);
 
                 // TODO: Add generic support for all native fields or their configuration

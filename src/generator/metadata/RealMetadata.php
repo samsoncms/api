@@ -25,8 +25,5 @@ class RealMetadata extends GenericMetadata
 
     /** @var array Collection of entity field default values by names */
     public $defaults = array();
-
-    /** @var array Collection of entity field is nullable by names */
-    public $nullable = array();
 }
 //[PHPCOMPRESSOR(remove,end)]

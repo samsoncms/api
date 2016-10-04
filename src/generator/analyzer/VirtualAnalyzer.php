@@ -63,22 +63,22 @@ class VirtualAnalyzer extends GenericAnalyzer
                 }
             }
 
-//            // Get old AR collections of metadata
-//            $metadata->arSelect = \samson\activerecord\material::$_sql_select;
-//            $metadata->arAttributes = \samson\activerecord\material::$_attributes;
-//            $metadata->arMap = \samson\activerecord\material::$_map;
-//            $metadata->arFrom = \samson\activerecord\material::$_sql_from;
-//            $metadata->arGroup = \samson\activerecord\material::$_own_group;
-//            $metadata->arRelationAlias = \samson\activerecord\material::$_relation_alias;
-//            $metadata->arRelationType = \samson\activerecord\material::$_relation_type;
-//            $metadata->arRelations = \samson\activerecord\material::$_relations;
-//
-//            // Add SamsonCMS material needed data
-//            $metadata->arSelect['this'] = ' STRAIGHT_JOIN ' . $metadata->arSelect['this'];
-//            $metadata->arFrom['this'] .= "\n" .
-//                'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf
-//            ON ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
-//            $metadata->arGroup[] = dbMySQLConnector::$prefix . 'material.MaterialID';
+            // Get old AR collections of metadata
+            $metadata->arSelect = \samson\activerecord\material::$_sql_select;
+            $metadata->arAttributes = \samson\activerecord\material::$_attributes;
+            $metadata->arMap = \samson\activerecord\material::$_map;
+            $metadata->arFrom = \samson\activerecord\material::$_sql_from;
+            $metadata->arGroup = \samson\activerecord\material::$_own_group;
+            $metadata->arRelationAlias = \samson\activerecord\material::$_relation_alias;
+            $metadata->arRelationType = \samson\activerecord\material::$_relation_type;
+            $metadata->arRelations = \samson\activerecord\material::$_relations;
+
+            // Add SamsonCMS material needed data
+            $metadata->arSelect['this'] = ' STRAIGHT_JOIN ' . $metadata->arSelect['this'];
+            $metadata->arFrom['this'] .= "\n" .
+                'LEFT JOIN ' . dbMySQLConnector::$prefix . 'materialfield as _mf
+            ON ' . dbMySQLConnector::$prefix . 'material.MaterialID = _mf.MaterialID';
+            $metadata->arGroup[] = dbMySQLConnector::$prefix . 'material.MaterialID';
 
             // Add material table real fields
 
@@ -97,13 +97,13 @@ class VirtualAnalyzer extends GenericAnalyzer
                     $metadata->notLocalizedFieldIDs[$fieldID] = $fieldName;
                 }
 
-//                // Set old AR collections of metadata
-//                $metadata->arAttributes[$fieldName] = $fieldName;
-//                $metadata->arMap[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
-//
-//                // Add additional field column to entity query
-//                $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
-//                $metadata->arSelect['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
+                // Set old AR collections of metadata
+                $metadata->arAttributes[$fieldName] = $fieldName;
+                $metadata->arMap[$fieldName] = dbMySQLConnector::$prefix . 'material.' . $fieldName;
+
+                // Add additional field column to entity query
+                $equal = '((_mf.FieldID = ' . $fieldID . ')&&(_mf.locale ' . ($fieldRow['local'] ? ' = "@locale"' : 'IS NULL') . '))';
+                $metadata->arSelect['this'] .= "\n\t\t" . ',MAX(IF(' . $equal . ', _mf.`' . Field::valueColumn($fieldRow['Type']) . '`, NULL)) as `' . $fieldName . '`';
             }
 
             // Store metadata by entity identifier
