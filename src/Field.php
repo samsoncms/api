@@ -9,7 +9,7 @@ use samsonframework\orm\QueryInterface;
  * SamsonCMS additional field table entity class
  * @package samson\cms
  */
-class Field extends \samson\activerecord\Field
+class Field extends \samson\activerecord\field
 {
     /** Store entity name */
     const ENTITY = __CLASS__;

@@ -1,33 +1,36 @@
-<?php declare(strict_types=1);
+<?php
 namespace samsoncms\api;
 
-use samsoncms\api\generated\Structurefield;
-use samsoncms\api\generated\Structurematerial;
-use samsoncms\api\generated\Materialfield;
-use samsoncms\api\generated\Gallery;
+// Backward compatibility
+//require('generated/Material.php');
+//require('generated/Field.php');
+//require('generated/MaterialField.php');
+//require('generated/Structure.php');
+//require('generated/StructureField.php');
+
+use samson\activerecord\dbMySQLConnector;
+use samson\activerecord\TableRelation;
 use samsoncms\api\generator\GenericWriter;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samsonframework\core\CompressInterface;
-use samsonframework\orm\DatabaseInterface;
 use samsonphp\generator\Generator;
 use samson\core\CompressableExternalModule;
 
 /**
  * SamsonCMS API
  * @package samsoncms\api
- * @\samsonframework\containerannotation\Service("cmsapi2")
  */
 class CMS extends CompressableExternalModule implements CompressInterface
 {
     /** Database entity name for relations between material and navigation */
-    const MATERIAL_NAVIGATION_RELATION_ENTITY = Structurematerial::class;
+    const MATERIAL_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurematerial';
     /** Database entity name for relations between material and images */
-    const MATERIAL_IMAGES_RELATION_ENTITY = Gallery::class;
+    const MATERIAL_IMAGES_RELATION_ENTITY = GalleryField::class;
     /** Database entity name for relations between additional fields and navigation */
-    const FIELD_NAVIGATION_RELATION_ENTITY = Structurefield::class;
+    const FIELD_NAVIGATION_RELATION_ENTITY = '\samson\activerecord\structurefield';
     /** Database entity name for relations between material and additional fields values */
-    const MATERIAL_FIELD_RELATION_ENTITY = Materialfield::class;
+    const MATERIAL_FIELD_RELATION_ENTITY = MaterialField::class;
     /** @var string Database table names prefix */
     public $tablePrefix = '';
     /** Identifier */
@@ -43,16 +46,13 @@ class CMS extends CompressableExternalModule implements CompressInterface
      * @param string $path
      * @param ResourcesInterface $resources
      * @param SystemInterface $system
-     *
-     * @\samsonframework\containerannotation\InjectArgument(resources="\samsonframework\core\ResourcesInterface")
-     * @\samsonframework\containerannotation\InjectArgument(system="\samsonframework\core\SystemInterface")
-     * @\samsonframework\containerannotation\InjectArgument(database="\samsonframework\orm\DatabaseInterface")
      */
-    public function  __construct(ResourcesInterface $resources, SystemInterface $system, DatabaseInterface $database)
+    public function  __construct($path, ResourcesInterface $resources, SystemInterface $system)
     {
-        $this->database = $database;
+        // TODO: This should changed to normal DI
+        $this->database = db();
 
-        parent::__construct(realpath(__DIR__.'/../'), $resources, $system);
+        parent::__construct($path, $resources, $system);
     }
 
     /**
@@ -63,7 +63,7 @@ class CMS extends CompressableExternalModule implements CompressInterface
      */
     public function init(array $params = array())
     {
-        //$this->rewriteEntityLocale();
+        $this->rewriteEntityLocale();
     }
 
     /**
@@ -130,7 +130,42 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         }
 
         // Initiate migration mechanism
-        //$this->database->migration(get_class($this), array($this, 'migrator'));
+        $this->database->migration(get_class($this), array($this, 'migrator'));
+
+        // Define permanent table relations
+        new TableRelation('material', 'user', 'UserID', 0, 'user_id');
+        new TableRelation('material', 'gallery', 'MaterialID', TableRelation::T_ONE_TO_MANY);
+        new TableRelation('material', 'materialfield', 'MaterialID', TableRelation::T_ONE_TO_MANY);
+        new TableRelation('material', 'field', 'materialfield.FieldID', TableRelation::T_ONE_TO_MANY);
+        new TableRelation('material', 'structurematerial', 'MaterialID', TableRelation::T_ONE_TO_MANY);
+        new TableRelation('material', 'structure', 'structurematerial.StructureID', TableRelation::T_ONE_TO_MANY);
+        new TableRelation('materialfield', 'field', 'FieldID');
+        new TableRelation('materialfield', 'material', 'MaterialID');
+        new TableRelation('structurematerial', 'structure', 'StructureID');
+        new TableRelation('structurematerial', 'materialfield', 'MaterialID', TableRelation::T_ONE_TO_MANY);
+        new TableRelation('structurematerial', 'material', 'MaterialID', TableRelation::T_ONE_TO_MANY);
+        new TableRelation('structure', 'material', 'structurematerial.MaterialID', TableRelation::T_ONE_TO_MANY, null, 'manymaterials');
+        new TableRelation('structure', 'gallery', 'structurematerial.MaterialID', TableRelation::T_ONE_TO_MANY, null, 'manymaterials');
+        /*new TableRelation( 'structure', 'material', 'MaterialID' );*/
+        new TableRelation('structure', 'user', 'UserID', 0, 'user_id');
+        new TableRelation('structure', 'materialfield', 'material.MaterialID', TableRelation::T_ONE_TO_MANY, 'MaterialID', '_mf');
+        new TableRelation('structure', 'structurematerial', 'StructureID', TableRelation::T_ONE_TO_MANY);
+        //new TableRelation('related_materials', 'material', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
+        //new TableRelation('related_materials', 'materialfield', 'first_material', TableRelation::T_ONE_TO_MANY, 'MaterialID');
+        new TableRelation('field', 'structurefield', 'FieldID');
+        new TableRelation('field', 'structure', 'structurefield.StructureID');
+        new TableRelation('structurefield', 'field', 'FieldID');
+        new TableRelation('structurefield', 'materialfield', 'FieldID');
+        new TableRelation('structurefield', 'material', 'materialfield.MaterialID');
+        new TableRelation('structure', 'structure_relation', 'StructureID', TableRelation::T_ONE_TO_MANY, 'parent_id', 'children_relations');
+        new TableRelation('structure', 'structure', 'children_relations.child_id', TableRelation::T_ONE_TO_MANY, 'StructureID', 'children');
+        new TableRelation('structure', 'structure_relation', 'StructureID', TableRelation::T_ONE_TO_MANY, 'child_id', 'parents_relations');
+        new TableRelation('structure', 'structure', 'parents_relations.parent_id', TableRelation::T_ONE_TO_MANY, 'StructureID', 'parents');
+        new TableRelation('structurematerial', 'structure_relation', 'StructureID', TableRelation::T_ONE_TO_MANY, 'parent_id');
+        new TableRelation('groupright', 'right', 'RightID', TableRelation::T_ONE_TO_MANY);
+
+        // TODO: Should be removed
+        $this->system->module('activerecord')->relations();
 
         $classWriter = new GenericWriter(
             $this->database,
@@ -182,13 +217,13 @@ CREATE TABLE IF NOT EXISTS `cms_version`  (
         if (func_num_args()) {
             // Save current version to special db table
             $this->database->execute(
-                "ALTER TABLE  `" . $this->database::$prefix . "cms_version`
+                "ALTER TABLE  `" . dbMySQLConnector::$prefix . "cms_version`
                 CHANGE  `version`  `version` VARCHAR( 15 ) CHARACTER SET utf8
                 COLLATE utf8_general_ci NOT NULL DEFAULT  '" . $toVersion . "';"
             );
             die('Database successfully migrated to [' . $toVersion . ']');
         } else { // Return current database version
-            $version_row = $this->database->fetch('SHOW COLUMNS FROM `' . $this->database::$prefix . 'cms_version`');
+            $version_row = $this->database->fetch('SHOW COLUMNS FROM `' . dbMySQLConnector::$prefix . 'cms_version`');
             if (isset($version_row[0]['Default'])) {
                 return $version_row[0]['Default'];
             } else {

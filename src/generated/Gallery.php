@@ -15,7 +15,7 @@ use samsonframework\orm\Record;
  * ORM module. This is needed for IDE and databaseless testing.
  */
 if (!class_exists('\samson\activerecord\gallery', false)) {
-    class Gallery extends Record
+    class gallery extends Record
     {
         /** @var integer Primary key */
         public $PhotoID;

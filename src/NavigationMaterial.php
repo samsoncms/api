@@ -1,13 +1,11 @@
 <?php
 namespace samsoncms\api;
 
-use samson\activerecord\StructureMaterial;
-
 /**
  * SamsonCMS Material to navigation relation entity
  * @package samson\cms
  */
-class NavigationMaterial extends StructureMaterial
+class NavigationMaterial extends \samson\activerecord\StructureMaterial
 {
     /** Store entity name */
     const ENTITY = __CLASS__;

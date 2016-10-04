@@ -29,7 +29,7 @@ class MaterialField extends Relational
     public function __construct($filteringIDs = array(), $identifier = Material::class)
     {
         parent::__construct(
-            $GLOBALS['__core']->getContainer()->getQuery(),
+            new dbQuery(),
             $identifier,
             Material::F_PRIMARY,
             Field::F_PRIMARY,

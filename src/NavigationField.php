@@ -1,13 +1,11 @@
 <?php
 namespace samsoncms\api;
 
-use samson\activerecord\StructureField;
-
 /**
  * SamsonCMS additional field value table entity class
  * @package samson\cms
  */
-class NavigationField extends StructureField
+class NavigationField extends \samson\activerecord\structurefield
 {
     /** Store entity name */
     const ENTITY = __CLASS__;

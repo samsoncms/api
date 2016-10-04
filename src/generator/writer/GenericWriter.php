@@ -99,7 +99,7 @@ class GenericWriter
                     }
 
                     // Require files
-                    require_once($file);
+                    require($file);
                 }
             }
         }

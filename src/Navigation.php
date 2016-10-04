@@ -5,14 +5,15 @@
  */
 namespace samsoncms\api;
 
-use samson\activerecord\Structure;
+use samson\activerecord\structure;
+use samsonframework\orm\QueryInterface;
 
 /**
  * SamsonCMS Navigation entity
  * @author Vitaly Egorov <egorov@samsonos.com>
  * @copyright 2014 SamsonOS
  */
-class Navigation extends Structure
+class Navigation extends structure
 {
     /** Store entity name */
     const ENTITY = __CLASS__;

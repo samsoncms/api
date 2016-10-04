@@ -5,9 +5,10 @@
  */
 namespace samsoncms\api;
 
-use samson\activerecord\StructureMaterial;
+use samson\activerecord\dbQuery;
+use samson\activerecord\structurematerial;
 use samsoncms\api\field\Row;
-use samsonframework\orm\QueryInterface;
+use \samsonframework\orm\QueryInterface;
 
 /**
  * SamsonCMS Material database record object.
@@ -228,7 +229,7 @@ class Material extends \samson\activerecord\Material
      *
      * @param mixed $clone Material for cloning
      * @param array $excludedFields Additional fields identifiers not copied
-     * @return self New copied instance
+     * @returns self New copied instance
      */
     public function &copy(&$clone = null, $excludedFields = array())
     {
