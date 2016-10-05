@@ -157,7 +157,7 @@ class Generic extends Record
      */
     public function identifier($value, $relation = ArgumentInterface::EQUAL)
     {
-        return $this->where(Material::F_IDENTIFIER, $value, $relation);
+        return $this->where(Material::F_URL, $value, $relation);
     }
 
     /**
@@ -171,7 +171,7 @@ class Generic extends Record
      */
     public function active($value, $relation = ArgumentInterface::EQUAL)
     {
-        return $this->where(Material::F_DELETION, $value, $relation);
+        return $this->where(Material::F_ACTIVE, $value, $relation);
     }
 
     /**

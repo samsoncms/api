@@ -281,12 +281,11 @@ class Entity extends Generic
      */
     protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
     {
-        // Get additional field metadata
-        $fieldID = &static::$fieldNames[$fieldName];
-        $valueColumn = &static::$fieldValueColumns[$fieldID];
+        if (array_key_exists($fieldName, static::$virtualFieldNames)) {
+            // Get additional field metadata
+            $fieldID = static::$virtualFieldNames[$fieldName];
+            $valueColumn = static::$virtualFieldValueColumns[$fieldID];
 
-        // If this is additional field
-        if (null !== $fieldID && null !== $valueColumn) {
             return $this->query
                 ->entity(CMS::MATERIAL_FIELD_RELATION_ENTITY)
                 ->where(Field::F_PRIMARY, $fieldID)
