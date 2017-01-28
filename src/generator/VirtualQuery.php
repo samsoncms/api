@@ -66,7 +66,7 @@ class VirtualQuery extends RealQuery
             ->commentVar('array', 'Collection of NOT localized additional fields identifiers')
             ->defClassVar('$notLocalizedFieldIDs', 'protected static', $metadata->notLocalizedFieldIDs)
             ->commentVar('array', 'Collection of localized additional fields identifiers')
-            ->defClassVar('$fieldIDs', 'protected static', $metadata->fields)
+            ->defClassVar('$fieldIDs', 'public static', $metadata->fields)
             ->commentVar('array', 'Collection of additional fields value column names')
             ->defClassVar('$fieldValueColumns', 'protected static', $metadata->allFieldValueColumns);
     }

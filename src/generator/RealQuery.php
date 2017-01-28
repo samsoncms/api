@@ -75,7 +75,7 @@ class RealQuery extends Generic
             ->commentVar('string', 'Entity full class name')
             ->defClassVar('$identifier', 'protected static', $this->entityClass)
             ->commentVar('array', 'Collection of localized additional fields identifiers')
-            ->defClassVar('$fieldIDs', 'protected static', $metadata->fields)
+            ->defClassVar('$fieldIDs', 'public static', $metadata->fields)
             ->commentVar('array', 'Collection of additional field names')
             ->defClassVar('$fieldNames', 'protected static', $metadata->fieldNames);
     }
