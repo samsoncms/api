@@ -40,6 +40,7 @@ class Generic extends Record
         Material::F_PARENT => Material::F_PARENT,
         Material::F_CREATED => Material::F_CREATED,
         Material::F_MODIFIED => Material::F_MODIFIED,
+        Material::F_USER_ID => Material::F_USER_ID
     );
 
     /** @var array Collection of all supported entity fields */
@@ -51,7 +52,8 @@ class Generic extends Record
         Material::F_PUBLISHED => Material::F_PUBLISHED,
         Material::F_PARENT => Material::F_PARENT,
         Material::F_CREATED => Material::F_CREATED,
-        Material::F_MODIFIED => Material::F_MODIFIED
+        Material::F_MODIFIED => Material::F_MODIFIED,
+        Material::F_USER_ID => Material::F_USER_ID
     );
 
     /** @var string Entity navigation identifiers */
@@ -128,6 +130,20 @@ class Generic extends Record
     }
 
     /**
+     * Add entity creation field query condition.
+     *
+     * @param string $value Field value
+     * @param string $relation @see ArgumentInterface types
+     *
+     * @return $this Chaining
+     * @see Material::where()
+     */
+    public function UserID($value, $relation = ArgumentInterface::EQUAL)
+    {
+        return $this->where(Material::F_USER_ID, $value, $relation);
+    }
+
+    /**
      * Add entity modification field query condition.
      *
      * @param string $value Field value
@@ -150,7 +166,7 @@ class Generic extends Record
      */
     public function orderBy($fieldName, $order = 'ASC')
     {
-        if (in_array($fieldName, self::$fieldIDs)) {
+        if (in_array($fieldName, self::$fieldIDs)||$order === 'RAND()') {
             $this->orderBy = array($fieldName, $order);
         }
 

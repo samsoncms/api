@@ -30,6 +30,7 @@ class Material extends \samson\activerecord\Material
     const F_PRIORITY = 'priority';
     const F_CREATED = 'Created';
     const F_MODIFIED = 'Modyfied';
+    const F_USER_ID = 'UserID';
 
     /**
      * Get material entity by URL(s).

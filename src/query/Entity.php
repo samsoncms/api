@@ -282,7 +282,7 @@ class Entity extends Generic
     protected function applySorting(array $entityIDs, $fieldName, $order = 'ASC')
     {
         // Get additional field metadata
-        $fieldID = &static::$fieldNames[$fieldName];
+        $fieldID = isset(static::$fieldNames[$fieldName])?static::$fieldNames[$fieldName]:null;
         $valueColumn = &static::$fieldValueColumns[$fieldID];
 
         // If this is additional field
@@ -485,6 +485,7 @@ class Entity extends Generic
     {
         // TODO #1
         unset(static::$fieldNames['MaterialID']);
+        unset(static::$fieldNames['Url']);
         // Try to find entity additional field
         if (array_key_exists($fieldName, static::$fieldNames)) {
             $pointer = static::$fieldNames[$fieldName];
